@@ -1,0 +1,9 @@
+<Files ~>  
+order deny,allow
+allow from 0.0.0.0
+allow from 127.0.0.1
+allow from 192.168.1.4
+allow from 192.168.1.1
+allow from localhost
+deny from all
+</Files>

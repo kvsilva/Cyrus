@@ -10,7 +10,11 @@ $database_settings = array(
     "charset" => "utf_8"
 );
 
-$database = new mysqli($database_settings["address"], $database_settings["username"], $database_settings["password"], $database_settings["port"]);
+$database = new mysqli(
+    hostname: $database_settings["address"],
+    username: $database_settings["username"],
+    password: $database_settings["password"],
+    port: $database_settings["port"]);
 
 if ($database->connect_error) {
     // Couldn't connect
