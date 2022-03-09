@@ -6,11 +6,11 @@ use JetBrains\PhpStorm\Pure;
 use ReturnTypeWillChange;
 
 
-class NotNullable extends Exception
+class UniqueKey extends Exception
 {
     #[Pure]
-    public function __construct($argument = 'id') {
-        parent::__construct("The " . $argument . " field cannot be null.");
+    public function __construct($argument) {
+        parent::__construct("The " . $argument . " field must be unique across the entire database..");
     }
 
     #[ReturnTypeWillChange]

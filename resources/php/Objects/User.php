@@ -1,36 +1,46 @@
 <?php
-
+namespace Objects;
 /*
  * Class imports
  */
 
+use DateTime;
+use JetBrains\PhpStorm\Pure;
 use MongoDB\BSON\Timestamp;
 
 /*
  * Object Imports
  */
-require_once (dirname(__FILE__).'/Role.php');
+/*require_once (dirname(__FILE__).'/Role.php');
 require_once (dirname(__FILE__).'/Resource.php');
-require_once (dirname(__FILE__).'/Language.php');
+require_once (dirname(__FILE__).'/Language.php');*/
 
 /*
  * Exception Imports
  */
-require_once (dirname(__FILE__).'/../Exceptions/ArgumentNotFound.php');
-require_once (dirname(__FILE__).'/../Exceptions/InvalidDataType.php');
-require_once (dirname(__FILE__).'/../Exceptions/NotNullable.php');
+use Exceptions\UniqueKey;
+use Exceptions\NotNullable;
+use Exceptions\InvalidDataType;
+use Exceptions\RecordNotFound;
+//require_once(dirname(__FILE__) . '/../Exceptions/RecordNotFound.php');
+//require_once (dirname(__FILE__).'/../Exceptions/InvalidDataType.php');
+//require_once (dirname(__FILE__).'/../Exceptions/NotNullable.php');
 
 /*
  * Enumerator Imports
  */
-require_once (dirname(__FILE__).'/../Enumerators/Availability.php');
+use Enumerators\Availability;
+use Enumerators\NightMode;
+use Enumerators\Verification;
+/*require_once (dirname(__FILE__).'/../Enumerators/Availability.php');
 require_once (dirname(__FILE__).'/../Enumerators/NightMode.php');
-require_once (dirname(__FILE__).'/../Enumerators/Verification.php');
+require_once (dirname(__FILE__).'/../Enumerators/Verification.php');*/
 
 /*
  * Others
  */
 require_once (dirname(__FILE__).'/../database.php');
+use Functions\Database as database_functions;
 
 
 class User {
@@ -38,9 +48,9 @@ class User {
     // Flags
 
     public const NORMAL = 0;
-    public const ALL = 0;
-    public const ROLES = 0;
-    public const PUNISHMENTS = 0;
+    public const ALL = 1;
+    public const ROLES = 2;
+    public const PUNISHMENTS = 3;
 
     // DEFAULT STRUCTURE
 
@@ -76,7 +86,7 @@ class User {
     /**
      * @param int|null $id
      * @param array $flags
-     * @throws ArgumentNotFound
+     * @throws RecordNotFound
      */
     function __construct(int $id = null, array $flags = array(User::NORMAL)) {
         $this->flags = $flags;
@@ -115,7 +125,7 @@ class User {
                     }
                 }
             } else {
-                throw new ArgumentNotFound();
+                throw new RecordNotFound();
             }
         }
     }
@@ -123,24 +133,39 @@ class User {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws UniqueKey
      */
     public function store() : User{
         GLOBAL $database;
-        $sql = "UPDATE USER SET /*id = '$this->id'*/, email = '$this->email', username = '$this->username', password = '$this->password', birthdate = '$this->birthdate', sex = '$this->sex', creation_date = '$this->creation_date', status = '$this->status', profile_image = '$this->profile_image->getId()', profile_background = '$this->profile_background->getId()', about_me = '$this->about_me, verified = '$this->verified, display_language = '$this->display_language->getId()', email_communication_language = '$this->email_communication_language->getId()', translation_language = '$this->translation_language->getId()', night_mode = '$this->night_mode'";
-        $database->query($sql);
-        if(in_array(User::ROLES, $this->flags)){
-            $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
-            while($row = $query->fetch_array()){
-                $remove = true;
-                foreach ($role as $this->roles){
-                    $role->store();
-                    if($role->getId() == $row["id"]){
-                        $remove = false;
-                        break;
+        if($database->query("SELECT id from USER where id = $this->id")->num_rows == 0) {
+            if($database->query("SELECT id from USER where username = '$this->username'")->num_rows > 0){
+                throw new UniqueKey("username");
+            } else if($database->query("SELECT id from USER where email = '$this->email'")->num_rows > 0){
+                throw new UniqueKey("email");
+            } else {
+                $this->id = database_functions::getNextIncrement("user");
+                $sql = "INSERT INTO USER (id, email, username, password, birthdate, sex, creation_date, status, profile_image, profile_background, about_me, verified, display_language, email_communication_language, translation_language, night_mode, available) values ('$this->id', '$this->email', '$this->username', '$this->password', '$this->birthdate', '$this->sex', '$this->creation_date', '$this->status', '$this->profile_image->getId()', '$this->profile_background->getId()', '$this->about_me', '$this->verified', '$this->display_language->getId()', '$this->email_communication_language->getId()', '$this->translation_language->getId()', '$this->night_mode', '$this->available');";
+                $database->query($sql);
+            }
+        } else {
+            $sql = "UPDATE USER SET /*id = '$this->id'*/, email = '$this->email', username = '$this->username', password = '$this->password', birthdate = '$this->birthdate', sex = '$this->sex', creation_date = '$this->creation_date', status = '$this->status', profile_image = '$this->profile_image->getId()', profile_background = '$this->profile_background->getId()', about_me = '$this->about_me', verified = '$this->verified', display_language = '$this->display_language->getId()', email_communication_language = '$this->email_communication_language->getId()', translation_language = '$this->translation_language->getId()', night_mode = '$this->night_mode', available = '$this->available'";
+            $database->query($sql);
+            if (in_array(User::ROLES, $this->flags)) {
+                $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
+                while ($row = $query->fetch_array()) {
+                    $remove = true;
+                    foreach ($role as $this->roles) {
+                        $role->store();
+                        if ($role->getId() == $row["id"]) {
+                            $remove = false;
+                            break;
+                        }
                     }
-                    // Associar os roles com os users
+                    if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $this->id AND role = $row[id]");
                 }
-                if($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $this->id AND role = $row[id]");
+                foreach ($role as $this->roles) {
+                    $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
+                }
             }
         }
         return $this;
@@ -148,11 +173,12 @@ class User {
 
     /**
      * This method will remove the object from the database, however, for logging reasons, the record will only be hidden in queries.
-     * After updating the property, it will call the store() function to update.
      * @return $this
+     * @throws UniqueKey
      */
     public function remove() : User{
         $this->available = Availability::NOT_AVAILABLE;
+        $this->store();
         return $this;
     }
 
@@ -164,12 +190,12 @@ class User {
      * @param string|null $sql
      * @param array $flags
      * @return array
-     * @throws ArgumentNotFound
+     * @throws RecordNotFound
      */
     public static function find(int $id = null, string $email = null, string $username = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [USER::NORMAL]) : array{
         GLOBAL $database;
         $sql_command = "";
-        if(isset($sql)){
+        if($sql != null){
             $sql_command = "SELECT id from USER WHERE " . $sql;
         } else {
             $sql_command = "SELECT id from USER WHERE ";
@@ -188,6 +214,34 @@ class User {
         return $result;
     }
 
+    #[Pure]
+    public function toArray(): array
+    {
+        return array(
+            "id" => $this->id,
+            "email" => $this->email,
+            "username" => $this->username,
+            "birthdate" => $this->birthdate,
+            "sex" => $this->sex,
+            "creation_date" => $this->creation_date,
+            "status" => $this->status,
+            "profile_image" => $this->profile_image,
+            "profile_background" => $this->profile_background,
+            "about_me" => $this->about_me,
+            "verified" => $this->verified->toArray(),
+            "display_language" => $this->display_language,
+            "email_communication_language" => $this->email_communication_language,
+            "translation_language" => $this->translation_language,
+            "night_mode" => $this->night_mode->toArray(),
+            "available" => $this->available->toArray(),
+
+            // Relations
+
+            "roles" => count($this->roles) == 0 ? null : $this->roles,
+            "punishments" => count($this->punishments) == 0 ? null : $this->punishments
+        );
+    }
+
     /**
      * @return int
      */
@@ -197,18 +251,18 @@ class User {
     }
 
     /**
-     * @return mixed
+     * @return String
      */
-    public function getEmail(): mixed
+    public function getEmail(): String
     {
         return $this->email;
     }
 
     /**
-     * @param mixed $email
+     * @param String $email
      * @return User
      */
-    public function setEmail(mixed $email): User
+    public function setEmail(String $email): User
     {
         $this->email = $email;
         return $this;

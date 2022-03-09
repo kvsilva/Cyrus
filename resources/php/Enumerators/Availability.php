@@ -1,4 +1,9 @@
 <?php
+namespace Enumerators;
+
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
+
 enum Availability: int
 {
     case NOT_AVAILABLE = 0;
@@ -12,7 +17,17 @@ enum Availability: int
         };
     }
 
-    public static function getAvailability(int $num) : ?Availability{
+    #[Pure]
+    #[ArrayShape(["name" => "string", "value" => "\Availability"])]
+    public function toArray() : array
+    {
+        return array(
+            "name" => $this::name(),
+            "value" => $this
+        );
+    }
+
+    public static function getAvailability(int $num) : ?Availability {
         return match ($num) {
             0 => Availability::NOT_AVAILABLE,
             1 => Availability::AVAILABLE,

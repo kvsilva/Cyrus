@@ -1,4 +1,8 @@
 <?php
+namespace Enumerators;
+
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
 
 enum NightMode: int
 {
@@ -11,6 +15,16 @@ enum NightMode: int
             NightMode::ENABLE => 'Enable',
             NightMode::DISABLE => 'Disable',
         };
+    }
+
+    #[Pure]
+    #[ArrayShape(["name" => "string", "value" => "\NightMode"])]
+    public function toArray() : array
+    {
+        return array(
+            "name" => $this::name(),
+            "value" => $this
+        );
     }
 
     public static function getNightMode(int $num) : ?NightMode{

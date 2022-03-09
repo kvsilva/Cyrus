@@ -1,10 +1,17 @@
 <?php
 session_start();
-require_once (dirname(__FILE__).'/resources/php/Objects/User.php');
-require_once (dirname(__FILE__).'/resources/php/Enumerators/User.php');
+require_once (dirname(__FILE__).'/resources/php/AutoLoader.php');
+AutoLoader::register();
+use Enumerators\Availability;
+use Objects\User;
+use Exceptions\RecordNotFound;
 
-echo Available::AVAILABLE;
+echo Availability::AVAILABLE->name();
 
 
-$user = new User(null, [User::PUNISHMENTS, USER::ROLES]);
+try {
+    $user = new User(null, [User::PUNISHMENTS, USER::ROLES]);
+} catch (RecordNotFound $e) {
+
+}
 ?>

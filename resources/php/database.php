@@ -7,7 +7,7 @@ $database_settings = array(
     "username" => "root",
     "password" => "",
     "database" => "cyrus",
-    "charset" => "utf_8"
+    "charset" => "utf8"
 );
 
 $database = new mysqli(
