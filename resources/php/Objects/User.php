@@ -11,9 +11,10 @@ use MongoDB\BSON\Timestamp;
 /*
  * Object Imports
  */
-/*require_once (dirname(__FILE__).'/Role.php');
-require_once (dirname(__FILE__).'/Resource.php');
-require_once (dirname(__FILE__).'/Language.php');*/
+use Objects\Role;
+use Objects\Permission;
+use Objects\Language;
+use Objects\Resource;
 
 /*
  * Exception Imports
@@ -88,7 +89,7 @@ class User {
      * @param array $flags
      * @throws RecordNotFound
      */
-    function __construct(int $id = null, array $flags = array(User::NORMAL)) {
+    function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
         if($id != null){
             GLOBAL $database;
@@ -112,13 +113,13 @@ class User {
                 $this->translation_language = new Language($row["translation_language"]);
                 $this->night_mode = NightMode::getNightMode($row["night_mode"]);
                 $this->available = Availability::getAvailability($row["available"]);
-                if(in_array(User::ROLES, $this->flags) || in_array(User::ALL, $this->flags)){
+                if(in_array(self::ROLES, $this->flags) || in_array(self::ALL, $this->flags)){
                     $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
                     while($row = $query->fetch_array()){
                         $this->roles[] = new Role($row["id"]);
                     }
                 }
-                if(in_array(User::PUNISHMENTS, $this->flags) || in_array(User::ALL, $this->flags)){
+                if(in_array(self::PUNISHMENTS, $this->flags) || in_array(self::ALL, $this->flags)){
                     $query = $database->query("SELECT id FROM PUNISHMENT WHERE user = $id;");
                     while($row = $query->fetch_array()){
                         $this->punishments[] = new Punishment($row["id"]);
@@ -144,27 +145,39 @@ class User {
                 throw new UniqueKey("email");
             } else {
                 $this->id = database_functions::getNextIncrement("user");
-                $sql = "INSERT INTO USER (id, email, username, password, birthdate, sex, creation_date, status, profile_image, profile_background, about_me, verified, display_language, email_communication_language, translation_language, night_mode, available) values ('$this->id', '$this->email', '$this->username', '$this->password', '$this->birthdate', '$this->sex', '$this->creation_date', '$this->status', '$this->profile_image->getId()', '$this->profile_background->getId()', '$this->about_me', '$this->verified', '$this->display_language->getId()', '$this->email_communication_language->getId()', '$this->translation_language->getId()', '$this->night_mode', '$this->available');";
+                $sql = "INSERT INTO USER (id, email, username, password, birthdate, sex, creation_date, status, profile_image, profile_background, about_me, verified, display_language, email_communication_language, translation_language, night_mode, available) values ('$this->id', '$this->email', '$this->username', '$this->password', '$this->birthdate', '$this->sex', '$this->creation_date', '$this->status', '$this->profile_image->getId()', '$this->profile_background->getId()', '$this->about_me', '$this->verified->value', '$this->display_language->getId()', '$this->email_communication_language->getId()', '$this->translation_language->getId()', '$this->night_mode->value', '$this->available->value');";
                 $database->query($sql);
+                if (in_array(self::ROLES, $this->flags)) {
+                    foreach ($this->roles as $role) {
+                        $role->store();
+                        $database->query("INSERT INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
+                    }
+                }
             }
         } else {
-            $sql = "UPDATE USER SET /*id = '$this->id'*/, email = '$this->email', username = '$this->username', password = '$this->password', birthdate = '$this->birthdate', sex = '$this->sex', creation_date = '$this->creation_date', status = '$this->status', profile_image = '$this->profile_image->getId()', profile_background = '$this->profile_background->getId()', about_me = '$this->about_me', verified = '$this->verified', display_language = '$this->display_language->getId()', email_communication_language = '$this->email_communication_language->getId()', translation_language = '$this->translation_language->getId()', night_mode = '$this->night_mode', available = '$this->available'";
-            $database->query($sql);
-            if (in_array(User::ROLES, $this->flags)) {
-                $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
-                while ($row = $query->fetch_array()) {
-                    $remove = true;
-                    foreach ($role as $this->roles) {
-                        $role->store();
-                        if ($role->getId() == $row["id"]) {
-                            $remove = false;
-                            break;
+            if($database->query("SELECT id from USER where username = '$this->username'")->num_rows > 0){
+                throw new UniqueKey("username");
+            } else if($database->query("SELECT id from USER where email = '$this->email'")->num_rows > 0){
+                throw new UniqueKey("email");
+            } else {
+                $sql = "UPDATE USER SET /*id = '$this->id'*/, email = '$this->email', username = '$this->username', password = '$this->password', birthdate = '$this->birthdate', sex = '$this->sex', creation_date = '$this->creation_date', status = '$this->status', profile_image = '$this->profile_image->getId()', profile_background = '$this->profile_background->getId()', about_me = '$this->about_me', verified = '$this->verified->value', display_language = '$this->display_language->getId()', email_communication_language = '$this->email_communication_language->getId()', translation_language = '$this->translation_language->getId()', night_mode = '$this->night_mode->value', available = '$this->available->value' WHERE id = $this->id";
+                $database->query($sql);
+                if (in_array(self::ROLES, $this->flags)) {
+                    $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
+                    while ($row = $query->fetch_array()) {
+                        $remove = true;
+                        foreach ($this->roles as $role) {
+                            $role->store();
+                            if ($role->getId() == $row["id"]) {
+                                $remove = false;
+                                break;
+                            }
                         }
+                        if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $this->id AND role = $row[id]");
                     }
-                    if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $this->id AND role = $row[id]");
-                }
-                foreach ($role as $this->roles) {
-                    $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
+                    foreach ($role as $this->roles) {
+                        $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
+                    }
                 }
             }
         }
@@ -192,17 +205,17 @@ class User {
      * @return array
      * @throws RecordNotFound
      */
-    public static function find(int $id = null, string $email = null, string $username = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [USER::NORMAL]) : array{
+    public static function find(int $id = null, string $email = null, string $username = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         GLOBAL $database;
         $sql_command = "";
         if($sql != null){
             $sql_command = "SELECT id from USER WHERE " . $sql;
         } else {
-            $sql_command = "SELECT id from USER WHERE ";
-            $sql_command .+ ($id != null ? "(id != null AND id = '$id') " : "");
-            $sql_command .+ $email != null ? "(email != null AND email = '$email') " : "";
-            $sql_command .+ $username != null ? "(username != null AND username = '$username') " : "";
-            $sql_command .+ $availability != null ? "(available != null AND available = '$availability') " : "";
+            $sql_command = "SELECT id from USER WHERE " .
+                ($id != null ? "(id != null AND id = '$id') " : "") .
+                ($email != null ? "(email != null AND email = '$email') " : "") .
+                ($username != null ? "(username != null AND username = '$username') " : "") .
+                ($availability != null ? "(available != null AND available = '$availability->value') " : "");
             $sql_command = str_replace($sql_command, ")(", ") AND (");
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
@@ -590,17 +603,18 @@ class User {
      * @param Role|null $role
      * @param int|null $id
      * @return $this
+     * @throws InvalidDataType
      */
     public function removeRole(Role $role = null, int $id = null): User
     {
         if(isset($role)){
             if(is_a($role, 'Role')) {
                 for ($i = 0; $i < count($this->roles); $i++) {
-                    if ($this->roles[$id]->getId() == $role->getId()) {
-                        unset($this->roles[$id]);
+                    if ($this->roles[$i]->getId() == $role->getId()) {
+                        unset($this->roles[$i]);
                     }
                 }
-            }
+            } else throw new InvalidDataType("permission", "Permission");
         } else if (isset($id)){
             for ($i = 0; $i < count($this->roles); $i++) {
                 if ($this->roles[$id]->getId() == $id) {
@@ -609,6 +623,18 @@ class User {
             }
         }
         return $this;
+    }
+
+    /**
+     * @param Permission $permission
+     * @param String|null $tag
+     * @return bool
+     */
+    public function hasPermission(Permission $permission, String $tag = null) : bool{
+        foreach($this->roles as $element){
+            if($element->hasPermission($permission, $tag)) return true;
+        }
+        return false;
     }
 
     /**
