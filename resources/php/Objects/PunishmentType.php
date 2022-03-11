@@ -62,7 +62,6 @@ class PunishmentType {
         $database = $this->database;
         $this->flags = $flags;
         if($id != null){
-            echo "id: " . $id;
             $query = $database->query("SELECT * FROM punishment_type WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();

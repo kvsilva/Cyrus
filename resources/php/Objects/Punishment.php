@@ -82,8 +82,8 @@ class Punishment {
                 $this->user = $row["user"] != "" ? new User($row["user"]) : null;
                 $this->punishment_type = new PunishmentType($row["punishment_type"]);
                 $this->reason = $row["reason"];
-                $this->lasts_until = $row["lasts_until"] != "" ? DateTime::createFromFormat('Y-m-d H:i:s', $row["lasts_until"]) : null;
-                $this->creation_date = $row["creation_date"] != "" ? DateTime::createFromFormat('Y-m-d H:i:s', $row["creation_date"]) : null;
+                $this->lasts_until = $row["lasts_until"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["lasts_until"]) : null;
+                $this->creation_date = $row["creation_date"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["creation_date"]) : null;
                 $this->performed_by = $row["performed_by"] != "" ? new User($row["performed_by"]) : null;
                 $this->revoked_by = $row["revoked_by"] != "" ? new User($row["performed_by"]) : null;
                 $this->revoked_reason = $row["revoked_reason"];
@@ -109,8 +109,8 @@ class Punishment {
             "user" => isset($this->user) ? $this->user->store()->getId() : null,
             "punishment_type" => isset($this->punishment_type) ? $this->punishment_type->store()->getId() : null,
             "reason" => $this->reason ?? null,
-            "lasts_until" => isset($this->lasts_until) ? $this->lasts_until->format('Y-m-d H:i:s') : null,
-            "creation_date" => isset($this->creation_date) ? $this->creation_date->format('Y-m-d H:i:s') : null,
+            "lasts_until" => isset($this->lasts_until) ? $this->lasts_until->format(Database::DateFormat) : null,
+            "creation_date" => isset($this->creation_date) ? $this->creation_date->format(Database::DateFormat) : null,
             "performed_by" => isset($this->performed_by) ? $this->performed_by->store()->getId() : null,
             "revoked_by" => isset($this->revoked_by) ? $this->revoked_by->store()->getId() : null,
             "revoked_reason" => $this->revoked_reason ?? null,

@@ -12,8 +12,8 @@ enum Availability: int
     public function name(): string
     {
         return match ($this) {
-            Availability::AVAILABLE => 'Available',
-            Availability::NOT_AVAILABLE => 'Not Available',
+            self::AVAILABLE => 'Available',
+            self::NOT_AVAILABLE => 'Not Available',
         };
     }
 
@@ -29,8 +29,8 @@ enum Availability: int
 
     public static function getAvailability(?int $num) : ?Availability {
         return match ($num) {
-            0 => Availability::NOT_AVAILABLE,
-            1 => Availability::AVAILABLE,
+            0 => self::NOT_AVAILABLE,
+            1 => self::AVAILABLE,
             default => null,
         };
     }

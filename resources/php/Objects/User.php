@@ -35,6 +35,7 @@ use Exceptions\IOException;
 use Enumerators\Availability;
 use Enumerators\NightMode;
 use Enumerators\Verification;
+use Enumerators\Sex;
 
 /*
  * Others
@@ -61,8 +62,8 @@ class User {
     private ?String $username = null;
     private ?String $password = null;
     private ?DateTime $birthdate = null;
-    private ?String $sex = null;
-    private ?Timestamp $creation_date = null;
+    private ?Sex $sex = null;
+    private ?DateTime $creation_date = null;
     private ?String $status = null;
     private ?Resource $profile_image = null;
     private ?Resource $profile_background = null;
@@ -100,6 +101,7 @@ class User {
         } catch(IOException $e){
             $this->database = null;
         }
+        //$this->creation_date = DateTime::createFromFormat(Database::DateFormat, "2022-03-11 20:26:00");
         $database = $this->database;
         $this->flags = $flags;
         if($id != null){
@@ -110,9 +112,9 @@ class User {
                 $this->email = $row["email"];
                 $this->username = $row["username"];
                 $this->password = $row["password"];
-                $this->birthdate = $row["birthdate"];
-                $this->sex = $row["sex"];
-                $this->creation_date = $row["creation_date"];
+                $this->birthdate = $row["birthdate"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["birthdate"]) : null;
+                $this->sex = $row["sex"] != "" ? Sex::getSex($row["sex"]) : null;
+                $this->creation_date = $row["creation_date"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["creation_date"]) : null;
                 $this->status = $row["status"];
                 $this->profile_image = $row["profile_image"] != "" ? new Resource($row["profile_image"]) : null;
                 $this->profile_background = $row["profile_background"] != "" ? new Resource($row["profile_background"]) : null;
@@ -157,25 +159,25 @@ class User {
     {
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-        echo isset($this->profile_image) ? $this->profile_image != null ? 'yes' : 'no2' : 'no';
+
         $query_keys_values = array(
             "id" => $this->id,
             "email" => $this->email,
             "username" => $this->username,
             "password" => $this->password,
-            "birthdate" => $this->birthdate,
-            "sex" => $this->sex,
-            "creation_date" => $this->creation_date,
+            "birthdate" => isset($this->birthdate) ? $this->birthdate->format(Database::DateFormat) : null,
+            "sex" => isset($this->sex) ? $this->sex->value : Sex::OTHER->value,
+            "creation_date" => isset($this->creation_date) ? $this->creation_date->format(Database::DateFormat) : null,
             "status" => $this->status,
             "profile_image" => isset($this->profile_image) ? $this->profile_image->store()->getId() : null,
             "profile_background" => isset($this->profile_background) ? $this->profile_background->store()->getId() : null,
             "about_me" => $this->about_me,
-            "verified" => $this->verified,
+            "verified" => isset($this->verified) ? $this->verified->value : Verification::VERIFIED->value,
             "display_language" => isset($this->display_language) ? $this->display_language->store()->getId() : null,
             "email_communication_language" => isset($this->email_communication_language) ? $this->email_communication_language->store()->getId() : null,
             "translation_language" => isset($this->translation_language) ? $this->translation_language->store()->getId() : null,
-            "night_mode" => isset($this->night_mode) ? $this->night_mode->value : null,
-            "available" => isset($this->available) ? $this->available->value : null
+            "night_mode" => isset($this->night_mode) ? $this->night_mode->value : NightMode::DISABLE->value,
+            "available" => isset($this->available) ? $this->available->value : Availability::AVAILABLE->value
         );
         $sql = "";
         if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {
@@ -255,7 +257,7 @@ class User {
     /**
      * This method will remove the object from the database, however, for logging reasons, the record will only be hidden in queries.
      * @return $this
-     * @throws UniqueKey
+     * @throws UniqueKey|IOException
      */
     public function remove() : User{
         $this->available = Availability::NOT_AVAILABLE;
@@ -390,7 +392,7 @@ class User {
     }
 
     /**
-     * @return DateTime|mixed
+     * @return DateTime
      */
     public function getBirthdate(): DateTime
     {
@@ -398,28 +400,32 @@ class User {
     }
 
     /**
-     * @param DateTime $birthdate
+     * @param DateTime|String $birthdate
      * @return User
      */
-    public function setBirthdate(DateTime $birthdate): User
+    public function setBirthdate(DateTime|String $birthdate): User
     {
-        $this->birthdate = $birthdate;
+        if(is_string($birthdate)){
+            $this->birthdate = DateTime::createFromFormat(Database::DateFormat, $birthdate);
+        } else if(is_a($birthdate, "DateTime")){
+            $this->birthdate = $birthdate;
+        }
         return $this;
     }
 
     /**
-     * @return String
+     * @return Sex
      */
-    public function getSex(): String
+    public function getSex(): Sex
     {
         return $this->sex;
     }
 
     /**
-     * @param String $sex
+     * @param Sex $sex
      * @return User
      */
-    public function setSex(String $sex): User
+    public function setSex(Sex $sex): User
     {
         $this->sex = $sex;
         return $this;
@@ -434,12 +440,16 @@ class User {
     }
 
     /**
-     * @param Timestamp $creation_date
+     * @param DateTime|String $creation_date
      * @return User
      */
-    public function setCreationDate(Timestamp $creation_date): User
+    public function setCreationDate(DateTime|String $creation_date): User
     {
-        $this->creation_date = $creation_date;
+        if(is_string($creation_date)){
+            $this->creation_date = DateTime::createFromFormat(Database::DateFormat, $creation_date);
+        } else if(is_a($creation_date, "DateTime")){
+            $this->creation_date = $creation_date;
+        }
         return $this;
     }
 
@@ -464,7 +474,7 @@ class User {
     /**
      * @return Resource
      */
-    public function getProfileImage()
+    public function getProfileImage() : Resource
     {
         return $this->profile_image;
     }
@@ -473,7 +483,7 @@ class User {
      * @param Resource $profile_image
      * @return User
      */
-    public function setProfileImage(Resource $profile_image)
+    public function setProfileImage(Resource $profile_image) : User
     {
         $this->profile_image = $profile_image;
         return $this;
@@ -482,7 +492,7 @@ class User {
     /**
      * @return Resource
      */
-    public function getProfileBackground()
+    public function getProfileBackground() : Resource
     {
         return $this->profile_background;
     }
@@ -491,7 +501,7 @@ class User {
      * @param Resource $profile_background
      * @return User
      */
-    public function setProfileBackground(Resource $profile_background)
+    public function setProfileBackground(Resource $profile_background) : User
     {
         $this->profile_background = $profile_background;
         return $this;

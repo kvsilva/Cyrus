@@ -4,21 +4,23 @@ namespace Enumerators;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
-enum Verification: int
+enum Sex: int
 {
-    case NOT_VERIFIED = 0;
-    case VERIFIED = 1;
+    case MALE = 1;
+    case FEMALE = 2;
+    case OTHER = 3;
 
     public function name(): string
     {
         return match ($this) {
-            self::VERIFIED => 'Verified',
-            self::NOT_VERIFIED => 'Not Verified',
+            self::MALE => 'Male',
+            self::FEMALE => 'Female',
+            self::OTHER => 'Other'
         };
     }
 
     #[Pure]
-    #[ArrayShape(["name" => "string", "value" => "\Verification"])]
+    #[ArrayShape(["name" => "string", "value" => "\Sex"])]
     public function toArray() : array
     {
         return array(
@@ -27,10 +29,11 @@ enum Verification: int
         );
     }
 
-    public static function getVerification(?int $num) : ?Verification{
+    public static function getSex(?int $num) : ?Sex{
         return match ($num) {
-            0 => self::NOT_VERIFIED,
-            1 => self::VERIFIED,
+            1 => self::MALE,
+            2 => self::FEMALE,
+            3 => self::OTHER,
             default => null,
         };
     }
@@ -38,3 +41,4 @@ enum Verification: int
 
 
 ?>
+

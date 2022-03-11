@@ -7,6 +7,8 @@ use mysqli;
 require_once (dirname(__FILE__).'/../database.php');
 class Database
 {
+    public const DateFormat = "Y-m-d H:i:s";
+
     private static array $database_settings = array(
         "address" => "localhost",
         "port" => 3306,

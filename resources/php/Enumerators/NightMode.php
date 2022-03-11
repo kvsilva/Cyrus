@@ -12,8 +12,8 @@ enum NightMode: int
     public function name(): string
     {
         return match ($this) {
-            NightMode::ENABLE => 'Enable',
-            NightMode::DISABLE => 'Disable',
+            self::ENABLE => 'Enable',
+            self::DISABLE => 'Disable',
         };
     }
 
@@ -29,8 +29,8 @@ enum NightMode: int
 
     public static function getNightMode(?int $num) : ?NightMode{
         return match ($num) {
-            0 => NightMode::DISABLE,
-            1 => NightMode::ENABLE,
+            0 => self::DISABLE,
+            1 => self::ENABLE,
             default => null,
         };
     }
