@@ -45,7 +45,7 @@ class Permission {
 
     // RELATIONS
 
-    private array $flags = array();
+    private array $flags;
     /**
      * @param int|null $id
      * @param array $flags
@@ -84,7 +84,7 @@ class Permission {
                 $database->query($sql);
             }
         } else {
-            if($database->query("SELECT id from permission where tag = '$this->tag'")->num_rows > 0) {
+            if($database->query("SELECT id from permission where tag = '$this->tag' AND id <> $this->id")->num_rows > 0) {
                 throw new UniqueKey("tag");
             } else {
                 $sql = "UPDATE permission SET tag = '$this->tag', name = '$this->name', description = '$this->description' WHERE id = $this->id";
@@ -97,13 +97,11 @@ class Permission {
     /**
      * This method will remove the object from the database.
      * @return $this
-     * @throws UniqueKey
      */
     public function remove() : Permission{
         GLOBAL $database;
         $database->query("DELETE FROM ROLE_PERMISSION where permission = $this->id");
         $database->query("DELETE FROM permission where id = $this->id");
-        $this->store();
         return $this;
     }
 

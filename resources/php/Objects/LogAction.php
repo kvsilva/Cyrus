@@ -29,7 +29,7 @@ require_once (dirname(__FILE__).'/../database.php');
 use Functions\Database as database_functions;
 
 
-class Resource {
+class LogAction {
 
     // Flags
 
@@ -39,10 +39,8 @@ class Resource {
     // DEFAULT STRUCTURE
 
     private int $id;
-    private String $title;
+    private String $name;
     private String $description;
-    private String $extension;
-    private String $path;
 
     // RELATIONS
 
@@ -56,14 +54,12 @@ class Resource {
         $this->flags = $flags;
         if($id != null){
             GLOBAL $database;
-            $query = $database->query("SELECT * FROM resource WHERE id = $id;");
+            $query = $database->query("SELECT * FROM log_action WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
                 $this->id = $row["id"];
-                $this->title = $row["title"];
+                $this->name = $row["name"];
                 $this->description = $row["description"];
-                $this->extension = $row["extension"];
-                $this->path = $row["path"];
             } else {
                 throw new RecordNotFound();
             }
@@ -73,16 +69,26 @@ class Resource {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws UniqueKey
      */
-    public function store() : Resource{
+    public function store() : LogAction{
         GLOBAL $database;
-        if($database->query("SELECT id from resource where id = $this->id")->num_rows == 0) {
-            $this->id = database_functions::getNextIncrement("resource");
-            $sql = "INSERT INTO resource (id, title, description, extension, path) VALUES ($this->id, '$this->title', '$this->description', '$this->extension', '$this->path');";
+        if($database->query("SELECT id from log_action where id = $this->id")->num_rows == 0) {
+            if($database->query("SELECT id from log_action where name = '$this->name'")->num_rows > 0) {
+                throw new UniqueKey("name");
+            } else {
+                $this->id = database_functions::getNextIncrement("log_action");
+                $sql = "INSERT INTO log_action (id, name, description) VALUES ($this->id, '$this->name', '$this->description');";
+                $database->query($sql);
+            }
         } else {
-            $sql = "UPDATE resource SET title = '$this->title', description = '$this->description', extension = '$this->extension', path = '$this->path' WHERE id = $this->id";
+            if($database->query("SELECT id from log_action where name = '$this->name' AND id <> $this->id")->num_rows > 0) {
+                throw new UniqueKey("name");
+            } else {
+                $sql = "UPDATE log_action SET name = '$this->name', description = '$this->description' WHERE id = $this->id";
+                $database->query($sql);
+            }
         }
-        $database->query($sql);
         return $this;
     }
 
@@ -90,48 +96,48 @@ class Resource {
      * This method will remove the object from the database.
      * @return $this
      */
-    public function remove() : Resource{
+    public function remove() : LogAction{
         GLOBAL $database;
-        $database->query("DELETE FROM resource where id = $this->id");
+        $database->query("DELETE FROM log_action where id = $this->id");
         return $this;
     }
 
     /**
      * @param int|null $id
+     * @param String|null $name
      * @param string|null $sql
      * @param array $flags
      * @return array
      * @throws RecordNotFound
      */
-    public static function find(int $id = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, String $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         GLOBAL $database;
         $sql_command = "";
         if($sql != null){
-            $sql_command = "SELECT id from resource WHERE " . $sql;
+            $sql_command = "SELECT id from log_action WHERE " . $sql;
         } else {
-            $sql_command = "SELECT id from resource WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "");
+            $sql_command = "SELECT id from log_action WHERE " .
+                ($id != null ? "(id != null AND id = '$id')" : "") .
+                ($name != null ? "(name != null AND name = '$name')" : "");
             $sql_command = str_replace($sql_command, ")(", ") AND (");
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
         $result = array();
         while($row = $query->fetch_array()){
-            $result[] = new Resource($row["id"], $flags);
+            $result[] = new LogAction($row["id"], $flags);
         }
         return $result;
     }
 
-    #[ArrayShape(["id" => "int|mixed", "title" => "mixed", "description" => "mixed", "extension" => "mixed", "path" => "mixed"])]
+    #[ArrayShape(["id" => "int|mixed", "name" => "mixed|String", "description" => "mixed|String"])]
     #[Pure]
     public function toArray(): array
     {
         return array(
             "id" => $this->id,
-            "title" => $this->title,
-            "description" => $this->description,
-            "extension" => $this->extension,
-            "path" => $this->path
+            "name" => $this->name,
+            "description" => $this->description
         );
     }
     /**
@@ -145,18 +151,18 @@ class Resource {
     /**
      * @return mixed|String
      */
-    public function getTitle(): mixed
+    public function getName(): mixed
     {
-        return $this->title;
+        return $this->name;
     }
 
     /**
-     * @param mixed|String $title
-     * @return Resource
+     * @param mixed|String $name
+     * @return LogAction
      */
-    public function setTitle(mixed $title): Resource
+    public function setName(mixed $name): LogAction
     {
-        $this->title = $title;
+        $this->name = $name;
         return $this;
     }
 
@@ -170,52 +176,16 @@ class Resource {
 
     /**
      * @param mixed|String $description
-     * @return Resource
+     * @return LogAction
      */
-    public function setDescription(mixed $description): Resource
+    public function setDescription(mixed $description): LogAction
     {
         $this->description = $description;
         return $this;
     }
 
     /**
-     * @return mixed|String
-     */
-    public function getExtension(): mixed
-    {
-        return $this->extension;
-    }
-
-    /**
-     * @param mixed|String $extension
-     * @return Resource
-     */
-    public function setExtension(mixed $extension): Resource
-    {
-        $this->extension = $extension;
-        return $this;
-    }
-
-    /**
-     * @return mixed|String
-     */
-    public function getPath(): mixed
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param mixed|String $path
-     * @return Resource
-     */
-    public function setPath(mixed $path): Resource
-    {
-        $this->path = $path;
-        return $this;
-    }
-
-    /**
-     * @return array|int[]
+     * @return array
      */
     public function getFlags(): array
     {

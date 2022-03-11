@@ -155,9 +155,9 @@ class User {
                 }
             }
         } else {
-            if($database->query("SELECT id from USER where username = '$this->username'")->num_rows > 0){
+            if($database->query("SELECT id from USER where username = '$this->username' AND id <> $this->id")->num_rows > 0){
                 throw new UniqueKey("username");
-            } else if($database->query("SELECT id from USER where email = '$this->email'")->num_rows > 0){
+            } else if($database->query("SELECT id from USER where email = '$this->email' AND id <> $this->id")->num_rows > 0){
                 throw new UniqueKey("email");
             } else {
                 $sql = "UPDATE USER SET /*id = '$this->id'*/, email = '$this->email', username = '$this->username', password = '$this->password', birthdate = '$this->birthdate', sex = '$this->sex', creation_date = '$this->creation_date', status = '$this->status', profile_image = '$this->profile_image->getId()', profile_background = '$this->profile_background->getId()', about_me = '$this->about_me', verified = '$this->verified->value', display_language = '$this->display_language->getId()', email_communication_language = '$this->email_communication_language->getId()', translation_language = '$this->translation_language->getId()', night_mode = '$this->night_mode->value', available = '$this->available->value' WHERE id = $this->id";

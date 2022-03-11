@@ -96,7 +96,7 @@ class Role {
                 $database->query($sql);
             }
         } else {
-            if($database->query("SELECT id from ROLE where name = '$this->name'")->num_rows > 0) {
+            if($database->query("SELECT id from ROLE where name = '$this->name' AND id <> $this->id")->num_rows > 0) {
                 throw new UniqueKey("name");
             } else {
                 $sql = "UPDATE ROLE SET name = '$this->name' WHERE id = $this->id";
@@ -114,8 +114,8 @@ class Role {
                         }
                         if ($remove) $database->query("DELETE FROM ROLE_PERMISSION WHERE role = $this->id AND permission = $row[id]");
                     }
-                    foreach ($permission as $this->permissions) {
-                        $database->query("INSERT IGNORE INTO role_permission (role, permission) VALUES ($this->id, $row[id])");
+                    foreach ($this->permissions as $permission) {
+                        $database->query("INSERT IGNORE INTO role_permission (role, permission) VALUES ($this->id, $permission->getId())");
                     }
                 }
             }
@@ -133,7 +133,6 @@ class Role {
         $database->query("DELETE FROM USER_ROLE where role = $this->id");
         $database->query("DELETE FROM ROLE_PERMISSION where role = $this->id");
         $database->query("DELETE FROM role where id = $this->id");
-        $this->store();
         return $this;
     }
 
