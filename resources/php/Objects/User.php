@@ -7,14 +7,17 @@ namespace Objects;
 use DateTime;
 use JetBrains\PhpStorm\Pure;
 use MongoDB\BSON\Timestamp;
+use mysqli;
 
 /*
  * Object Imports
  */
+
 use Objects\Role;
 use Objects\Permission;
 use Objects\Language;
 use Objects\Resource;
+use Objects\Log;
 
 /*
  * Exception Imports
@@ -23,9 +26,8 @@ use Exceptions\UniqueKey;
 use Exceptions\NotNullable;
 use Exceptions\InvalidDataType;
 use Exceptions\RecordNotFound;
-//require_once(dirname(__FILE__) . '/../Exceptions/RecordNotFound.php');
-//require_once (dirname(__FILE__).'/../Exceptions/InvalidDataType.php');
-//require_once (dirname(__FILE__).'/../Exceptions/NotNullable.php');
+use Exceptions\MalformedJSON;
+use Exceptions\IOException;
 
 /*
  * Enumerator Imports
@@ -33,18 +35,16 @@ use Exceptions\RecordNotFound;
 use Enumerators\Availability;
 use Enumerators\NightMode;
 use Enumerators\Verification;
-/*require_once (dirname(__FILE__).'/../Enumerators/Availability.php');
-require_once (dirname(__FILE__).'/../Enumerators/NightMode.php');
-require_once (dirname(__FILE__).'/../Enumerators/Verification.php');*/
 
 /*
  * Others
  */
-require_once (dirname(__FILE__).'/../database.php');
-use Functions\Database as database_functions;
+use Functions\Database;
 
 
 class User {
+    // Database
+    private ?Mysqli $database;
 
     // Flags
 
@@ -52,26 +52,27 @@ class User {
     public const ALL = 1;
     public const ROLES = 2;
     public const PUNISHMENTS = 3;
+    public const LOGS = 4;
 
     // DEFAULT STRUCTURE
 
-    private int $id;
-    private String $email;
-    private String $username;
-    private String $password;
-    private DateTime $birthdate;
-    private String $sex;
-    private Timestamp $creation_date;
-    private String $status;
-    private Resource $profile_image;
-    private Resource $profile_background;
-    private String $about_me;
-    private Verification $verified;
-    private Language $display_language;
-    private Language $email_communication_language;
-    private Language $translation_language;
-    private NightMode $night_mode;
-    private Availability $available;
+    private ?int $id = null;
+    private ?String $email = null;
+    private ?String $username = null;
+    private ?String $password = null;
+    private ?DateTime $birthdate = null;
+    private ?String $sex = null;
+    private ?Timestamp $creation_date = null;
+    private ?String $status = null;
+    private ?Resource $profile_image = null;
+    private ?Resource $profile_background = null;
+    private ?String $about_me = null;
+    private ?Verification $verified = null;
+    private ?Language $display_language = null;
+    private ?Language $email_communication_language = null;
+    private ?Language $translation_language = null;
+    private ?NightMode $night_mode = null;
+    private ?Availability $available = null;
 
     // RELATIONS
 
@@ -83,16 +84,25 @@ class User {
     // User::Punishments
     private array $punishments = array();
 
+    // User::Logs
+    private array $logs = array();
+
 
     /**
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
+     * @throws MalformedJSON
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
+        try {
+            $this->database = Database::getConnection();
+        } catch(IOException $e){
+            $this->database = null;
+        }
+        $database = $this->database;
         $this->flags = $flags;
         if($id != null){
-            GLOBAL $database;
             $query = $database->query("SELECT * FROM USER WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -104,13 +114,14 @@ class User {
                 $this->sex = $row["sex"];
                 $this->creation_date = $row["creation_date"];
                 $this->status = $row["status"];
-                $this->profile_image = new Resource($row["profile_image"]);
-                $this->profile_background = new Resource($row["profile_background"]);
+                $this->profile_image = $row["profile_image"] != "" ? new Resource($row["profile_image"]) : null;
+                $this->profile_background = $row["profile_background"] != "" ? new Resource($row["profile_background"]) : null;
                 $this->about_me = $row["about_me"];
+
                 $this->verified = Verification::getVerification($row["verified"]);
-                $this->display_language = new Language($row["display_language"]);
-                $this->email_communication_language = new Language($row["email_communication_language"]);
-                $this->translation_language = new Language($row["translation_language"]);
+                $this->display_language = $row["display_language"] != "" ? new Language($row["display_language"]) : null;
+                $this->email_communication_language = $row["email_communication_language"] != "" ? new Language($row["email_communication_language"]) : null;
+                $this->translation_language = $row["translation_language"] != "" ? new Language($row["translation_language"]) : null;
                 $this->night_mode = NightMode::getNightMode($row["night_mode"]);
                 $this->available = Availability::getAvailability($row["available"]);
                 if(in_array(self::ROLES, $this->flags) || in_array(self::ALL, $this->flags)){
@@ -125,6 +136,12 @@ class User {
                         $this->punishments[] = new Punishment($row["id"]);
                     }
                 }
+                if(in_array(self::LOGS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $query = $database->query("SELECT id FROM log WHERE user = $id;");
+                    while($row = $query->fetch_array()){
+                        $this->logs[] = new Log($row["id"]);
+                    }
+                }
             } else {
                 throw new RecordNotFound();
             }
@@ -134,51 +151,102 @@ class User {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
-     * @throws UniqueKey
+     * @throws UniqueKey|IOException
      */
-    public function store() : User{
-        GLOBAL $database;
-        if($database->query("SELECT id from USER where id = $this->id")->num_rows == 0) {
-            if($database->query("SELECT id from USER where username = '$this->username'")->num_rows > 0){
+    public function store() : User
+    {
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+        echo isset($this->profile_image) ? $this->profile_image != null ? 'yes' : 'no2' : 'no';
+        $query_keys_values = array(
+            "id" => $this->id,
+            "email" => $this->email,
+            "username" => $this->username,
+            "password" => $this->password,
+            "birthdate" => $this->birthdate,
+            "sex" => $this->sex,
+            "creation_date" => $this->creation_date,
+            "status" => $this->status,
+            "profile_image" => isset($this->profile_image) ? $this->profile_image->store()->getId() : null,
+            "profile_background" => isset($this->profile_background) ? $this->profile_background->store()->getId() : null,
+            "about_me" => $this->about_me,
+            "verified" => $this->verified,
+            "display_language" => isset($this->display_language) ? $this->display_language->store()->getId() : null,
+            "email_communication_language" => isset($this->email_communication_language) ? $this->email_communication_language->store()->getId() : null,
+            "translation_language" => isset($this->translation_language) ? $this->translation_language->store()->getId() : null,
+            "night_mode" => isset($this->night_mode) ? $this->night_mode->value : null,
+            "available" => isset($this->available) ? $this->available->value : null
+        );
+        $sql = "";
+        if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {
+            if ($database->query("SELECT id from USER where username = '$this->username'")->num_rows > 0) {
                 throw new UniqueKey("username");
-            } else if($database->query("SELECT id from USER where email = '$this->email'")->num_rows > 0){
+            } else if ($database->query("SELECT id from USER where email = '$this->email'")->num_rows > 0) {
                 throw new UniqueKey("email");
             } else {
-                $this->id = database_functions::getNextIncrement("user");
-                $sql = "INSERT INTO USER (id, email, username, password, birthdate, sex, creation_date, status, profile_image, profile_background, about_me, verified, display_language, email_communication_language, translation_language, night_mode, available) values ('$this->id', '$this->email', '$this->username', '$this->password', '$this->birthdate', '$this->sex', '$this->creation_date', '$this->status', '$this->profile_image->getId()', '$this->profile_background->getId()', '$this->about_me', '$this->verified->value', '$this->display_language->getId()', '$this->email_communication_language->getId()', '$this->translation_language->getId()', '$this->night_mode->value', '$this->available->value');";
-                $database->query($sql);
-                if (in_array(self::ROLES, $this->flags)) {
-                    foreach ($this->roles as $role) {
-                        $role->store();
-                        $database->query("INSERT INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
-                    }
+                $this->id = Database::getNextIncrement("user");
+
+                $query_keys_values["id"] = $this->id;
+                $sql_keys = "";
+                $sql_values = "";
+                foreach($query_keys_values as $key => $value){
+                    $sql_keys .= $key . ",";
+                    $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
                 }
+                $sql_keys = substr($sql_keys,0,-1);
+                $sql_values = substr($sql_values,0,-1) ;
+                $sql = "INSERT INTO user ($sql_keys) VALUES ($sql_values)";
+                echo "<br>" . $sql . "<br>";
+                $database->query($sql);
             }
         } else {
-            if($database->query("SELECT id from USER where username = '$this->username' AND id <> $this->id")->num_rows > 0){
+            if ($database->query("SELECT id from USER where username = '$this->username' AND id <> $this->id")->num_rows > 0) {
                 throw new UniqueKey("username");
-            } else if($database->query("SELECT id from USER where email = '$this->email' AND id <> $this->id")->num_rows > 0){
+            } else if ($database->query("SELECT id from USER where email = '$this->email' AND id <> $this->id")->num_rows > 0) {
                 throw new UniqueKey("email");
             } else {
-                $sql = "UPDATE USER SET /*id = '$this->id'*/, email = '$this->email', username = '$this->username', password = '$this->password', birthdate = '$this->birthdate', sex = '$this->sex', creation_date = '$this->creation_date', status = '$this->status', profile_image = '$this->profile_image->getId()', profile_background = '$this->profile_background->getId()', about_me = '$this->about_me', verified = '$this->verified->value', display_language = '$this->display_language->getId()', email_communication_language = '$this->email_communication_language->getId()', translation_language = '$this->translation_language->getId()', night_mode = '$this->night_mode->value', available = '$this->available->value' WHERE id = $this->id";
+                $update_sql = "";
+                foreach($query_keys_values as $key => $value){
+                    $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+                }
+                $update_sql = substr($update_sql,0,-1);
+                $sql = "UPDATE user SET $update_sql WHERE id = $this->id";
                 $database->query($sql);
-                if (in_array(self::ROLES, $this->flags)) {
-                    $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
-                    while ($row = $query->fetch_array()) {
-                        $remove = true;
-                        foreach ($this->roles as $role) {
-                            $role->store();
-                            if ($role->getId() == $row["id"]) {
-                                $remove = false;
-                                break;
-                            }
-                        }
-                        if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $this->id AND role = $row[id]");
-                    }
-                    foreach ($role as $this->roles) {
-                        $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
+                $relations = true;
+            }
+        }
+        // Relations
+        if (in_array(self::ROLES, $this->flags)) {
+            $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->roles as $role) {
+                    $role->store();
+                    if ($role->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
                     }
                 }
+                if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $this->id AND role = $row[id]");
+            }
+            foreach ($this->roles as $role) {
+                $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
+            }
+        }
+        if (in_array(self::LOGS, $this->flags)) {
+            $query = $database->query("SELECT id FROM log WHERE user = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->logs as $log) {
+                    if ($log->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) $database->query("DELETE FROM log WHERE id = $row[id]");
+            }
+            foreach ($this->logs as $log) {
+                $log->store();
             }
         }
         return $this;
@@ -204,6 +272,7 @@ class User {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws MalformedJSON
      */
     public static function find(int $id = null, string $email = null, string $username = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         GLOBAL $database;
@@ -230,7 +299,7 @@ class User {
     #[Pure]
     public function toArray(): array
     {
-        return array(
+        $array = array(
             "id" => $this->id,
             "email" => $this->email,
             "username" => $this->username,
@@ -238,21 +307,24 @@ class User {
             "sex" => $this->sex,
             "creation_date" => $this->creation_date,
             "status" => $this->status,
-            "profile_image" => $this->profile_image,
-            "profile_background" => $this->profile_background,
+            "profile_image" => isset($this->profile_image) ? $this->profile_image->toArray() : null,
+            "profile_background" => isset($this->profile_background) ? $this->profile_background->toArray() : null,
             "about_me" => $this->about_me,
-            "verified" => $this->verified->toArray(),
-            "display_language" => $this->display_language,
-            "email_communication_language" => $this->email_communication_language,
-            "translation_language" => $this->translation_language,
-            "night_mode" => $this->night_mode->toArray(),
-            "available" => $this->available->toArray(),
-
-            // Relations
-
-            "roles" => count($this->roles) == 0 ? null : $this->roles,
-            "punishments" => count($this->punishments) == 0 ? null : $this->punishments
+            "verified" => isset($this->verified) ? $this->verified->toArray() : null,
+            "display_language" => isset($this->display_language) ? $this->display_language->toArray() : null,
+            "email_communication_language" => isset($this->email_communication_language) ? $this->email_communication_language->toArray() : null,
+            "translation_language" => isset($this->translation_language) ? $this->translation_language->toArray() : null,
+            "night_mode" => isset($this->night_mode) ? $this->night_mode->toArray() : null,
+            "available" => isset($this->available) ? $this->available->toArray() : null
         );
+        // Relations
+        $array["roles"] = count($this->roles) == 0 ? null : array();
+        foreach($this->roles as $value) $array["roles"][] = $value->toArray();
+        $array["logs"] = count($this->roles) == 0 ? null : array();
+        foreach($this->logs as $value) $array["logs"][] = $value->toArray();
+        $array["punishments"] = count($this->roles) == 0 ? null : array();
+        foreach($this->punishments as $value) $array["punishments"][] = $value->toArray();
+        return $array;
     }
 
     /**
@@ -311,9 +383,9 @@ class User {
      * @param mixed $password
      * @return User
      */
-    public function setPassword(String $password): User
+    public function setPassword(String $password, bool $encrypt = true): User
     {
-        $this->password = $password;
+        $this->password = $encrypt ? password_hash($password, PASSWORD_DEFAULT) : $password;
         return $this;
     }
 

@@ -105,7 +105,7 @@ class Role {
                     $query = $database->query("SELECT permission as 'id' FROM role_permission WHERE role = $this->id;");
                     while ($row = $query->fetch_array()) {
                         $remove = true;
-                        foreach ($permission as $this->permissions) {
+                        foreach ($this->permissions as $permission) {
                             $permission->store();
                             if ($permission->getId() == $row["id"]) {
                                 $remove = false;
@@ -126,7 +126,6 @@ class Role {
     /**
      * This method will remove the object from the database.
      * @return $this
-     * @throws UniqueKey
      */
     public function remove() : Role{
         GLOBAL $database;

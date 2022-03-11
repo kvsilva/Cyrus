@@ -27,7 +27,7 @@ enum Verification: int
         );
     }
 
-    public static function getVerification(int $num) : ?Verification{
+    public static function getVerification(?int $num) : ?Verification{
         return match ($num) {
             0 => Verification::NOT_VERIFIED,
             1 => Verification::VERIFIED,

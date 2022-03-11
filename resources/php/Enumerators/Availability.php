@@ -27,7 +27,7 @@ enum Availability: int
         );
     }
 
-    public static function getAvailability(int $num) : ?Availability {
+    public static function getAvailability(?int $num) : ?Availability {
         return match ($num) {
             0 => Availability::NOT_AVAILABLE,
             1 => Availability::AVAILABLE,

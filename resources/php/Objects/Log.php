@@ -87,7 +87,6 @@ class Log {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
-     * @throws UniqueKey
      */
     public function store() : Log{
         GLOBAL $database;
@@ -95,11 +94,10 @@ class Log {
         if($database->query("SELECT id from log where id = $this->id")->num_rows == 0) {
             $this->id = database_functions::getNextIncrement("log");
             $sql = "INSERT INTO log (id, user, action_type, arguments) VALUES ($this->id, '$this->user->getId()', '$this->action_type->getId()', '$arguments');";
-            $database->query($sql);
         } else {
             $sql = "UPDATE log SET user = '$this->user->getId()', action_type = '$this->action_type->getId()', arguments = '$arguments' WHERE id = $this->id";
-            $database->query($sql);
         }
+        $database->query($sql);
         return $this;
     }
 
@@ -184,20 +182,24 @@ class Log {
     }
 
     /**
-     * @return \Objects\LogAction
+     * @return LogAction
      */
-    public function getActionType(): \Objects\LogAction
+    public function getActionType(): LogAction
     {
         return $this->action_type;
     }
 
     /**
-     * @param \Objects\LogAction $action_type
+     * @param LogAction $action_type
      * @return Log
      */
-    public function setActionType(\Objects\LogAction $action_type): Log
+    public function setActionType(LogAction $action_type): Log
     {
         $this->action_type = $action_type;
+        $this->description = $this->action_type->getDescription();
+        foreach($this->arguments as $key => $value){
+            $this->description = str_replace($key, $value, $this->description);
+        }
         return $this;
     }
 
@@ -216,25 +218,19 @@ class Log {
     public function setArguments(mixed $arguments): Log
     {
         $this->arguments = $arguments;
+        $this->description = $this->action_type->getDescription();
+        foreach($this->arguments as $key => $value){
+            $this->description = str_replace($key, $value, $this->description);
+        }
         return $this;
     }
 
     /**
-     * @return array|mixed|string|string[]
+     * @return String
      */
     public function getDescription(): mixed
     {
         return $this->description;
-    }
-
-    /**
-     * @param array|mixed|string|string[] $description
-     * @return Log
-     */
-    public function setDescription(mixed $description): Log
-    {
-        $this->description = $description;
-        return $this;
     }
 
     /**

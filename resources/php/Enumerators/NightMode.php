@@ -27,7 +27,7 @@ enum NightMode: int
         );
     }
 
-    public static function getNightMode(int $num) : ?NightMode{
+    public static function getNightMode(?int $num) : ?NightMode{
         return match ($num) {
             0 => NightMode::DISABLE,
             1 => NightMode::ENABLE,
