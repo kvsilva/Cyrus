@@ -42,4 +42,29 @@ class Database
             return -1;
         }
     }
+    private static array $data_types = array(
+        "char" => 1.0,
+        "varchar" => 255.0,
+        "binary" => 1.0,
+        "varbinary" => 255.0,
+        "text" => 65535.0,
+        "blob" => 65535.0,
+        "bit" => 1.0,
+        "tinyint" => 4.0,
+        "smallint" => 6.0,
+        "mediumint" => 9.0,
+        "int" => 11.0,
+        "bigint" => 20.0,
+        "float" => ,
+        "double" => ,
+        "decimal" => 10.0,
+    );
+    public static function getColumnSize($column, $table, $schema = "cyrus"){
+        try {
+            $row = self::getConnection()->query("SELECT column_name, DATA_TYPE, COLUMN_TYPE FROM information_schema.columns WHERE table_schema = '$schema' AND table_name = '$table' AND column_name = '$column' ")->fetch_array();
+            if($row["data_type"])
+        } catch (IOException $e){
+            return -1;
+        }
+    }
 }

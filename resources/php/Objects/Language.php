@@ -6,6 +6,7 @@ namespace Objects;
 
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
+use Mysqli;
 
 /*
  * Object Imports
@@ -17,6 +18,7 @@ use JetBrains\PhpStorm\Pure;
  */
 use Exceptions\UniqueKey;
 use Exceptions\RecordNotFound;
+use Exceptions\IOException;
 
 /*
  * Enumerator Imports
@@ -25,11 +27,13 @@ use Exceptions\RecordNotFound;
 /*
  * Others
  */
-require_once (dirname(__FILE__).'/../database.php');
-use Functions\Database as database_functions;
+use Functions\Database;
 
 
 class Language {
+
+    // Database
+    private ?Mysqli $database = null;
 
     // Flags
 
@@ -38,23 +42,29 @@ class Language {
 
     // DEFAULT STRUCTURE
 
-    private int $id;
-    private String $code;
-    private String $name;
-    private String $original_name;
+    private ?int $id = null;
+    private ?String $code = null;
+    private ?String $name = null;
+    private ?String $original_name = null;
 
     // RELATIONS
 
     private array $flags;
+
     /**
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
+        try {
+            $this->database = Database::getConnection();
+        } catch(IOException $e){
+            $this->database = null;
+        }
+        $database = $this->database;
         $this->flags = $flags;
         if($id != null){
-            GLOBAL $database;
             $query = $database->query("SELECT * FROM language WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -72,10 +82,20 @@ class Language {
      * This method will update the data in the database, according to the object properties
      * @return $this
      * @throws UniqueKey
+     * @throws IOException
      */
     public function store() : Language{
-        GLOBAL $database;
-        if($database->query("SELECT id from language where id = $this->id")->num_rows == 0) {
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+
+        $query_keys_values = array(
+            "id" => $this->id,
+            "code" => $this->code,
+            "name" => $this->name,
+            "original_name" => $this->original_name
+        );
+        $sql = "";
+        if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {
             if($database->query("SELECT id from language where code = '$this->code'")->num_rows > 0) {
                 throw new UniqueKey("code");
             } else if($database->query("SELECT id from language where name = '$this->name'")->num_rows > 0) {
@@ -83,8 +103,18 @@ class Language {
             } else if($database->query("SELECT id from language where original_name = '$this->original_name'")->num_rows > 0) {
                 throw new UniqueKey("original_name");
             } else {
-                $this->id = database_functions::getNextIncrement("language");
-                $sql = "INSERT INTO language (id, code, name, original_name) VALUES ($this->id, '$this->code', '$this->name', '$this->original_name');";
+                $this->id = Database::getNextIncrement("language");
+
+                $query_keys_values["id"] = $this->id;
+                $sql_keys = "";
+                $sql_values = "";
+                foreach($query_keys_values as $key => $value){
+                    $sql_keys .= $key . ",";
+                    $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+                }
+                $sql_keys = substr($sql_keys,0,-1);
+                $sql_values = substr($sql_values,0,-1) ;
+                $sql = "INSERT INTO language ($sql_keys) VALUES ($sql_values)";
                 $database->query($sql);
             }
         } else {
@@ -95,7 +125,12 @@ class Language {
             } else if($database->query("SELECT id from language where original_name = '$this->original_name' AND id <> $this->id")->num_rows > 0) {
                 throw new UniqueKey("original_name");
             } else {
-                $sql = "UPDATE language SET code = '$this->code', name = '$this->name', original_name = '$this->original_name' WHERE id = $this->id";
+                $update_sql = "";
+                foreach ($query_keys_values as $key => $value) {
+                    $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+                }
+                $update_sql = substr($update_sql, 0, -1);
+                $sql = "UPDATE language SET $update_sql WHERE id = $this->id";
                 $database->query($sql);
             }
         }

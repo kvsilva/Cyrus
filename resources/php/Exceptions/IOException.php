@@ -9,13 +9,6 @@ class IOException extends Exception
     #[Pure]
     public function __construct($address = null, $port = null, $path = null, $message = null) {
         parent::__construct($message != null ? $message : ($path == null ? "Couldn't reach the server ($address:$port)." : "Couldn't open the file ($path)."));
-
-
-        if($path == null){
-            parent::__construct("Couldn't reach the server ($address:$port).");
-        } else {
-            parent::__construct("Couldn't access the file ($path).");
-        }
     }
 
     #[ReturnTypeWillChange]

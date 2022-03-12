@@ -44,8 +44,9 @@ use Functions\Database;
 
 
 class User {
+
     // Database
-    private ?Mysqli $database;
+    private ?Mysqli $database = null;
 
     // Flags
 
@@ -101,7 +102,6 @@ class User {
         } catch(IOException $e){
             $this->database = null;
         }
-        //$this->creation_date = DateTime::createFromFormat(Database::DateFormat, "2022-03-11 20:26:00");
         $database = $this->database;
         $this->flags = $flags;
         if($id != null){
@@ -112,7 +112,7 @@ class User {
                 $this->email = $row["email"];
                 $this->username = $row["username"];
                 $this->password = $row["password"];
-                $this->birthdate = $row["birthdate"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["birthdate"]) : null;
+                $this->birthdate = $row["birthdate"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["birthdate"] . " 00:00:00") : null;
                 $this->sex = $row["sex"] != "" ? Sex::getSex($row["sex"]) : null;
                 $this->creation_date = $row["creation_date"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["creation_date"]) : null;
                 $this->status = $row["status"];
@@ -214,7 +214,6 @@ class User {
                 $update_sql = substr($update_sql,0,-1);
                 $sql = "UPDATE user SET $update_sql WHERE id = $this->id";
                 $database->query($sql);
-                $relations = true;
             }
         }
         // Relations
