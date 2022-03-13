@@ -6,12 +6,12 @@ namespace Objects;
 
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use mysqli;
 
 /*
  * Object Imports
  */
 
+use mysqli;
 
 /*
  * Exception Imports
@@ -33,8 +33,9 @@ use Exceptions\TableNotFound;
 use Functions\Database;
 
 
-class Resource {
+class VideoType {
 
+    // Database
     private ?MySqli $database = null;
 
     // Flags
@@ -45,14 +46,12 @@ class Resource {
     // DEFAULT STRUCTURE
 
     private ?int $id = null;
-    private ?String $title = null;
-    private ?String $description = null;
-    private ?String $extension = null;
-    private ?String $path = null;
+    private ?String $name = null;
 
     // RELATIONS
 
     private array $flags;
+
     /**
      * @param int|null $id
      * @param array $flags
@@ -67,14 +66,11 @@ class Resource {
         }
         if($id != null && $this->database != null){
             $database = $this->database;
-            $query = $database->query("SELECT * FROM resource WHERE id = $id;");
+            $query = $database->query("SELECT * FROM video_type WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
                 $this->id = $row["id"];
-                $this->title = $row["title"];
-                $this->description = $row["description"];
-                $this->extension = $row["extension"];
-                $this->path = $row["path"];
+                $this->name = $row["name"];
             } else {
                 throw new RecordNotFound();
             }
@@ -90,27 +86,24 @@ class Resource {
      * @throws ColumnNotFound
      * @throws TableNotFound
      */
-    public function store() : Resource{
+    public function store() : VideoType{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $query_keys_values = array(
             "id" => $this->id,
-            "title" => $this->title,
-            "description" => $this->description,
-            "extension" => $this->extension,
-            "path" => $this->path
+            "name" => $this->id
         );
         foreach($query_keys_values as $key => $value) {
-            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "resource")) {
-                $size = Database::getColumnSize(column: $key, table: "resource");
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "video_type")) {
+                $size = Database::getColumnSize(column: $key, table: "video_type");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
             }
         }
-        if($this->id == null || $database->query("SELECT id from resource where id = $this->id")->num_rows == 0) {
+        if($this->id == null || $database->query("SELECT id from video_type where id = $this->id")->num_rows == 0) {
             foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "resource") && !Database::isUniqueValue(column: $key, table: "resource", value: $value)) throw new UniqueKey($key);
+                if (Database::isUniqueKey(column: $key, table: "video_type") && !Database::isUniqueValue(column: $key, table: "video_type", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("resource");
+            $this->id = Database::getNextIncrement("video_type");
             $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
@@ -120,17 +113,17 @@ class Resource {
             }
             $sql_keys = substr($sql_keys,0,-1);
             $sql_values = substr($sql_values,0,-1) ;
-            $sql = "INSERT INTO resource ($sql_keys) VALUES ($sql_values)";
+            $sql = "INSERT INTO video_type ($sql_keys) VALUES ($sql_values)";
         } else {
             foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "resource") && !Database::isUniqueValue(column: $key, table: "resource", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+                if (Database::isUniqueKey(column: $key, table: "video_type") && !Database::isUniqueValue(column: $key, table: "video_type", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
             }
             $update_sql = "";
             foreach($query_keys_values as $key => $value){
                 $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
             }
             $update_sql = substr($update_sql,0,-1);
-            $sql = "UPDATE resource SET $update_sql WHERE id = $this->id";
+            $sql = "UPDATE video_type SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
         return $this;
@@ -140,20 +133,21 @@ class Resource {
      * This method will remove the object from the database.
      * @return $this
      */
-    public function remove() : Resource{
+    public function remove() : VideoType{
         $database = $this->database;
-        $database->query("DELETE FROM resource where id = $this->id");
+        $database->query("DELETE FROM video_type where id = $this->id");
         return $this;
     }
 
     /**
      * @param int|null $id
+     * @param string|null $name
      * @param string|null $sql
      * @param array $flags
      * @return array
      * @throws RecordNotFound
      */
-    public static function find(int $id = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
         try {
             $database = Database::getConnection();
@@ -161,30 +155,30 @@ class Resource {
             return $result;
         }
         if($sql != null){
-            $sql_command = "SELECT id from resource WHERE " . $sql;
+            $sql_command = "SELECT id from video_type WHERE " . $sql;
         } else {
-            $sql_command = "SELECT id from resource WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "");
+            $sql_command = "SELECT id from video_type WHERE " .
+                ($id != null ? "(id != null AND id = '$id')" : "") .
+                ($name != null ? "(name != null AND name = '$name')" : "");
             $sql_command = str_replace($sql_command, ")(", ") AND (");
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
         while($row = $query->fetch_array()){
-            $result[] = new Resource($row["id"], $flags);
+            $result[] = new VideoType($row["id"], $flags);
         }
         return $result;
     }
 
-    #[ArrayShape(["id" => "int", "title" => "string", "description" => "string", "extension" => "string", "path" => "string"])]
+
+
+    #[ArrayShape(["id" => "int|mixed|null", "name" => "mixed|null|String"])]
     #[Pure]
     public function toArray(): array
     {
         return array(
             "id" => $this->id,
-            "title" => $this->title,
-            "description" => $this->description,
-            "extension" => $this->extension,
-            "path" => $this->path
+            "name" => $this->name
         );
     }
     /**
@@ -196,74 +190,20 @@ class Resource {
     }
 
     /**
-     * @return String
+     * @return mixed|String|null
      */
-    public function getTitle(): String
+    public function getName(): mixed
     {
-        return $this->title;
+        return $this->name;
     }
 
     /**
-     * @param String $title
-     * @return Resource
+     * @param mixed|String|null $name
+     * @return SourceType
      */
-    public function setTitle(String $title): Resource
+    public function setName(mixed $name): SourceType
     {
-        $this->title = $title;
-        return $this;
-    }
-
-    /**
-     * @return String
-     */
-    public function getDescription(): String
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param String $description
-     * @return Resource
-     */
-    public function setDescription(String $description): Resource
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    /**
-     * @return String
-     */
-    public function getExtension(): String
-    {
-        return $this->extension;
-    }
-
-    /**
-     * @param String $extension
-     * @return Resource
-     */
-    public function setExtension(String $extension): Resource
-    {
-        $this->extension = $extension;
-        return $this;
-    }
-
-    /**
-     * @return String
-     */
-    public function getPath(): String
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param String $path
-     * @return Resource
-     */
-    public function setPath(String $path): Resource
-    {
-        $this->path = $path;
+        $this->name = $name;
         return $this;
     }
 
