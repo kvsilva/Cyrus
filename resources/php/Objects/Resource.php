@@ -4,6 +4,10 @@ namespace Objects;
  * Class imports
  */
 
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\IOException;
+use Exceptions\TableNotFound;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
@@ -25,11 +29,13 @@ use Exceptions\RecordNotFound;
 /*
  * Others
  */
-require_once (dirname(__FILE__).'/../database.php');
-use Functions\Database as database_functions;
+use Functions\Database;
+use mysqli;
 
 
 class Resource {
+
+    private ?MySqli $database = null;
 
     // Flags
 
@@ -38,11 +44,11 @@ class Resource {
 
     // DEFAULT STRUCTURE
 
-    private int $id;
-    private String $title;
-    private String $description;
-    private String $extension;
-    private String $path;
+    private ?int $id = null;
+    private ?String $title = null;
+    private ?String $description = null;
+    private ?String $extension = null;
+    private ?String $path = null;
 
     // RELATIONS
 
@@ -54,8 +60,13 @@ class Resource {
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
-        if($id != null){
-            GLOBAL $database;
+        try {
+            $this->database = Database::getConnection();
+        } catch(IOException $e){
+            $this->database = null;
+        }
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM resource WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -73,14 +84,53 @@ class Resource {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
      */
     public function store() : Resource{
-        GLOBAL $database;
-        if($database->query("SELECT id from resource where id = $this->id")->num_rows == 0) {
-            $this->id = database_functions::getNextIncrement("resource");
-            $sql = "INSERT INTO resource (id, title, description, extension, path) VALUES ($this->id, '$this->title', '$this->description', '$this->extension', '$this->path');";
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+        $query_keys_values = array(
+            "id" => $this->id,
+            "title" => $this->title,
+            "description" => $this->description,
+            "extension" => $this->extension,
+            "path" => $this->path
+        );
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "resource")) {
+                $size = Database::getColumnSize(column: $key, table: "resource");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            }
+        }
+        if($this->id == null || $database->query("SELECT id from resource where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "resource") && !Database::isUniqueValue(column: $key, table: "resource", value: $value)) throw new UniqueKey($key);
+            }
+            $this->id = Database::getNextIncrement("resource");
+            $query_keys_values["id"] = $this->id;
+            $sql_keys = "";
+            $sql_values = "";
+            foreach($query_keys_values as $key => $value){
+                $sql_keys .= $key . ",";
+                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+            }
+            $sql_keys = substr($sql_keys,0,-1);
+            $sql_values = substr($sql_values,0,-1) ;
+            $sql = "INSERT INTO resource ($sql_keys) VALUES ($sql_values)";
         } else {
-            $sql = "UPDATE resource SET title = '$this->title', description = '$this->description', extension = '$this->extension', path = '$this->path' WHERE id = $this->id";
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "resource") && !Database::isUniqueValue(column: $key, table: "resource", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
+            $update_sql = "";
+            foreach($query_keys_values as $key => $value){
+                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+            }
+            $update_sql = substr($update_sql,0,-1);
+            $sql = "UPDATE resource SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
         return $this;
@@ -91,7 +141,7 @@ class Resource {
      * @return $this
      */
     public function remove() : Resource{
-        GLOBAL $database;
+        $database = $this->database;
         $database->query("DELETE FROM resource where id = $this->id");
         return $this;
     }
@@ -104,8 +154,12 @@ class Resource {
      * @throws RecordNotFound
      */
     public static function find(int $id = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from resource WHERE " . $sql;
         } else {
@@ -115,14 +169,13 @@ class Resource {
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
-        $result = array();
         while($row = $query->fetch_array()){
             $result[] = new Resource($row["id"], $flags);
         }
         return $result;
     }
 
-    #[ArrayShape(["id" => "int|mixed", "title" => "mixed", "description" => "mixed", "extension" => "mixed", "path" => "mixed"])]
+    #[ArrayShape(["id" => "int", "title" => "string", "description" => "string", "extension" => "string", "path" => "string"])]
     #[Pure]
     public function toArray(): array
     {
@@ -135,87 +188,87 @@ class Resource {
         );
     }
     /**
-     * @return int|mixed
+     * @return int
      */
-    public function getId(): mixed
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getTitle(): mixed
+    public function getTitle(): String
     {
         return $this->title;
     }
 
     /**
-     * @param mixed|String $title
+     * @param String $title
      * @return Resource
      */
-    public function setTitle(mixed $title): Resource
+    public function setTitle(String $title): Resource
     {
         $this->title = $title;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getDescription(): mixed
+    public function getDescription(): String
     {
         return $this->description;
     }
 
     /**
-     * @param mixed|String $description
+     * @param String $description
      * @return Resource
      */
-    public function setDescription(mixed $description): Resource
+    public function setDescription(String $description): Resource
     {
         $this->description = $description;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getExtension(): mixed
+    public function getExtension(): String
     {
         return $this->extension;
     }
 
     /**
-     * @param mixed|String $extension
+     * @param String $extension
      * @return Resource
      */
-    public function setExtension(mixed $extension): Resource
+    public function setExtension(String $extension): Resource
     {
         $this->extension = $extension;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getPath(): mixed
+    public function getPath(): String
     {
         return $this->path;
     }
 
     /**
-     * @param mixed|String $path
+     * @param String $path
      * @return Resource
      */
-    public function setPath(mixed $path): Resource
+    public function setPath(String $path): Resource
     {
         $this->path = $path;
         return $this;
     }
 
     /**
-     * @return array|int[]
+     * @return array
      */
     public function getFlags(): array
     {

@@ -19,6 +19,9 @@ use Mysqli;
 use Exceptions\UniqueKey;
 use Exceptions\RecordNotFound;
 use Exceptions\IOException;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\TableNotFound;
 
 /*
  * Enumerator Imports
@@ -57,14 +60,14 @@ class Language {
      * @throws RecordNotFound
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
+        $this->flags = $flags;
         try {
             $this->database = Database::getConnection();
         } catch(IOException $e){
             $this->database = null;
         }
-        $database = $this->database;
-        $this->flags = $flags;
-        if($id != null){
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM language WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -81,59 +84,54 @@ class Language {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
-     * @throws UniqueKey
      * @throws IOException
+     * @throws InvalidSize
+     * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
      */
     public function store() : Language{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-
         $query_keys_values = array(
             "id" => $this->id,
             "code" => $this->code,
             "name" => $this->name,
             "original_name" => $this->original_name
         );
-        $sql = "";
-        if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {
-            if($database->query("SELECT id from language where code = '$this->code'")->num_rows > 0) {
-                throw new UniqueKey("code");
-            } else if($database->query("SELECT id from language where name = '$this->name'")->num_rows > 0) {
-                throw new UniqueKey("name");
-            } else if($database->query("SELECT id from language where original_name = '$this->original_name'")->num_rows > 0) {
-                throw new UniqueKey("original_name");
-            } else {
-                $this->id = Database::getNextIncrement("language");
-
-                $query_keys_values["id"] = $this->id;
-                $sql_keys = "";
-                $sql_values = "";
-                foreach($query_keys_values as $key => $value){
-                    $sql_keys .= $key . ",";
-                    $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
-                }
-                $sql_keys = substr($sql_keys,0,-1);
-                $sql_values = substr($sql_values,0,-1) ;
-                $sql = "INSERT INTO language ($sql_keys) VALUES ($sql_values)";
-                $database->query($sql);
-            }
-        } else {
-            if($database->query("SELECT id from language where code = '$this->code' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("code");
-            } else if($database->query("SELECT id from language where name = '$this->name' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("name");
-            } else if($database->query("SELECT id from language where original_name = '$this->original_name' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("original_name");
-            } else {
-                $update_sql = "";
-                foreach ($query_keys_values as $key => $value) {
-                    $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
-                }
-                $update_sql = substr($update_sql, 0, -1);
-                $sql = "UPDATE language SET $update_sql WHERE id = $this->id";
-                $database->query($sql);
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "language")) {
+                $size = Database::getColumnSize(column: $key, table: "language");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
             }
         }
+        if($this->id == null || $database->query("SELECT id from language where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "language") && !Database::isUniqueValue(column: $key, table: "language", value: $value)) throw new UniqueKey($key);
+            }
+            $this->id = Database::getNextIncrement("language");
+            $query_keys_values["id"] = $this->id;
+            $sql_keys = "";
+            $sql_values = "";
+            foreach($query_keys_values as $key => $value){
+                $sql_keys .= $key . ",";
+                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+            }
+            $sql_keys = substr($sql_keys,0,-1);
+            $sql_values = substr($sql_values,0,-1) ;
+            $sql = "INSERT INTO language ($sql_keys) VALUES ($sql_values)";
+        } else {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "language") && !Database::isUniqueValue(column: $key, table: "language", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
+            $update_sql = "";
+            foreach($query_keys_values as $key => $value){
+                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+            }
+            $update_sql = substr($update_sql,0,-1);
+            $sql = "UPDATE language SET $update_sql WHERE id = $this->id";
+        }
+        $database->query($sql);
         return $this;
     }
 
@@ -142,21 +140,26 @@ class Language {
      * @return $this
      */
     public function remove() : Language{
-        GLOBAL $database;
+        $database = $this->database;
         $database->query("DELETE FROM language where id = $this->id");
         return $this;
     }
 
     /**
      * @param int|null $id
+     * @param String|null $code
      * @param string|null $sql
      * @param array $flags
      * @return array
      * @throws RecordNotFound
      */
     public static function find(int $id = null, String $code = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from language WHERE " . $sql;
         } else {
@@ -167,7 +170,6 @@ class Language {
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
-        $result = array();
         while($row = $query->fetch_array()){
             $result[] = new Language($row["id"], $flags);
         }
@@ -186,62 +188,62 @@ class Language {
         );
     }
     /**
-     * @return int|mixed
+     * @return int
      */
-    public function getId(): mixed
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getCode(): mixed
+    public function getCode(): String
     {
         return $this->code;
     }
 
     /**
-     * @param mixed|String $code
+     * @param String $code
      * @return Language
      */
-    public function setCode(mixed $code): Language
+    public function setCode(String $code): Language
     {
         $this->code = $code;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getName(): mixed
+    public function getName(): String
     {
         return $this->name;
     }
 
     /**
-     * @param mixed|String $name
+     * @param String $name
      * @return Language
      */
-    public function setName(mixed $name): Language
+    public function setName(String $name): Language
     {
         $this->name = $name;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getOriginalName(): mixed
+    public function getOriginalName(): String
     {
         return $this->original_name;
     }
 
     /**
-     * @param mixed|String $original_name
+     * @param String $original_name
      * @return Language
      */
-    public function setOriginalName(mixed $original_name): Language
+    public function setOriginalName(String $original_name): Language
     {
         $this->original_name = $original_name;
         return $this;

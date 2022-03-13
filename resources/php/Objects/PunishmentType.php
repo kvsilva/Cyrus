@@ -18,7 +18,10 @@ use mysqli;
  */
 use Exceptions\RecordNotFound;
 use Exceptions\IOException;
-
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\TableNotFound;
+use Exceptions\UniqueKey;
 /*
  * Enumerator Imports
  */
@@ -54,14 +57,14 @@ class PunishmentType {
      * @throws RecordNotFound
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
+        $this->flags = $flags;
         try {
             $this->database = Database::getConnection();
         } catch(IOException $e){
             $this->database = null;
         }
-        $database = $this->database;
-        $this->flags = $flags;
-        if($id != null){
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM punishment_type WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -77,19 +80,29 @@ class PunishmentType {
      * This method will update the data in the database, according to the object properties
      * @return $this
      * @throws IOException
+     * @throws InvalidSize
+     * @throws ColumnNotFound
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : PunishmentType{
-        if($this->database == null) throw new IOException("Could not access database services.");
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-
         $query_keys_values = array(
             "id" => $this->id,
             "name" => $this->name
         );
-        $sql = "";
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "punishment_type")) {
+                $size = Database::getColumnSize(column: $key, table: "punishment_type");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            }
+        }
         if($this->id == null || $database->query("SELECT id from punishment_type where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "punishment_type") && !Database::isUniqueValue(column: $key, table: "punishment_type", value: $value)) throw new UniqueKey($key);
+            }
             $this->id = Database::getNextIncrement("punishment_type");
-
             $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
@@ -101,6 +114,9 @@ class PunishmentType {
             $sql_values = substr($sql_values,0,-1) ;
             $sql = "INSERT INTO punishment_type ($sql_keys) VALUES ($sql_values)";
         } else {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "punishment_type") && !Database::isUniqueValue(column: $key, table: "punishment_type", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
             $update_sql = "";
             foreach($query_keys_values as $key => $value){
                 $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
@@ -117,7 +133,7 @@ class PunishmentType {
      * @return $this
      */
     public function remove() : PunishmentType{
-        GLOBAL $database;
+        $database = $this->database;
         $database->query("DELETE FROM punishment_type where id = $this->id");
         return $this;
     }
@@ -130,8 +146,12 @@ class PunishmentType {
      * @throws RecordNotFound
      */
     public static function find(int $id = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from punishment_type WHERE " . $sql;
         } else {
@@ -141,7 +161,6 @@ class PunishmentType {
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
-        $result = array();
         while($row = $query->fetch_array()){
             $result[] = new PunishmentType($row["id"], $flags);
         }

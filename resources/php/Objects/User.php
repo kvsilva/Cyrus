@@ -5,6 +5,9 @@ namespace Objects;
  */
 
 use DateTime;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\TableNotFound;
 use JetBrains\PhpStorm\Pure;
 use MongoDB\BSON\Timestamp;
 use mysqli;
@@ -102,9 +105,9 @@ class User {
         } catch(IOException $e){
             $this->database = null;
         }
-        $database = $this->database;
         $this->flags = $flags;
-        if($id != null){
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM USER WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -153,7 +156,11 @@ class User {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
-     * @throws UniqueKey|IOException
+     * @throws IOException
+     * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
+     * @throws InvalidSize
      */
     public function store() : User
     {
@@ -179,43 +186,41 @@ class User {
             "night_mode" => isset($this->night_mode) ? $this->night_mode->value : NightMode::DISABLE->value,
             "available" => isset($this->available) ? $this->available->value : Availability::AVAILABLE->value
         );
-        $sql = "";
-        if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {
-            if ($database->query("SELECT id from USER where username = '$this->username'")->num_rows > 0) {
-                throw new UniqueKey("username");
-            } else if ($database->query("SELECT id from USER where email = '$this->email'")->num_rows > 0) {
-                throw new UniqueKey("email");
-            } else {
-                $this->id = Database::getNextIncrement("user");
-
-                $query_keys_values["id"] = $this->id;
-                $sql_keys = "";
-                $sql_values = "";
-                foreach($query_keys_values as $key => $value){
-                    $sql_keys .= $key . ",";
-                    $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
-                }
-                $sql_keys = substr($sql_keys,0,-1);
-                $sql_values = substr($sql_values,0,-1) ;
-                $sql = "INSERT INTO user ($sql_keys) VALUES ($sql_values)";
-                echo "<br>" . $sql . "<br>";
-                $database->query($sql);
-            }
-        } else {
-            if ($database->query("SELECT id from USER where username = '$this->username' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("username");
-            } else if ($database->query("SELECT id from USER where email = '$this->email' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("email");
-            } else {
-                $update_sql = "";
-                foreach($query_keys_values as $key => $value){
-                    $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
-                }
-                $update_sql = substr($update_sql,0,-1);
-                $sql = "UPDATE user SET $update_sql WHERE id = $this->id";
-                $database->query($sql);
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "user")) {
+                $size = Database::getColumnSize(column: $key, table: "user");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
             }
         }
+        if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "user") && !Database::isUniqueValue(column: $key, table: "user", value: $value)) throw new UniqueKey($key);
+            }
+            $this->id = Database::getNextIncrement("user");
+
+            $query_keys_values["id"] = $this->id;
+            $sql_keys = "";
+            $sql_values = "";
+            foreach ($query_keys_values as $key => $value) {
+                $sql_keys .= $key . ",";
+                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+            }
+            $sql_keys = substr($sql_keys, 0, -1);
+            $sql_values = substr($sql_values, 0, -1);
+            $sql = "INSERT INTO user ($sql_keys) VALUES ($sql_values)";
+
+        } else {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "user") && !Database::isUniqueValue(column: $key, table: "user", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
+            $update_sql = "";
+            foreach ($query_keys_values as $key => $value) {
+                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+            }
+            $update_sql = substr($update_sql, 0, -1);
+            $sql = "UPDATE user SET $update_sql WHERE id = $this->id";
+        }
+        $database->query($sql);
         // Relations
         if (in_array(self::ROLES, $this->flags)) {
             $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
@@ -256,7 +261,11 @@ class User {
     /**
      * This method will remove the object from the database, however, for logging reasons, the record will only be hidden in queries.
      * @return $this
-     * @throws UniqueKey|IOException
+     * @throws ColumnNotFound
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function remove() : User{
         $this->available = Availability::NOT_AVAILABLE;
@@ -276,8 +285,12 @@ class User {
      * @throws MalformedJSON
      */
     public static function find(int $id = null, string $email = null, string $username = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from USER WHERE " . $sql;
         } else {
@@ -290,7 +303,6 @@ class User {
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
-        $result = array();
         while($row = $query->fetch_array()){
             $result[] = new User($row["id"], $flags);
         }

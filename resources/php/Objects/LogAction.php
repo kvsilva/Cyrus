@@ -6,6 +6,7 @@ namespace Objects;
 
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
+use mysqli;
 
 /*
  * Object Imports
@@ -17,6 +18,10 @@ use JetBrains\PhpStorm\Pure;
  */
 use Exceptions\UniqueKey;
 use Exceptions\RecordNotFound;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\IOException;
+use Exceptions\TableNotFound;
 
 /*
  * Enumerator Imports
@@ -25,11 +30,13 @@ use Exceptions\RecordNotFound;
 /*
  * Others
  */
-require_once (dirname(__FILE__).'/../database.php');
-use Functions\Database as database_functions;
+use Functions\Database;
 
 
 class LogAction {
+
+    // Database
+    private ?MySqli $database = null;
 
     // Flags
 
@@ -38,9 +45,9 @@ class LogAction {
 
     // DEFAULT STRUCTURE
 
-    private int $id;
-    private String $name;
-    private String $description;
+    private ?int $id = null;
+    private ?String $name = null;
+    private ?String $description = null;
 
     // RELATIONS
 
@@ -52,8 +59,13 @@ class LogAction {
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
-        if($id != null){
-            GLOBAL $database;
+        try {
+            $this->database = Database::getConnection();
+        } catch(IOException $e){
+            $this->database = null;
+        }
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM log_action WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -69,26 +81,53 @@ class LogAction {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws IOException
+     * @throws InvalidSize
      * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
      */
     public function store() : LogAction{
-        GLOBAL $database;
-        if($database->query("SELECT id from log_action where id = $this->id")->num_rows == 0) {
-            if($database->query("SELECT id from log_action where name = '$this->name'")->num_rows > 0) {
-                throw new UniqueKey("name");
-            } else {
-                $this->id = database_functions::getNextIncrement("log_action");
-                $sql = "INSERT INTO log_action (id, name, description) VALUES ($this->id, '$this->name', '$this->description');";
-                $database->query($sql);
-            }
-        } else {
-            if($database->query("SELECT id from log_action where name = '$this->name' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("name");
-            } else {
-                $sql = "UPDATE log_action SET name = '$this->name', description = '$this->description' WHERE id = $this->id";
-                $database->query($sql);
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+        $query_keys_values = array(
+            "id" => $this->id,
+            "name" => $this->name,
+            "description" => $this->description
+        );
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "log_action")) {
+                $size = Database::getColumnSize(column: $key, table: "log_action");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
             }
         }
+        if($this->id == null || $database->query("SELECT id from log_action where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "log_action") && !Database::isUniqueValue(column: $key, table: "log_action", value: $value)) throw new UniqueKey($key);
+            }
+            $this->id = Database::getNextIncrement("log_action");
+            $query_keys_values["id"] = $this->id;
+            $sql_keys = "";
+            $sql_values = "";
+            foreach($query_keys_values as $key => $value){
+                $sql_keys .= $key . ",";
+                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+            }
+            $sql_keys = substr($sql_keys,0,-1);
+            $sql_values = substr($sql_values,0,-1) ;
+            $sql = "INSERT INTO log_action ($sql_keys) VALUES ($sql_values)";
+        } else {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "log_action") && !Database::isUniqueValue(column: $key, table: "log_action", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
+            $update_sql = "";
+            foreach($query_keys_values as $key => $value){
+                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+            }
+            $update_sql = substr($update_sql,0,-1);
+            $sql = "UPDATE log_action SET $update_sql WHERE id = $this->id";
+        }
+        $database->query($sql);
         return $this;
     }
 
@@ -97,7 +136,7 @@ class LogAction {
      * @return $this
      */
     public function remove() : LogAction{
-        GLOBAL $database;
+        $database = $this->database;
         $database->query("DELETE FROM log_action where id = $this->id");
         return $this;
     }
@@ -111,8 +150,12 @@ class LogAction {
      * @throws RecordNotFound
      */
     public static function find(int $id = null, String $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from log_action WHERE " . $sql;
         } else {
@@ -123,7 +166,6 @@ class LogAction {
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
-        $result = array();
         while($row = $query->fetch_array()){
             $result[] = new LogAction($row["id"], $flags);
         }
@@ -141,44 +183,44 @@ class LogAction {
         );
     }
     /**
-     * @return int|mixed
+     * @return int
      */
-    public function getId(): mixed
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getName(): mixed
+    public function getName(): String
     {
         return $this->name;
     }
 
     /**
-     * @param mixed|String $name
+     * @param String $name
      * @return LogAction
      */
-    public function setName(mixed $name): LogAction
+    public function setName(String $name): LogAction
     {
         $this->name = $name;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String
      */
-    public function getDescription(): mixed
+    public function getDescription(): String
     {
         return $this->description;
     }
 
     /**
-     * @param mixed|String $description
+     * @param String $description
      * @return LogAction
      */
-    public function setDescription(mixed $description): LogAction
+    public function setDescription(String $description): LogAction
     {
         $this->description = $description;
         return $this;

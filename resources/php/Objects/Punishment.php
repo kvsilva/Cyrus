@@ -5,7 +5,6 @@ namespace Objects;
  */
 
 use DateTime;
-use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use mysqli;
 
@@ -23,6 +22,10 @@ use Exceptions\UniqueKey;
 use Exceptions\RecordNotFound;
 use Exceptions\IOException;
 use Exceptions\MalformedJSON;
+use Exception;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\TableNotFound;
 
 /*
  * Enumerator Imports
@@ -64,17 +67,17 @@ class Punishment {
      * @param array $flags
      * @throws RecordNotFound
      * @throws MalformedJSON
-     * @throws \Exception
+     * @throws Exception
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
+        $this->flags = $flags;
         try {
             $this->database = Database::getConnection();
         } catch(IOException $e){
             $this->database = null;
         }
-        $database = $this->database;
-        $this->flags = $flags;
-        if($id != null){
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM punishment WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -97,13 +100,15 @@ class Punishment {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
-     * @throws UniqueKey
      * @throws IOException
+     * @throws InvalidSize
+     * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
      */
     public function store() : Punishment{
-        if($this->database == null) throw new IOException("Could not access database services.");
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-        // field size on database*
         $query_keys_values = array(
             "id" => $this->id,
             "user" => isset($this->user) ? $this->user->store()->getId() : null,
@@ -116,10 +121,17 @@ class Punishment {
             "revoked_reason" => $this->revoked_reason ?? null,
             "available" => isset($this->available) ? $this->available->value : null,
         );
-        $sql = "";
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "punishment")) {
+                $size = Database::getColumnSize(column: $key, table: "punishment");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            }
+        }
         if($this->id == null || $database->query("SELECT id from punishment where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "punishment") && !Database::isUniqueValue(column: $key, table: "punishment", value: $value)) throw new UniqueKey($key);
+            }
             $this->id = Database::getNextIncrement("punishment");
-
             $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
@@ -131,6 +143,9 @@ class Punishment {
             $sql_values = substr($sql_values,0,-1) ;
             $sql = "INSERT INTO punishment ($sql_keys) VALUES ($sql_values)";
         } else {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "punishment") && !Database::isUniqueValue(column: $key, table: "punishment", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
             $update_sql = "";
             foreach($query_keys_values as $key => $value){
                 $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
@@ -138,7 +153,6 @@ class Punishment {
             $update_sql = substr($update_sql,0,-1);
             $sql = "UPDATE punishment SET $update_sql WHERE id = $this->id";
         }
-        echo "<br>" . $sql . "<br>";
         $database->query($sql);
         return $this;
     }
@@ -148,7 +162,7 @@ class Punishment {
      * @return $this
      */
     public function remove() : Punishment{
-        GLOBAL $database;
+        $database = $this->database;
         $database->query("DELETE FROM log where id = $this->id");
         return $this;
     }
@@ -166,8 +180,12 @@ class Punishment {
      * @throws RecordNotFound
      */
     public static function find(int $id = null, int $user = null, int $punishment_type = null, int $performed_by = null, int $revoked_by = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from punishment WHERE " . $sql;
         } else {
@@ -187,8 +205,6 @@ class Punishment {
         }
         return $result;
     }
-
-
 
     #[Pure]
     public function toArray(): array

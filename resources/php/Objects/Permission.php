@@ -6,6 +6,7 @@ namespace Objects;
 
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
+use mysqli;
 
 /*
  * Object Imports
@@ -17,6 +18,10 @@ use JetBrains\PhpStorm\Pure;
  */
 use Exceptions\UniqueKey;
 use Exceptions\RecordNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\IOException;
+use Exceptions\ColumnNotFound;
+use Exceptions\TableNotFound;
 
 /*
  * Enumerator Imports
@@ -25,11 +30,12 @@ use Exceptions\RecordNotFound;
 /*
  * Others
  */
-require_once (dirname(__FILE__).'/../database.php');
-use Functions\Database as database_functions;
-
+use Functions\Database;
 
 class Permission {
+
+    // Database
+    private ?MySqli $database = null;
 
     // Flags
 
@@ -38,10 +44,10 @@ class Permission {
 
     // DEFAULT STRUCTURE
 
-    private int $id;
-    private String $tag;
-    private String $name;
-    private String $description;
+    private ?int $id = null;
+    private ?String $tag = null;
+    private ?String $name = null;
+    private ?String $description = null;
 
     // RELATIONS
 
@@ -53,8 +59,13 @@ class Permission {
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
-        if($id != null){
-            GLOBAL $database;
+        try {
+            $this->database = Database::getConnection();
+        } catch(IOException $e){
+            $this->database = null;
+        }
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM permission WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -71,26 +82,56 @@ class Permission {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws IOException
+     * @throws InvalidSize
      * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
      */
     public function store() : Permission{
-        GLOBAL $database;
-        if($database->query("SELECT id from permission where id = $this->id")->num_rows == 0) {
-            if($database->query("SELECT id from permission where tag = '$this->tag'")->num_rows > 0) {
-                throw new UniqueKey("tag");
-            } else {
-                $this->id = database_functions::getNextIncrement("permission");
-                $sql = "INSERT INTO permission (id, tag, name, description) VALUES ($this->id, '$this->tag', '$this->name', '$this->description');";
-                $database->query($sql);
-            }
-        } else {
-            if($database->query("SELECT id from permission where tag = '$this->tag' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("tag");
-            } else {
-                $sql = "UPDATE permission SET tag = '$this->tag', name = '$this->name', description = '$this->description' WHERE id = $this->id";
-                $database->query($sql);
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+
+        $query_keys_values = array(
+            "id" => $this->id,
+            "tag" => $this->tag,
+            "name" => $this->name,
+            "description" => $this->description
+        );
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "permission")) {
+                $size = Database::getColumnSize(column: $key, table: "permission");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
             }
         }
+        if ($this->id == null || $database->query("SELECT id from permission where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "permission") && !Database::isUniqueValue(column: $key, table: "permission", value: $value)) throw new UniqueKey($key);
+            }
+            $this->id = Database::getNextIncrement("permission");
+            $query_keys_values["id"] = $this->id;
+            $sql_keys = "";
+            $sql_values = "";
+            foreach ($query_keys_values as $key => $value) {
+                $sql_keys .= $key . ",";
+                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+            }
+            $sql_keys = substr($sql_keys, 0, -1);
+            $sql_values = substr($sql_values, 0, -1);
+            $sql = "INSERT INTO permission ($sql_keys) VALUES ($sql_values)";
+        } else {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "permission") && !Database::isUniqueValue(column: $key, table: "permission", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
+            $update_sql = "";
+            foreach ($query_keys_values as $key => $value) {
+                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+            }
+            $update_sql = substr($update_sql, 0, -1);
+            $sql = "UPDATE permission SET $update_sql WHERE id = $this->id";
+        }
+        $database->query($sql);
+        // Relations
         return $this;
     }
 
@@ -99,7 +140,7 @@ class Permission {
      * @return $this
      */
     public function remove() : Permission{
-        GLOBAL $database;
+        $database = $this->database;
         $database->query("DELETE FROM ROLE_PERMISSION where permission = $this->id");
         $database->query("DELETE FROM permission where id = $this->id");
         return $this;
@@ -107,15 +148,19 @@ class Permission {
 
     /**
      * @param int|null $id
-     * @param string|null $name
+     * @param string|null $tag
      * @param string|null $sql
      * @param array $flags
      * @return array
      * @throws RecordNotFound
      */
     public static function find(int $id = null, string $tag = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from permission WHERE " . $sql;
         } else {
@@ -126,7 +171,6 @@ class Permission {
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
-        $result = array();
         while($row = $query->fetch_array()){
             $result[] = new Permission($row["id"], $flags);
         }

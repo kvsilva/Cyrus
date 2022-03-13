@@ -16,9 +16,12 @@ use JetBrains\PhpStorm\Pure;
  * Exception Imports
  */
 use Exceptions\UniqueKey;
-use Exceptions\NotNullable;
+use Exceptions\InvalidSize;
+use Exceptions\IOException;
 use Exceptions\InvalidDataType;
 use Exceptions\RecordNotFound;
+use Exceptions\ColumnNotFound;
+use Exceptions\TableNotFound;
 
 /*
  * Enumerator Imports
@@ -27,11 +30,14 @@ use Exceptions\RecordNotFound;
 /*
  * Others
  */
-require_once (dirname(__FILE__).'/../database.php');
-use Functions\Database as database_functions;
+use Functions\Database;
+use mysqli;
 
 
 class Role {
+
+    // Database
+    private ?MySqli $database = null;
 
     // Flags
 
@@ -41,8 +47,8 @@ class Role {
 
     // DEFAULT STRUCTURE
 
-    private int $id;
-    private String $name;
+    private ?int $id = null;
+    private ?String $name = null;
 
     // RELATIONS
 
@@ -52,7 +58,6 @@ class Role {
     private array $permissions = array();
 
 
-
     /**
      * @param int|null $id
      * @param array $flags
@@ -60,8 +65,13 @@ class Role {
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
-        if($id != null){
-            GLOBAL $database;
+        try {
+            $this->database = Database::getConnection();
+        } catch(IOException $e){
+            $this->database = null;
+        }
+        if($id != null && $this->database != null){
+            $database = $this->database;
             $query = $database->query("SELECT * FROM ROLE WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
@@ -83,41 +93,72 @@ class Role {
     /**
      * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws IOException
+     * @throws InvalidSize
      * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
      */
     public function store() : Role{
-        GLOBAL $database;
-        if($database->query("SELECT id from ROLE where id = $this->id")->num_rows == 0) {
-            if($database->query("SELECT id from ROLE where name = '$this->name'")->num_rows > 0) {
-                throw new UniqueKey("name");
-            } else {
-                $this->id = database_functions::getNextIncrement("role");
-                $sql = "INSERT INTO ROLE (id, name) VALUES ($this->id, '$this->name');";
-                $database->query($sql);
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+
+        $query_keys_values = array(
+            "id" => $this->id,
+            "name" => $this->name
+        );
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "role")) {
+                $size = Database::getColumnSize(column: $key, table: "role");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
             }
+        }
+        if($this->id == null || $database->query("SELECT id from ROLE where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "role") && !Database::isUniqueValue(column: $key, table: "role", value: $value)) throw new UniqueKey($key);
+            }
+            $this->id = Database::getNextIncrement("role");
+
+            $query_keys_values["id"] = $this->id;
+            $sql_keys = "";
+            $sql_values = "";
+            foreach ($query_keys_values as $key => $value) {
+                $sql_keys .= $key . ",";
+                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+            }
+            $sql_keys = substr($sql_keys, 0, -1);
+            $sql_values = substr($sql_values, 0, -1);
+            $sql = "INSERT INTO role ($sql_keys) VALUES ($sql_values)";
         } else {
-            if($database->query("SELECT id from ROLE where name = '$this->name' AND id <> $this->id")->num_rows > 0) {
-                throw new UniqueKey("name");
-            } else {
-                $sql = "UPDATE ROLE SET name = '$this->name' WHERE id = $this->id";
-                $database->query($sql);
-                if (in_array(self::PERMISSIONS, $this->flags)) {
-                    $query = $database->query("SELECT permission as 'id' FROM role_permission WHERE role = $this->id;");
-                    while ($row = $query->fetch_array()) {
-                        $remove = true;
-                        foreach ($this->permissions as $permission) {
-                            $permission->store();
-                            if ($permission->getId() == $row["id"]) {
-                                $remove = false;
-                                break;
-                            }
-                        }
-                        if ($remove) $database->query("DELETE FROM ROLE_PERMISSION WHERE role = $this->id AND permission = $row[id]");
-                    }
-                    foreach ($this->permissions as $permission) {
-                        $database->query("INSERT IGNORE INTO role_permission (role, permission) VALUES ($this->id, $permission->getId())");
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "role") && !Database::isUniqueValue(column: $key, table: "role", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
+            $update_sql = "";
+            foreach ($query_keys_values as $key => $value) {
+                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+            }
+            $update_sql = substr($update_sql, 0, -1);
+            $sql = "UPDATE role SET $update_sql WHERE id = $this->id";
+        }
+        $database->query($sql);
+
+        // Relations
+
+        if (in_array(self::PERMISSIONS, $this->flags)) {
+            $query = $database->query("SELECT permission as 'id' FROM role_permission WHERE role = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->permissions as $permission) {
+                    $permission->store();
+                    if ($permission->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
                     }
                 }
+                if ($remove) $database->query("DELETE FROM ROLE_PERMISSION WHERE role = $this->id AND permission = $row[id]");
+            }
+            foreach ($this->permissions as $permission) {
+                $database->query("INSERT IGNORE INTO role_permission (role, permission) VALUES ($this->id, $permission->getId())");
             }
         }
         return $this;
@@ -144,8 +185,12 @@ class Role {
      * @throws RecordNotFound
      */
     public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        GLOBAL $database;
-        $sql_command = "";
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
         if($sql != null){
             $sql_command = "SELECT id from role WHERE " . $sql;
         } else {
@@ -156,7 +201,6 @@ class Role {
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
-        $result = array();
         while($row = $query->fetch_array()){
             $result[] = new Role($row["id"], $flags);
         }
@@ -238,7 +282,6 @@ class Role {
         } else throw new InvalidDataType("permission", "Permission");
         return $this;
     }
-
 
     /**
      * @param Permission|null $permission
