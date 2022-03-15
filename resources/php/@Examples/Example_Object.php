@@ -22,6 +22,7 @@ use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
 use Exceptions\TableNotFound;
+use Exceptions\NotNullable;
 
 /*
  * Enumerator Imports
@@ -83,6 +84,7 @@ class Example_Object {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : Example_Object{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -94,6 +96,8 @@ class Example_Object {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "example_object")) {
                 $size = Database::getColumnSize(column: $key, table: "example_object");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'example_object') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from example_object where id = $this->id")->num_rows == 0) {

@@ -22,6 +22,7 @@ use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
 use Exceptions\TableNotFound;
+use Exceptions\NotNullable;
 
 /*
  * Enumerator Imports
@@ -85,6 +86,7 @@ class VideoType {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : VideoType{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -97,6 +99,8 @@ class VideoType {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "video_type")) {
                 $size = Database::getColumnSize(column: $key, table: "video_type");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'video_type') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from video_type where id = $this->id")->num_rows == 0) {

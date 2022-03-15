@@ -22,6 +22,7 @@ use Exceptions\InvalidDataType;
 use Exceptions\RecordNotFound;
 use Exceptions\ColumnNotFound;
 use Exceptions\TableNotFound;
+use Exceptions\NotNullable;
 
 /*
  * Enumerator Imports
@@ -98,6 +99,7 @@ class Role {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : Role{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -111,6 +113,8 @@ class Role {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "role")) {
                 $size = Database::getColumnSize(column: $key, table: "role");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'role') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from ROLE where id = $this->id")->num_rows == 0) {

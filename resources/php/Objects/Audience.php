@@ -4,6 +4,7 @@ namespace Objects;
  * Class imports
  */
 
+use Exceptions\NotNullable;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
@@ -87,6 +88,7 @@ class Audience {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : Example_Object{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -100,6 +102,8 @@ class Audience {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "audience")) {
                 $size = Database::getColumnSize(column: $key, table: "audience");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'audience') && $value == null) {
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from audience where id = $this->id")->num_rows == 0) {

@@ -4,8 +4,6 @@ namespace Objects;
  * Class imports
  */
 
-use Enumerators\Availability;
-use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
 /*
@@ -23,11 +21,12 @@ use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
 use Exceptions\TableNotFound;
+use Exceptions\NotNullable;
 
 /*
  * Enumerator Imports
  */
-
+use Enumerators\Availability;
 /*
  * Others
  */
@@ -114,6 +113,7 @@ class Video {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : Video{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -136,6 +136,8 @@ class Video {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "video")) {
                 $size = Database::getColumnSize(column: $key, table: "video");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'video') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from video where id = $this->id")->num_rows == 0) {
@@ -176,6 +178,7 @@ class Video {
      * @throws InvalidSize
      * @throws TableNotFound
      * @throws UniqueKey
+     * @throws NotNullable
      */
     public function remove() : Video{
         $database = $this->database;

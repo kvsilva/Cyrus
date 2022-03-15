@@ -100,7 +100,17 @@ class Database
     }
 
     public static function isNullable(String $column, String $table, $schema = "cyrus"): Bool{
-        return false;
+        try {
+            $query = self::getConnection()->query("SELECT column_name, column_default, is_nullable FROM information_schema.columns WHERE table_schema = '$schema' AND table_name = '$table' and column_name = '$column'");
+            if($query->num_rows > 0){
+                $row = $query->fetch_array();
+                return strtolower($row["is_nullable"]) == 'no' && $row["column_default"] != "";
+            } else {
+                return false;
+            }
+        } catch (IOException $e){
+            return false;
+        }
     }
 
     /**
@@ -179,7 +189,6 @@ class Database
                     return ($value <= $bytes_range->getMaximum() && $value >= $bytes_range->getMinimum());
                 } else return false;
             } else if (isset(self::$data_types_fractional_number[$row["DATA_TYPE"]])) {
-                echo "-E-";
                 $before_comma = $scale > 0 ? explode(",", $value . "")[0] : $value . "";
                 $after_comma = $scale > 0 ? explode(",", $value . "")[1] : "";
                 if (strlen($before_comma) <= $precision && strlen($after_comma) <= $scale) {

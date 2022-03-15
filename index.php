@@ -21,7 +21,7 @@ use Exceptions\RecordNotFound;
 use Objects\User;
 use Functions\Database;
 $var = array(
-    "user" => true,
+    "user" =>  false,
     "language" => false
 );
 
@@ -69,6 +69,7 @@ function calculateBytesForNumberUnsigned($value){
     //31 2^31-1 = MAXIMUM SIZE
 }*/
 
+echo (Database::isNullable(column: 'date___', table: 'data_types') ? 'TRUE' : 'FALSE');
 try {
     //$x = 2147483647;
     //echo Number::getRequiredByteSize($x);

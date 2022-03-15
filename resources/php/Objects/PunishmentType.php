@@ -4,6 +4,7 @@ namespace Objects;
  * Class imports
  */
 
+use Exceptions\NotNullable;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use mysqli;
@@ -84,6 +85,7 @@ class PunishmentType {
      * @throws ColumnNotFound
      * @throws TableNotFound
      * @throws UniqueKey
+     * @throws NotNullable
      */
     public function store() : PunishmentType{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -96,6 +98,8 @@ class PunishmentType {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "punishment_type")) {
                 $size = Database::getColumnSize(column: $key, table: "punishment_type");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'punishment_type') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from punishment_type where id = $this->id")->num_rows == 0) {

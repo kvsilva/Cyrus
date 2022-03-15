@@ -4,6 +4,7 @@ namespace Objects;
  * Class imports
  */
 
+use Exceptions\NotNullable;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use mysqli;
@@ -86,6 +87,7 @@ class LogAction {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : LogAction{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -99,6 +101,8 @@ class LogAction {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "log_action")) {
                 $size = Database::getColumnSize(column: $key, table: "log_action");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'log_action') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from log_action where id = $this->id")->num_rows == 0) {

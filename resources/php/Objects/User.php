@@ -5,11 +5,7 @@ namespace Objects;
  */
 
 use DateTime;
-use Exceptions\ColumnNotFound;
-use Exceptions\InvalidSize;
-use Exceptions\TableNotFound;
 use JetBrains\PhpStorm\Pure;
-use MongoDB\BSON\Timestamp;
 use mysqli;
 
 /*
@@ -31,6 +27,9 @@ use Exceptions\InvalidDataType;
 use Exceptions\RecordNotFound;
 use Exceptions\MalformedJSON;
 use Exceptions\IOException;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\TableNotFound;
 
 /*
  * Enumerator Imports
@@ -161,6 +160,7 @@ class User {
      * @throws ColumnNotFound
      * @throws TableNotFound
      * @throws InvalidSize
+     * @throws NotNullable
      */
     public function store() : User
     {
@@ -190,6 +190,8 @@ class User {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "user")) {
                 $size = Database::getColumnSize(column: $key, table: "user");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'user') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {

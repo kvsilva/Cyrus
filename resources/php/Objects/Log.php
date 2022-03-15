@@ -4,6 +4,7 @@ namespace Objects;
  * Class imports
  */
 
+use Exceptions\NotNullable;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
@@ -118,6 +119,8 @@ class Log {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "log")) {
                 $size = Database::getColumnSize(column: $key, table: "log");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'log') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from log where id = $this->id")->num_rows == 0) {

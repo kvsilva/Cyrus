@@ -5,6 +5,7 @@ namespace Objects;
  */
 
 use DateTime;
+use Exceptions\NotNullable;
 use JetBrains\PhpStorm\Pure;
 use mysqli;
 
@@ -105,6 +106,7 @@ class Punishment {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : Punishment{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -125,6 +127,8 @@ class Punishment {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "punishment")) {
                 $size = Database::getColumnSize(column: $key, table: "punishment");
                 throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'punishment') && $value == null){
+                throw new NotNullable($key);
             }
         }
         if($this->id == null || $database->query("SELECT id from punishment where id = $this->id")->num_rows == 0) {
