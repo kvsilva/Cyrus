@@ -49,7 +49,7 @@ class Punishment {
     // DEFAULT STRUCTURE
 
     private ?int $id = null;
-    private ?User $user = null;
+    //private ?User $user = null;
     private ?PunishmentType $punishment_type = null;
     private ?String $reason = null;
     private ?DateTime $lasts_until = null;
@@ -83,7 +83,7 @@ class Punishment {
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
                 $this->id = $row["id"];
-                $this->user = $row["user"] != "" ? new User($row["user"]) : null;
+                //$this->user = $row["user"] != "" ? new User($row["user"]) : null;
                 $this->punishment_type = new PunishmentType($row["punishment_type"]);
                 $this->reason = $row["reason"];
                 $this->lasts_until = $row["lasts_until"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["lasts_until"]) : null;
@@ -108,12 +108,13 @@ class Punishment {
      * @throws TableNotFound
      * @throws NotNullable
      */
-    public function store() : Punishment{
+    public function store(User $user) : Punishment{
         if ($this->database == null) throw new IOException("Could not access database services.");
+        if (!isset($user)) throw new NotNullable(argument: 'user');
         $database = $this->database;
         $query_keys_values = array(
             "id" => $this->id,
-            "user" => isset($this->user) ? $this->user->store()->getId() : null,
+            "user" => $user->getId(),
             "punishment_type" => isset($this->punishment_type) ? $this->punishment_type->store()->getId() : null,
             "reason" => $this->reason ?? null,
             "lasts_until" => isset($this->lasts_until) ? $this->lasts_until->format(Database::DateFormat) : null,

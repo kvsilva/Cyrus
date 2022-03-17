@@ -50,8 +50,6 @@ class User {
     // Database
     private ?Mysqli $database = null;
 
-    // Flags
-
     public const NORMAL = 0;
     public const ALL = 1;
     public const ROLES = 2;
@@ -166,7 +164,6 @@ class User {
     {
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-
         $query_keys_values = array(
             "id" => $this->id,
             "email" => $this->email,
@@ -224,7 +221,7 @@ class User {
         }
         $database->query($sql);
         // Relations
-        if (in_array(self::ROLES, $this->flags)) {
+        if (in_array(self::ROLES, $this->flags) || in_array(self::ALL, $this->flags)) {
             $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
@@ -241,7 +238,7 @@ class User {
                 $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
             }
         }
-        if (in_array(self::LOGS, $this->flags)) {
+        if (in_array(self::LOGS, $this->flags) || in_array(self::ALL, $this->flags)) {
             $query = $database->query("SELECT id FROM log WHERE user = $this->id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
@@ -255,6 +252,22 @@ class User {
             }
             foreach ($this->logs as $log) {
                 $log->store();
+            }
+        }
+        if (in_array(self::PUNISHMENTS, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM punishment WHERE user = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->punishments as $punishment) {
+                    if ($punishment->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) $database->query("DELETE FROM punishment WHERE id = $row[id]");
+            }
+            foreach ($this->punishments as $punishment) {
+                $punishment->store($this);
             }
         }
         return $this;

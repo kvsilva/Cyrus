@@ -1,6 +1,7 @@
 <?php
 
 namespace Functions;
+use DateTime;
 use Exceptions\ColumnNotFound;
 use Exceptions\IOException;
 use Exceptions\TableNotFound;
@@ -48,6 +49,16 @@ class Database
             return -1;
         }
     }
+
+    public static function convertDateFromDatabase(String $date, $time = true): DateTime|bool
+    {
+        return DateTime::createFromFormat(self::DateFormat, $date . ($time ? " 00:00:00" : ""));
+    }
+    public static function convertDateToDatabase(DateTime $date): DateTime|bool
+    {
+        return $date->format(self::DateFormat);
+    }
+
     private static array $data_types_text = array(
         "char" => 1,
         "varchar" => 255,

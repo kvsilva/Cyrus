@@ -109,13 +109,13 @@ class Anime {
                 // Um vídeo pode pertencer a um anime ou também a uma season
                 // Procedimento: os videos serão incluídos primeiro nas seasons, e os que não tiver mesmo season, no videos
                 if(in_array(self::SEASONS, $this->flags) || in_array(self::ALL, $this->flags)){
-                    $query = $database->query("SELECT numeration as 'id' FROM season WHERE anime = $id;");
+                    $query = $database->query("SELECT numeration as 'id' FROM season WHERE anime = $id AND available = '" . Availability::AVAILABLE->value . "';");
                     while($row = $query->fetch_array()){
-                        $this->seasons[] = new Season($row["id"]);
+                        $this->seasons[] = new Season($row["id"], array(SEASON::ALL));
                     }
                 }
                 if(in_array(self::VIDEOS, $this->flags) || in_array(self::ALL, $this->flags)){
-                    $query = $database->query("SELECT id FROM video WHERE anime = $id AND season = null;");
+                    $query = $database->query("SELECT id FROM video WHERE anime = $id AND season = null AND available = '" . Availability::AVAILABLE->value . "';");
                     while($row = $query->fetch_array()){
                         $this->videos[] = new Video($row["id"]);
                     }
@@ -135,6 +135,7 @@ class Anime {
      * @throws ColumnNotFound
      * @throws TableNotFound
      * @throws NotNullable
+     * @throws RecordNotFound
      */
     public function store() : Anime{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -189,6 +190,39 @@ class Anime {
             $sql = "UPDATE anime SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        // RELATIONS
+        if (in_array(self::SEASONS, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM season WHERE anime = $this->id AND available = '" . Availability::AVAILABLE->value . "';");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->seasons as $season) {
+                    if ($season->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) (new Season($row["id"]))->remove();
+            }
+            foreach ($this->seasons as $season) {
+                $season->store(anime: $this);
+            }
+        }
+        if (in_array(self::VIDEOS, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM video WHERE anime = $this->id AND season = null AND available = '" . Availability::AVAILABLE->value . "';");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->videos as $video) {
+                    if ($video->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) (new Video($row["id"]))->remove();
+            }
+            foreach ($this->videos as $video) {
+                $video->store(anime: $this);
+            }
+        }
         return $this;
     }
 
@@ -198,6 +232,8 @@ class Anime {
      * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
+     * @throws NotNullable
+     * @throws RecordNotFound
      * @throws TableNotFound
      * @throws UniqueKey
      */
@@ -246,7 +282,7 @@ class Anime {
 
     public function toArray(): array
     {
-        return array(
+        $array = array(
             "id" => $this->id,
             "title" => $this->title,
             "original_title" => $this->original_title,
@@ -260,6 +296,12 @@ class Anime {
             "trailer" => $this->trailer,
             "available" => isset($this->available) ? $this->available->toArray() : null
         );
+        // Relations
+        $array["seasons"] = count($this->seasons) == 0 ? null : array();
+        foreach($this->seasons as $value) $array["seasons"][] = $value->toArray();
+        $array["videos"] = count($this->videos) == 0 ? null : array();
+        foreach($this->videos as $value) $array["videos"][] = $value->toArray();
+        return $array;
     }
     /**
      * @return int

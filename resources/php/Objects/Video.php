@@ -115,11 +115,14 @@ class Video {
      * @throws TableNotFound
      * @throws NotNullable
      */
-    public function store() : Video{
+    public function store(Anime $anime, ?Season $season = null) : Video{
         if ($this->database == null) throw new IOException("Could not access database services.");
+        if (!isset($anime)) throw new NotNullable(argument: 'anime');
         $database = $this->database;
         $query_keys_values = array(
             "id" => $this->id,
+            "anime" => $anime->getId(),
+            "season" => $season?->getId(),
             "video_type" => isset($this->video_type) ? $this->video_type->getId() : null,
             "numeration" => $this->numeration,
             "title"=> $this->title,
