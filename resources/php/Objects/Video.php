@@ -65,9 +65,9 @@ class Video {
     private array $flags;
 
     // Video::Subtitles
-    private array $subtitles = array();
+    private ?array $subtitles = null;
     // Video::Dubbing
-    private array $dubbing = array();
+    private ?array $dubbing = null;
 
     /**
      * @param int|null $id
@@ -98,7 +98,21 @@ class Video {
                 $this->ending_end = $row["ending_end"];
                 $this->path = $row["path"];
                 $this->available = Availability::getAvailability($row["available"]);
-
+                // RELATIONS
+                if(in_array(self::SUBTITLES, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->subtitles = array();
+                    $query = $database->query("SELECT id FROM subtitle WHERE video = $id;");
+                    while($row = $query->fetch_array()){
+                        $this->subtitles[] = new Subtitle($row["id"]);
+                    }
+                }
+                if(in_array(self::DUBBING, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->dubbing = array();
+                    $query = $database->query("SELECT id FROM dubbing WHERE video = $id;");
+                    while($row = $query->fetch_array()){
+                        $this->dubbing[] = new Dubbing($row["id"]);
+                    }
+                }
             } else {
                 throw new RecordNotFound();
             }
@@ -114,6 +128,7 @@ class Video {
      * @throws ColumnNotFound
      * @throws TableNotFound
      * @throws NotNullable
+     * @throws RecordNotFound
      */
     public function store(Anime $anime, ?Season $season = null) : Video{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -170,23 +185,52 @@ class Video {
             $sql = "UPDATE video SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        if (in_array(self::SUBTITLES, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM subtitle WHERE video = $this->id AND available = '" . Availability::AVAILABLE->value . "';");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->subtitles as $value) {
+                    if ($value->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) (new Subtitle($row["id"]))->remove();
+            }
+            foreach ($this->subtitles as $value) {
+                $value->store(video: $this);
+            }
+        }
+        if (in_array(self::DUBBING, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM dubbing WHERE video = $this->id AND available = '" . Availability::AVAILABLE->value . "';");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->dubbing as $value) {
+                    if ($value->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) (new Dubbing($row["id"]))->remove();
+            }
+            foreach ($this->dubbing as $value) {
+                $value->store(video: $this);
+            }
+        }
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
-     * @throws ColumnNotFound
      * @throws IOException
-     * @throws InvalidSize
-     * @throws TableNotFound
-     * @throws UniqueKey
-     * @throws NotNullable
      */
     public function remove() : Video{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $this->available = Availability::NOT_AVAILABLE;
-        $this->store();
+        $sql = "UPDATE season SET available = '$this->available->value' WHERE id = $this->id";
+        $database->query($sql);
         return $this;
     }
 
@@ -198,7 +242,7 @@ class Video {
      * @return array
      * @throws RecordNotFound
      */
-    public static function find(int $id = null, int $anime = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $anime = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
         try {
             $database = Database::getConnection();
@@ -210,6 +254,7 @@ class Video {
         } else {
             $sql_command = "SELECT id from video WHERE " .
                 ($id != null ? "(id != null AND id = '$id')" : "") .
+                ($available != null ? "(available != null AND available = '$available->value')" : "") .
                 ($anime != null ? "(anime != null AND anime = '$anime')" : "");
             $sql_command = str_replace($sql_command, ")(", ") AND (");
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
@@ -225,7 +270,7 @@ class Video {
     #[Pure]
     public function toArray(): array
     {
-        return array(
+        $array = array(
             "id" => $this->id,
             "video_type" => isset($this->video_type) ? $this->video_type->toArray() : null,
             "numeration" => $this->numeration,
@@ -239,6 +284,11 @@ class Video {
             "path" => $this->path,
             "available" => isset($this->available) ? $this->available->toArray() : null
         );
+        $array["subtitles"] = $this->subtitles != null ? array() : null;
+        if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value->toArray();
+        $array["dubbing"] = $this->dubbing != null ? array() : null;
+        if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
+        return $array;
     }
     /**
      * @return int

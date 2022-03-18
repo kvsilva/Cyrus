@@ -56,7 +56,7 @@ class Role {
     private array $flags;
 
     // Role::Permissions
-    private array $permissions = array();
+    private ?array $permissions = null;
 
 
     /**
@@ -80,6 +80,7 @@ class Role {
                 $this->name = $row["name"];
 
                 if(in_array(self::PERMISSIONS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->permissions = array();
                     $query = $database->query("SELECT permission as 'id' FROM ROLE_PERMISSION WHERE role = $id;");
                     while($row = $query->fetch_array()){
                         $this->permissions[] = new Permission($row["id"]);
@@ -173,7 +174,7 @@ class Role {
      * @return $this
      */
     public function remove() : Role{
-        GLOBAL $database;
+        $database = $this->database;
         $database->query("DELETE FROM USER_ROLE where role = $this->id");
         $database->query("DELETE FROM ROLE_PERMISSION where role = $this->id");
         $database->query("DELETE FROM role where id = $this->id");
@@ -211,15 +212,17 @@ class Role {
         return $result;
     }
 
-    #[ArrayShape(["id" => "int|mixed", "name" => "mixed", "permissions" => "array|null"])]
+    #[ArrayShape(["id" => "int|mixed|null", "name" => "mixed|null|String", "permissions" => "array|null"])]
     #[Pure]
     public function toArray(): array
     {
-        return array(
+        $array = array(
             "id" => $this->id,
-            "name" => $this->name,
-            "permissions" => count($this->permissions) == 0 ? null : $this->permissions
+            "name" => $this->name
         );
+        $array["permissions"] = $this->permissions != null ? array() : null;
+        if($array["permissions"] != null) foreach($this->permissions as $value) $array["permissions"][] = $value->toArray();
+        return $array;
     }
 
     /**

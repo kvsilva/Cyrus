@@ -62,7 +62,7 @@ class Season {
     private array $flags;
 
     // SEASON::VIDEOS
-    private array $videos = array();
+    private ?array $videos = null;
 
     /**
      * @param int $id
@@ -89,6 +89,7 @@ class Season {
                 $this->available = Availability::getAvailability($row["available"]);
                 // RELATIONS
                 if(in_array(self::VIDEOS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->videos = array();
                     $query = $database->query("SELECT id FROM video WHERE season = $id;");
                     while($row = $query->fetch_array()){
                         $this->videos[] = new Video($row["id"]);
@@ -196,12 +197,13 @@ class Season {
     /**
      * @param int|null $id
      * @param int|null $anime
+     * @param Availability $available
      * @param string|null $sql
      * @param array $flags
      * @return array
      * @throws RecordNotFound
      */
-    public static function find(int $id = null, int $anime = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $anime = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
         try {
             $database = Database::getConnection();
@@ -213,6 +215,7 @@ class Season {
         } else {
             $sql_command = "SELECT id from video_type WHERE " .
                 ($id != null ? "(id != null AND id = '$id')" : "") .
+                ($available != null ? "(available != null AND available = '$available->value')" : "") .
                 ($anime != null ? "(anime != null AND anime = '$anime')" : "");
             $sql_command = str_replace($sql_command, ")(", ") AND (");
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
@@ -235,8 +238,8 @@ class Season {
             "release_date" => $this->release_date != null ? Database::convertDateToDatabase($this->release_date) : null,
             "available" => $this->available?->toArray()
         );
-        $array["videos"] = count($this->videos) == 0 ? null : array();
-        foreach($this->videos as $value) $array["videos"][] = $value->toArray();
+        $array["videos"] = $this->videos != null ? array() : null;
+        if($array["videos"] != null) foreach($this->videos as $value) $array["videos"][] = $value->toArray();
         return $array;
     }
     /**

@@ -81,13 +81,13 @@ class User {
     private array $flags;
 
     // User::Roles
-    private array $roles = array();
+    private ?array $roles = null;
 
     // User::Punishments
-    private array $punishments = array();
+    private ?array $punishments = null;
 
     // User::Logs
-    private array $logs = array();
+    private ?array $logs = null;
 
 
     /**
@@ -127,18 +127,21 @@ class User {
                 $this->night_mode = NightMode::getNightMode($row["night_mode"]);
                 $this->available = Availability::getAvailability($row["available"]);
                 if(in_array(self::ROLES, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->roles = array();
                     $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
                     while($row = $query->fetch_array()){
                         $this->roles[] = new Role($row["id"]);
                     }
                 }
                 if(in_array(self::PUNISHMENTS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->punishments = array();
                     $query = $database->query("SELECT id FROM PUNISHMENT WHERE user = $id;");
                     while($row = $query->fetch_array()){
                         $this->punishments[] = new Punishment($row["id"]);
                     }
                 }
                 if(in_array(self::LOGS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->logs = array();
                     $query = $database->query("SELECT id FROM log WHERE user = $id;");
                     while($row = $query->fetch_array()){
                         $this->logs[] = new Log($row["id"]);
@@ -346,12 +349,12 @@ class User {
             "available" => isset($this->available) ? $this->available->toArray() : null
         );
         // Relations
-        $array["roles"] = count($this->roles) == 0 ? null : array();
-        foreach($this->roles as $value) $array["roles"][] = $value->toArray();
-        $array["logs"] = count($this->roles) == 0 ? null : array();
-        foreach($this->logs as $value) $array["logs"][] = $value->toArray();
-        $array["punishments"] = count($this->roles) == 0 ? null : array();
-        foreach($this->punishments as $value) $array["punishments"][] = $value->toArray();
+        $array["roles"] = $this->roles != null ? array() : null;
+        if($array["roles"] != null) foreach($this->roles as $value) $array["roles"][] = $value->toArray();
+        $array["logs"] = $this->logs != null ? array() : null;
+        if($array["logs"] != null) foreach($this->logs as $value) $array["logs"][] = $value->toArray();
+        $array["punishments"] = $this->punishments != null ? array() : null;
+        if($array["punishments"] != null) foreach($this->punishments as $value) $array["punishments"][] = $value->toArray();
         return $array;
     }
 
@@ -458,9 +461,9 @@ class User {
     }
 
     /**
-     * @return Timestamp
+     * @return DateTime
      */
-    public function getCreationDate(): String
+    public function getCreationDate(): DateTime
     {
         return $this->creation_date;
     }

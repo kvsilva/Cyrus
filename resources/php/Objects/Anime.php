@@ -73,9 +73,9 @@ class Anime {
     private array $flags;
 
     // Anime::Videos
-    private array $videos = array();
+    private ?array $videos = null;
     // Anime::Seasons
-    private array $seasons = array();
+    private ?array $seasons = null;
 
     /**
      * @param int|null $id
@@ -109,12 +109,14 @@ class Anime {
                 // Um vídeo pode pertencer a um anime ou também a uma season
                 // Procedimento: os videos serão incluídos primeiro nas seasons, e os que não tiver mesmo season, no videos
                 if(in_array(self::SEASONS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->seasons = array();
                     $query = $database->query("SELECT numeration as 'id' FROM season WHERE anime = $id AND available = '" . Availability::AVAILABLE->value . "';");
                     while($row = $query->fetch_array()){
                         $this->seasons[] = new Season($row["id"], array(SEASON::ALL));
                     }
                 }
                 if(in_array(self::VIDEOS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->videos = array();
                     $query = $database->query("SELECT id FROM video WHERE anime = $id AND season = null AND available = '" . Availability::AVAILABLE->value . "';");
                     while($row = $query->fetch_array()){
                         $this->videos[] = new Video($row["id"]);
@@ -229,18 +231,12 @@ class Anime {
     /**
      * This method will remove the object from the database.
      * @return $this
-     * @throws ColumnNotFound
-     * @throws IOException
-     * @throws InvalidSize
-     * @throws NotNullable
-     * @throws RecordNotFound
-     * @throws TableNotFound
-     * @throws UniqueKey
      */
     public function remove() : Anime{
         $database = $this->database;
         $this->available = Availability::NOT_AVAILABLE;
-        $this->store();
+        $sql = "UPDATE anime SET available = '$this->available->value' WHERE id = $this->id";
+        $database->query($sql);
         return $this;
     }
 
@@ -297,10 +293,10 @@ class Anime {
             "available" => isset($this->available) ? $this->available->toArray() : null
         );
         // Relations
-        $array["seasons"] = count($this->seasons) == 0 ? null : array();
-        foreach($this->seasons as $value) $array["seasons"][] = $value->toArray();
-        $array["videos"] = count($this->videos) == 0 ? null : array();
-        foreach($this->videos as $value) $array["videos"][] = $value->toArray();
+        $array["seasons"] = $this->seasons != null ? array() : null;
+        if($array["seasons"] != null) foreach($this->seasons as $value) $array["seasons"][] = $value->toArray();
+        $array["videos"] = $this->videos != null ? array() : null;
+        if($array["videos"] != null) foreach($this->videos as $value) $array["videos"][] = $value->toArray();
         return $array;
     }
     /**
