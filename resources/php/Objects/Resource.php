@@ -4,6 +4,7 @@ namespace Objects;
  * Class imports
  */
 
+use Enumerators\Availability;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use mysqli;
@@ -50,6 +51,7 @@ class Resource {
     private ?String $description = null;
     private ?String $extension = null;
     private ?String $path = null;
+    private ?Availability $available = null;
 
     // RELATIONS
 
@@ -76,6 +78,7 @@ class Resource {
                 $this->description = $row["description"];
                 $this->extension = $row["extension"];
                 $this->path = $row["path"];
+                $this->available = Availability::getAvailability($row["available"]);
             } else {
                 throw new RecordNotFound();
             }
@@ -95,12 +98,14 @@ class Resource {
     public function store() : Resource{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("resource"),
             "title" => $this->title,
             "description" => $this->description,
             "extension" => $this->extension,
-            "path" => $this->path
+            "path" => $this->path,
+            "available" => $this->available?->value
         );
         foreach($query_keys_values as $key => $value) {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "resource")) {
@@ -114,8 +119,6 @@ class Resource {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "resource") && !Database::isUniqueValue(column: $key, table: "resource", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("resource");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -137,27 +140,33 @@ class Resource {
             $sql = "UPDATE resource SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : Resource{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-        $database->query("DELETE FROM resource where id = $this->id");
+        $this->available = Availability::NOT_AVAILABLE;
+        $sql = "UPDATE season SET available = '$this->available->value' WHERE id = $this->id";
+        $database->query($sql);
         return $this;
     }
 
     /**
      * @param int|null $id
+     * @param Availability $available
      * @param string|null $sql
      * @param array $flags
      * @return array
      * @throws RecordNotFound
      */
-    public static function find(int $id = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
         try {
             $database = Database::getConnection();
@@ -168,7 +177,8 @@ class Resource {
             $sql_command = "SELECT id from resource WHERE " . $sql;
         } else {
             $sql_command = "SELECT id from resource WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "");
+                ($id != null ? "(id != null AND id = '$id')" : "") .
+                ($available != null ? "(available != null AND available = '$available->value')" : "");
             $sql_command = str_replace($sql_command, ")(", ") AND (");
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
@@ -179,7 +189,7 @@ class Resource {
         return $result;
     }
 
-    #[ArrayShape(["id" => "int", "title" => "string", "description" => "string", "extension" => "string", "path" => "string"])]
+    #[ArrayShape(["id" => "int|mixed|null", "title" => "mixed|null|String", "description" => "mixed|null|String", "extension" => "mixed|null|String", "path" => "mixed|null|String", "available" => "array|null"])]
     #[Pure]
     public function toArray(): array
     {
@@ -188,7 +198,8 @@ class Resource {
             "title" => $this->title,
             "description" => $this->description,
             "extension" => $this->extension,
-            "path" => $this->path
+            "path" => $this->path,
+            "available" => $this->available?->toArray()
         );
     }
     /**
@@ -268,6 +279,24 @@ class Resource {
     public function setPath(String $path): Resource
     {
         $this->path = $path;
+        return $this;
+    }
+
+    /**
+     * @return Availability|null
+     */
+    public function getAvailable(): ?Availability
+    {
+        return $this->available;
+    }
+
+    /**
+     * @param Availability|null $available
+     * @return Resource
+     */
+    public function setAvailable(?Availability $available): Resource
+    {
+        $this->available = $available;
         return $this;
     }
 

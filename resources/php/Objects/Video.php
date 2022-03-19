@@ -134,11 +134,12 @@ class Video {
         if ($this->database == null) throw new IOException("Could not access database services.");
         if (!isset($anime)) throw new NotNullable(argument: 'anime');
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("video"),
             "anime" => $anime->getId(),
             "season" => $season?->getId(),
-            "video_type" => isset($this->video_type) ? $this->video_type->getId() : null,
+            "video_type" => $this->video_type?->getId(),
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
@@ -148,7 +149,7 @@ class Video {
             "ending_start" => $this->ending_start,
             "ending_end" => $this->ending_end,
             "path" => $this->path,
-            "available" => isset($this->available) ? $this->available->value : null
+            "available" => $this->available?->value
         );
         foreach($query_keys_values as $key => $value) {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "video")) {
@@ -162,8 +163,6 @@ class Video {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "video") && !Database::isUniqueValue(column: $key, table: "video", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("video");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -217,6 +216,7 @@ class Video {
                 $value->store(video: $this);
             }
         }
+        $database->query("COMMIT");
         return $this;
     }
 
@@ -237,6 +237,7 @@ class Video {
     /**
      * @param int|null $id
      * @param int|null $anime
+     * @param Availability $available
      * @param string|null $sql
      * @param array $flags
      * @return array
@@ -272,7 +273,7 @@ class Video {
     {
         $array = array(
             "id" => $this->id,
-            "video_type" => isset($this->video_type) ? $this->video_type->toArray() : null,
+            "video_type" => $this->video_type?->toArray(),
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
@@ -282,7 +283,7 @@ class Video {
             "ending_start" => $this->ending_start,
             "ending_end" => $this->ending_end,
             "path" => $this->path,
-            "available" => isset($this->available) ? $this->available->toArray() : null
+            "available" => $this->available?->toArray()
         );
         $array["subtitles"] = $this->subtitles != null ? array() : null;
         if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value->toArray();

@@ -42,7 +42,7 @@ class Database
         }
         return self::$database;
     }
-    public static function getNextIncrement($table) : int {
+    public static function getNextIncrement($table, $commit = false) : int {
         try {
             return self::getConnection()->query("SELECT auto_increment as 'val' FROM INFORMATION_SCHEMA.TABLES WHERE table_name = '$table'")->fetch_array()["val"];
         } catch (IOException $e){
@@ -110,12 +110,12 @@ class Database
         }
     }
 
-    public static function isNullable(String $column, String $table, $schema = "cyrus"): Bool{
+    public static function isNullable(String $column, String $table, $hasDefaultValue = true, $schema = "cyrus"): Bool{
         try {
             $query = self::getConnection()->query("SELECT column_name, column_default, is_nullable FROM information_schema.columns WHERE table_schema = '$schema' AND table_name = '$table' and column_name = '$column'");
             if($query->num_rows > 0){
                 $row = $query->fetch_array();
-                return strtolower($row["is_nullable"]) == 'no' && $row["column_default"] != "";
+                return !$hasDefaultValue ? strtolower($row["is_nullable"]) == 'yes' : (strtolower($row["is_nullable"]) == 'yes' || $row["column_default"] != "");
             } else {
                 return false;
             }

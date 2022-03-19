@@ -95,8 +95,9 @@ class Language {
     public function store() : Language{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("language"),
             "code" => $this->code,
             "name" => $this->name,
             "original_name" => $this->original_name
@@ -136,14 +137,17 @@ class Language {
             $sql = "UPDATE language SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : Language{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM language where id = $this->id");
         return $this;

@@ -92,8 +92,9 @@ class LogAction {
     public function store() : LogAction{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("log_action"),
             "name" => $this->name,
             "description" => $this->description
         );
@@ -109,8 +110,6 @@ class LogAction {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "log_action") && !Database::isUniqueValue(column: $key, table: "log_action", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("log_action");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -132,14 +131,17 @@ class LogAction {
             $sql = "UPDATE log_action SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : LogAction{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM log_action where id = $this->id");
         return $this;

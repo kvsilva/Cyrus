@@ -142,8 +142,9 @@ class Anime {
     public function store() : Anime{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("anime"),
             "title" => $this->title,
             "original_title" => $this->original_title,
             "synopsis" => $this->synopsis,
@@ -169,8 +170,6 @@ class Anime {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "anime") && !Database::isUniqueValue(column: $key, table: "anime", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("anime");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -225,14 +224,17 @@ class Anime {
                 $video->store(anime: $this);
             }
         }
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : Anime{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $this->available = Availability::NOT_AVAILABLE;
         $sql = "UPDATE anime SET available = '$this->available->value' WHERE id = $this->id";

@@ -167,24 +167,25 @@ class User {
     {
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("user"),
             "email" => $this->email,
             "username" => $this->username,
             "password" => $this->password,
-            "birthdate" => isset($this->birthdate) ? $this->birthdate->format(Database::DateFormat) : null,
-            "sex" => isset($this->sex) ? $this->sex->value : Sex::OTHER->value,
-            "creation_date" => isset($this->creation_date) ? $this->creation_date->format(Database::DateFormat) : null,
+            "birthdate" => $this->birthdate?->format(Database::DateFormat),
+            "sex" => $this->sex != null ? $this->sex->value : Sex::OTHER->value,
+            "creation_date" => $this->creation_date?->format(Database::DateFormat),
             "status" => $this->status,
-            "profile_image" => isset($this->profile_image) ? $this->profile_image->store()->getId() : null,
-            "profile_background" => isset($this->profile_background) ? $this->profile_background->store()->getId() : null,
+            "profile_image" => $this->profile_image?->store()->getId(),
+            "profile_background" => $this->profile_background?->store()->getId(),
             "about_me" => $this->about_me,
-            "verified" => isset($this->verified) ? $this->verified->value : Verification::VERIFIED->value,
-            "display_language" => isset($this->display_language) ? $this->display_language->store()->getId() : null,
-            "email_communication_language" => isset($this->email_communication_language) ? $this->email_communication_language->store()->getId() : null,
-            "translation_language" => isset($this->translation_language) ? $this->translation_language->store()->getId() : null,
-            "night_mode" => isset($this->night_mode) ? $this->night_mode->value : NightMode::DISABLE->value,
-            "available" => isset($this->available) ? $this->available->value : Availability::AVAILABLE->value
+            "verified" => $this->verified != null ? $this->verified->value : Verification::VERIFIED->value,
+            "display_language" => $this->display_language?->store()->getId(),
+            "email_communication_language" => $this->email_communication_language?->store()->getId(),
+            "translation_language" => $this->translation_language?->store()->getId(),
+            "night_mode" => $this->night_mode != null ? $this->night_mode->value : NightMode::DISABLE->value,
+            "available" => $this->available != null ? $this->available->value : Availability::AVAILABLE->value
         );
         foreach($query_keys_values as $key => $value) {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "user")) {
@@ -198,9 +199,6 @@ class User {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "user") && !Database::isUniqueValue(column: $key, table: "user", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("user");
-
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach ($query_keys_values as $key => $value) {
@@ -210,7 +208,6 @@ class User {
             $sql_keys = substr($sql_keys, 0, -1);
             $sql_values = substr($sql_values, 0, -1);
             $sql = "INSERT INTO user ($sql_keys) VALUES ($sql_values)";
-
         } else {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "user") && !Database::isUniqueValue(column: $key, table: "user", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
@@ -273,21 +270,21 @@ class User {
                 $punishment->store($this);
             }
         }
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database, however, for logging reasons, the record will only be hidden in queries.
      * @return $this
-     * @throws ColumnNotFound
      * @throws IOException
-     * @throws InvalidSize
-     * @throws TableNotFound
-     * @throws UniqueKey
      */
     public function remove() : User{
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
         $this->available = Availability::NOT_AVAILABLE;
-        $this->store();
+        $sql = "UPDATE user SET available = '$this->available->value' WHERE id = $this->id";
+        $database->query($sql);
         return $this;
     }
 
@@ -334,19 +331,19 @@ class User {
             "id" => $this->id,
             "email" => $this->email,
             "username" => $this->username,
-            "birthdate" => isset($this->birthdate) ? $this->birthdate->format(Database::DateFormat) : null,
+            "birthdate" => $this->birthdate?->format(Database::DateFormat),
             "sex" => $this->sex,
-            "creation_date" => isset($this->creation_date) ? $this->creation_date->format(Database::DateFormat) : null,
+            "creation_date" => $this->creation_date?->format(Database::DateFormat),
             "status" => $this->status,
-            "profile_image" => isset($this->profile_image) ? $this->profile_image->toArray() : null,
-            "profile_background" => isset($this->profile_background) ? $this->profile_background->toArray() : null,
+            "profile_image" => $this->profile_image?->toArray(),
+            "profile_background" =>$this->profile_background?->toArray(),
             "about_me" => $this->about_me,
-            "verified" => isset($this->verified) ? $this->verified->toArray() : null,
-            "display_language" => isset($this->display_language) ? $this->display_language->toArray() : null,
-            "email_communication_language" => isset($this->email_communication_language) ? $this->email_communication_language->toArray() : null,
-            "translation_language" => isset($this->translation_language) ? $this->translation_language->toArray() : null,
-            "night_mode" => isset($this->night_mode) ? $this->night_mode->toArray() : null,
-            "available" => isset($this->available) ? $this->available->toArray() : null
+            "verified" => $this->verified?->toArray(),
+            "display_language" => $this->display_language?->toArray(),
+            "email_communication_language" => $this->email_communication_language?->toArray(),
+            "translation_language" => $this->translation_language?->toArray(),
+            "night_mode" => $this->night_mode?->toArray(),
+            "available" => $this->available?->toArray()
         );
         // Relations
         $array["roles"] = $this->roles != null ? array() : null;
@@ -704,9 +701,7 @@ class User {
      */
     public function addRole(Role $role): User
     {
-        if(is_a($role, 'Role')){
-            $this->roles[] = $role;
-        } else throw new InvalidDataType("role", "Role");
+        $this->roles[] = $role;
         return $this;
     }
 
@@ -718,17 +713,15 @@ class User {
      */
     public function removeRole(Role $role = null, int $id = null): User
     {
-        if(isset($role)){
-            if(is_a($role, 'Role')) {
-                for ($i = 0; $i < count($this->roles); $i++) {
-                    if ($this->roles[$i]->getId() == $role->getId()) {
-                        unset($this->roles[$i]);
-                    }
+        if(isset($role)) {
+            for ($i = 0; $i < count($this->roles); $i++) {
+                if ($this->roles[$i]->getId() == $role->getId()) {
+                    unset($this->roles[$i]);
                 }
-            } else throw new InvalidDataType("permission", "Permission");
+            }
         } else if (isset($id)){
             for ($i = 0; $i < count($this->roles); $i++) {
-                if ($this->roles[$id]->getId() == $id) {
+                if ($this->roles[$i]->getId() == $id) {
                     unset($this->roles[$id]);
                 }
             }
@@ -766,6 +759,38 @@ class User {
         return $this;
     }
 
+    /**
+     * @param Punishment $punishment
+     * @return User
+     */
+    public function addPunishment(Punishment $punishment): User
+    {
+        $this->punishments[] = $punishment;
+        return $this;
+    }
+
+    /**
+     * @param Punishment|null $punishment
+     * @param int|null $id
+     * @return $this
+     */
+    public function removePunishment(Punishment $punishment = null, int $id = null): User
+    {
+        if(isset($punishment)) {
+            for ($i = 0; $i < count($this->punishments); $i++) {
+                if ($this->punishments[$i]->getId() == $punishment->getId()) {
+                    unset($this->punishments[$i]);
+                }
+            }
+        } else if (isset($id)){
+            for ($i = 0; $i < count($this->punishments); $i++) {
+                if ($this->punishments[$i]->getId() == $id) {
+                    unset($this->punishments[$id]);
+                }
+            }
+        }
+        return $this;
+    }
 
 }
 

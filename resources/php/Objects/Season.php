@@ -116,14 +116,15 @@ class Season {
         if ($this->database == null) throw new IOException("Could not access database services.");
         if (!isset($anime)) throw new NotNullable(argument: 'anime');
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("season"),
             "anime" => $anime->getId(),
             "numeration" => $this->numeration,
             "name" => $this->name,
             "synopsis" => $this->synopsis,
             "release_date" => $this->release_date != null ? Database::convertDateToDatabase($this->release_date) : null,
-            "available" => $this->available != null ? $this->available->value : Availability::AVAILABLE
+            "available" => $this->available?->value
         );
         foreach($query_keys_values as $key => $value) {
             if (!Database::isWithinColumnSize(value: $value, column: $key, table: "season")) {
@@ -137,8 +138,6 @@ class Season {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "season") && !Database::isUniqueValue(column: $key, table: "season", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("season");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -177,6 +176,7 @@ class Season {
                 $video->store(anime: $anime, season: $this);
             }
         }
+        $database->query("COMMIT");
         return $this;
     }
 

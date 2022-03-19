@@ -91,8 +91,9 @@ class SourceType {
     public function store() : SourceType{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("source_type"),
             "name" => $this->id
         );
         foreach($query_keys_values as $key => $value) {
@@ -107,8 +108,6 @@ class SourceType {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "source_type") && !Database::isUniqueValue(column: $key, table: "source_type", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("source_type");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -130,14 +129,17 @@ class SourceType {
             $sql = "UPDATE source_type SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : SourceType{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM source_type where id = $this->id");
         return $this;
@@ -145,6 +147,7 @@ class SourceType {
 
     /**
      * @param int|null $id
+     * @param string|null $name
      * @param string|null $sql
      * @param array $flags
      * @return array

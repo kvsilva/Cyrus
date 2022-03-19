@@ -78,7 +78,6 @@ class Role {
                 $row = $query->fetch_array();
                 $this->id = $row["id"];
                 $this->name = $row["name"];
-
                 if(in_array(self::PERMISSIONS, $this->flags) || in_array(self::ALL, $this->flags)){
                     $this->permissions = array();
                     $query = $database->query("SELECT permission as 'id' FROM ROLE_PERMISSION WHERE role = $id;");
@@ -105,9 +104,9 @@ class Role {
     public function store() : Role{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("role"),
             "name" => $this->name
         );
         foreach($query_keys_values as $key => $value) {
@@ -122,9 +121,6 @@ class Role {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "role") && !Database::isUniqueValue(column: $key, table: "role", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("role");
-
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach ($query_keys_values as $key => $value) {
@@ -166,14 +162,17 @@ class Role {
                 $database->query("INSERT IGNORE INTO role_permission (role, permission) VALUES ($this->id, $permission->getId())");
             }
         }
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : Role{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM USER_ROLE where role = $this->id");
         $database->query("DELETE FROM ROLE_PERMISSION where role = $this->id");

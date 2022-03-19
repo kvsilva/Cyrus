@@ -105,12 +105,14 @@ class Log {
      * @throws UniqueKey
      * @throws ColumnNotFound
      * @throws TableNotFound
+     * @throws NotNullable
      */
     public function store() : Log{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("log"),
             "user" => isset($this->user) ? $this->user->store()->getId() : null,
             "action_type" => isset($this->action_type) ? $this->action_type->getId() : null,
             "arguments" => isset($this->arguments) ? json_encode($this->arguments) : null
@@ -127,8 +129,6 @@ class Log {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "log") && !Database::isUniqueValue(column: $key, table: "log", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("log");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -150,14 +150,17 @@ class Log {
             $sql = "UPDATE log SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : Log{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM log where id = $this->id");
         return $this;
@@ -204,9 +207,9 @@ class Log {
     {
         return array(
             "id" => $this->id,
-            "user" => isset($this->user) ? $this->user->getId() : null,
-            "name" => isset($this->action_type) ? $this->action_type->getName() : null,
-            "action" => isset($this->action_type) ? $this->action_type->getId() : null,
+            "user" => $this->user?->getId(),
+            "name" => $this->action_type?->getName(),
+            "action" => $this->action_type?->getId(),
             "description" => $this->description
         );
     }

@@ -90,8 +90,9 @@ class PunishmentType {
     public function store() : PunishmentType{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("punishment_type"),
             "name" => $this->name
         );
         foreach($query_keys_values as $key => $value) {
@@ -106,8 +107,6 @@ class PunishmentType {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "punishment_type") && !Database::isUniqueValue(column: $key, table: "punishment_type", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("punishment_type");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -129,14 +128,17 @@ class PunishmentType {
             $sql = "UPDATE punishment_type SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : PunishmentType{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM punishment_type where id = $this->id");
         return $this;

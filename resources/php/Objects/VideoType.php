@@ -91,8 +91,9 @@ class VideoType {
     public function store() : VideoType{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("video_type"),
             "name" => $this->id
         );
         foreach($query_keys_values as $key => $value) {
@@ -107,8 +108,6 @@ class VideoType {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "video_type") && !Database::isUniqueValue(column: $key, table: "video_type", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("video_type");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -130,14 +129,17 @@ class VideoType {
             $sql = "UPDATE video_type SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : VideoType{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM video_type where id = $this->id");
         return $this;
@@ -205,7 +207,7 @@ class VideoType {
      * @param mixed|String|null $name
      * @return SourceType
      */
-    public function setName(mixed $name): SourceType
+    public function setName(mixed $name): VideoType
     {
         $this->name = $name;
         return $this;

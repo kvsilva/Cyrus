@@ -98,8 +98,9 @@ class Dubbing {
         if ($this->database == null) throw new IOException("Could not access database services.");
         if (!isset($video)) throw new NotNullable(argument: 'video');
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("dubbing"),
             "video" => $video->getId(),
             "language" => $this->language,
             "path" => $this->path,
@@ -117,8 +118,6 @@ class Dubbing {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "dubbing") && !Database::isUniqueValue(column: $key, table: "dubbing", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("dubbing");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -140,6 +139,7 @@ class Dubbing {
             $sql = "UPDATE dubbing SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
@@ -198,7 +198,7 @@ class Dubbing {
             "id" => $this->id,
             "language" => $this->language,
             "path" => $this->path,
-            "available" => $this->available?->value
+            "available" => $this->available?->toArray()
         );
     }
     /**

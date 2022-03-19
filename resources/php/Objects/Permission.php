@@ -93,9 +93,9 @@ class Permission {
     public function store() : Permission{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
-
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("permission"),
             "tag" => $this->tag,
             "name" => $this->name,
             "description" => $this->description
@@ -112,8 +112,6 @@ class Permission {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "permission") && !Database::isUniqueValue(column: $key, table: "permission", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("permission");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach ($query_keys_values as $key => $value) {
@@ -136,14 +134,17 @@ class Permission {
         }
         $database->query($sql);
         // Relations
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : Permission{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM ROLE_PERMISSION where permission = $this->id");
         $database->query("DELETE FROM permission where id = $this->id");

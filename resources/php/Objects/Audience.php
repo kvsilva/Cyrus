@@ -90,9 +90,10 @@ class Audience {
      * @throws TableNotFound
      * @throws NotNullable
      */
-    public function store() : Example_Object{
+    public function store() : Audience{
         if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
             "id" => $this->id,
             "name" => $this->name,
@@ -110,8 +111,6 @@ class Audience {
             foreach ($query_keys_values as $key => $value) {
                 if (Database::isUniqueKey(column: $key, table: "audience") && !Database::isUniqueValue(column: $key, table: "audience", value: $value)) throw new UniqueKey($key);
             }
-            $this->id = Database::getNextIncrement("audience");
-            $query_keys_values["id"] = $this->id;
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
@@ -133,14 +132,17 @@ class Audience {
             $sql = "UPDATE audience SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
     /**
      * This method will remove the object from the database.
      * @return $this
+     * @throws IOException
      */
     public function remove() : Audience{
+        if ($this->database == null) throw new IOException("Could not access database services.");
         $database = $this->database;
         $database->query("DELETE FROM audience where id = $this->id");
         return $this;

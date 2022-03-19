@@ -98,8 +98,9 @@ class Subtitle {
         if ($this->database == null) throw new IOException("Could not access database services.");
         if (!isset($video)) throw new NotNullable(argument: 'video');
         $database = $this->database;
+        $database->query("START TRANSACTION");
         $query_keys_values = array(
-            "id" => $this->id,
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("subtitle"),
             "video" => $video->getId(),
             "language" => $this->language,
             "path" => $this->path,
@@ -140,6 +141,7 @@ class Subtitle {
             $sql = "UPDATE subtitle SET $update_sql WHERE id = $this->id";
         }
         $database->query($sql);
+        $database->query("COMMIT");
         return $this;
     }
 
@@ -198,7 +200,7 @@ class Subtitle {
             "id" => $this->id,
             "language" => $this->language,
             "path" => $this->path,
-            "available" => $this->available?->value
+            "available" => $this->available?->toArray()
         );
     }
     /**
