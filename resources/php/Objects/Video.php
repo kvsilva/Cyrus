@@ -1,191 +1,113 @@
 <?php
+
 namespace Objects;
-/*
- * Class imports
- */
 
-use JetBrains\PhpStorm\Pure;
-
-/*
- * Object Imports
- */
-
-use mysqli;
-
-/*
- * Exception Imports
- */
-use Exceptions\UniqueKey;
-use Exceptions\RecordNotFound;
+use Enumerators\Availability;
+use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
-use Exceptions\TableNotFound;
 use Exceptions\NotNullable;
-
-/*
- * Enumerator Imports
- */
-use Enumerators\Availability;
-/*
- * Others
- */
+use Exceptions\RecordNotFound;
+use Exceptions\TableNotFound;
+use Exceptions\UniqueKey;
 use Functions\Database;
+use JetBrains\PhpStorm\Pure;
+use ReflectionException;
 
+class Video extends Entity
+{
+    // FLAGS
 
-class Video {
-
-    // Database
-    private ?MySqli $database = null;
-
-    // Flags
-
-    public const NORMAL = 0;
-    public const ALL = 1;
     public const SUBTITLES = 2;
     public const DUBBING = 3;
 
     // DEFAULT STRUCTURE
 
-    private ?int $id = null;
-    private ?VideoType $video_type = null;
-    private ?int $numeration = null;
-    private ?String $title = null;
-    private ?String $synopsis = null;
-    private ?int $duration = null;
-    private ?int $opening_start = null;
-    private ?int $opening_end = null;
-    private ?int $ending_start = null;
-    private ?int $ending_end = null;
-    private ?String $path = null;
-    private ?Availability $available = null;
+    protected ?VideoType $video_type = null;
+    protected ?int $numeration = null;
+    protected ?String $title = null;
+    protected ?String $synopsis = null;
+    protected ?int $duration = null;
+    protected ?int $opening_start = null;
+    protected ?int $opening_end = null;
+    protected ?int $ending_start = null;
+    protected ?int $ending_end = null;
+    protected ?String $path = null;
+    protected ?Availability $available = null;
 
     // RELATIONS
 
-    private array $flags;
-
     // Video::Subtitles
     private ?array $subtitles = null;
-    // Video::Dubbing
+    // Video::DubbingOld
     private ?array $dubbing = null;
 
     /**
      * @param int|null $id
      * @param array $flags
+     * @throws ReflectionException
      * @throws RecordNotFound
      */
-    function __construct(int $id = null, array $flags = array(self::NORMAL)) {
-        $this->flags = $flags;
-        try {
-            $this->database = Database::getConnection();
-        } catch(IOException $e){
-            $this->database = null;
+    public function __construct(int $id = null, array $flags = array(self::NORMAL))
+    {
+        parent::__construct(table: "video", id: $id, flags: $flags);
+    }
+
+    /**
+     * @return void
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     */
+    protected function buildRelations()
+    {
+        $database = $this->getDatabase();
+        $id = $this->getId();
+        if($this->hasFlag(self::SUBTITLES)){
+            $this->subtitles = array();
+            $query = $database->query("SELECT id FROM subtitle WHERE video = $id;");
+            while($row = $query->fetch_array()){
+                $this->subtitles[] = new Subtitle($row["id"]);
+            }
         }
-        if($id != null && $this->database != null){
-            $database = $this->database;
-            $query = $database->query("SELECT * FROM video WHERE id = $id;");
-            if($query->num_rows > 0){
-                $row = $query->fetch_array();
-                $this->id = $row["id"];
-                $this->video_type = $row["video_type"] != "" ? new VideoType($row["video_type"]) : null;
-                $this->numeration = $row["numeration"];
-                $this->title = $row["title"];
-                $this->synopsis = $row["synopsis"];
-                $this->duration = $row["duration"];
-                $this->opening_start = $row["opening_start"];
-                $this->opening_end = $row["opening_end"];
-                $this->ending_start = $row["ending_start"];
-                $this->ending_end = $row["ending_end"];
-                $this->path = $row["path"];
-                $this->available = Availability::getAvailability($row["available"]);
-                // RELATIONS
-                if(in_array(self::SUBTITLES, $this->flags) || in_array(self::ALL, $this->flags)){
-                    $this->subtitles = array();
-                    $query = $database->query("SELECT id FROM subtitle WHERE video = $id;");
-                    while($row = $query->fetch_array()){
-                        $this->subtitles[] = new Subtitle($row["id"]);
-                    }
-                }
-                if(in_array(self::DUBBING, $this->flags) || in_array(self::ALL, $this->flags)){
-                    $this->dubbing = array();
-                    $query = $database->query("SELECT id FROM dubbing WHERE video = $id;");
-                    while($row = $query->fetch_array()){
-                        $this->dubbing[] = new Dubbing($row["id"]);
-                    }
-                }
-            } else {
-                throw new RecordNotFound();
+        if($this->hasFlag(self::DUBBING)){
+            $this->dubbing = array();
+            $query = $database->query("SELECT id FROM dubbing WHERE video = $id;");
+            while($row = $query->fetch_array()){
+                $this->dubbing[] = new Dubbing($row["id"]);
             }
         }
     }
 
     /**
-     * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
-     * @throws RecordNotFound
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store(Anime $anime, ?Season $season = null) : Video{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        if (!isset($anime)) throw new NotNullable(argument: 'anime');
-        $database = $this->database;
-        $database->query("START TRANSACTION");
-        $query_keys_values = array(
-            "id" => $this->id != null ? $this->id : Database::getNextIncrement("video"),
-            "anime" => $anime->getId(),
-            "season" => $season?->getId(),
-            "video_type" => $this->video_type?->getId(),
-            "numeration" => $this->numeration,
-            "title"=> $this->title,
-            "synopsis"=> $this->synopsis,
-            "duration"=> $this->duration,
-            "opening_start"=> $this->opening_start,
-            "opening_end"=> $this->opening_end,
-            "ending_start" => $this->ending_start,
-            "ending_end" => $this->ending_end,
-            "path" => $this->path,
-            "available" => $this->available?->value
-        );
-        foreach($query_keys_values as $key => $value) {
-            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "video")) {
-                $size = Database::getColumnSize(column: $key, table: "video");
-                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
-            } else if(!Database::isNullable(column: $key, table: 'video') && $value == null){
-                throw new NotNullable($key);
-            }
-        }
-        if($this->id == null || $database->query("SELECT id from video where id = $this->id")->num_rows == 0) {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "video") && !Database::isUniqueValue(column: $key, table: "video", value: $value)) throw new UniqueKey($key);
-            }
-            $sql_keys = "";
-            $sql_values = "";
-            foreach($query_keys_values as $key => $value){
-                $sql_keys .= $key . ",";
-                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
-            }
-            $sql_keys = substr($sql_keys,0,-1);
-            $sql_values = substr($sql_values,0,-1) ;
-            $sql = "INSERT INTO video ($sql_keys) VALUES ($sql_values)";
-        } else {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "video") && !Database::isUniqueValue(column: $key, table: "video", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
-            }
-            $update_sql = "";
-            foreach($query_keys_values as $key => $value){
-                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
-            }
-            $update_sql = substr($update_sql,0,-1);
-            $sql = "UPDATE video SET $update_sql WHERE id = $this->id";
-        }
-        $database->query($sql);
-        if (in_array(self::SUBTITLES, $this->flags) || in_array(self::ALL, $this->flags)) {
-            $query = $database->query("SELECT id FROM subtitle WHERE video = $this->id AND available = '" . Availability::AVAILABLE->value . "';");
+        $values = array("anime" => $anime);
+        if($season != null) $values["season"] = $season;
+        parent::__store(values: $values);
+        return $this;
+    }
+
+    /**
+     * @return void
+     * @throws IOException
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     */
+    #[Pure]
+    protected function updateRelations()
+    {
+        $database = $this->getDatabase();
+        $id = $this->getId();
+        if ($this->hasFlag(self::SUBTITLES)) {
+            $query = $database->query("SELECT id FROM subtitle WHERE video = $id AND available = '" . Availability::AVAILABLE->value . "';");
             while ($row = $query->fetch_array()) {
                 $remove = true;
                 foreach ($this->subtitles as $value) {
@@ -200,8 +122,8 @@ class Video {
                 $value->store(video: $this);
             }
         }
-        if (in_array(self::DUBBING, $this->flags) || in_array(self::ALL, $this->flags)) {
-            $query = $database->query("SELECT id FROM dubbing WHERE video = $this->id AND available = '" . Availability::AVAILABLE->value . "';");
+        if ($this->hasFlag(self::DUBBING)) {
+            $query = $database->query("SELECT id FROM dubbing WHERE video = $id AND available = '" . Availability::AVAILABLE->value . "';");
             while ($row = $query->fetch_array()) {
                 $remove = true;
                 foreach ($this->dubbing as $value) {
@@ -216,63 +138,55 @@ class Video {
                 $value->store(video: $this);
             }
         }
-        $database->query("COMMIT");
-        return $this;
     }
 
     /**
-     * This method will remove the object from the database.
-     * @return $this
      * @throws IOException
      */
     public function remove() : Video{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $this->available = Availability::NOT_AVAILABLE;
-        $sql = "UPDATE season SET available = '$this->available->value' WHERE id = $this->id";
-        $database->query($sql);
+        parent::__remove(method: Removal::AVAILABILITY);
         return $this;
     }
 
     /**
-     * @param int|null $id
-     * @param int|null $anime
-     * @param Availability $available
-     * @param string|null $sql
-     * @param array $flags
-     * @return array
-     * @throws RecordNotFound
+     * @throws ReflectionException
      */
     public static function find(int $id = null, int $anime = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
-        $result = array();
-        try {
-            $database = Database::getConnection();
-        } catch(IOException $e){
-            return $result;
-        }
-        if($sql != null){
-            $sql_command = "SELECT id from video WHERE " . $sql;
-        } else {
-            $sql_command = "SELECT id from video WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "") .
-                ($available != null ? "(available != null AND available = '$available->value')" : "") .
-                ($anime != null ? "(anime != null AND anime = '$anime')" : "");
-            $sql_command = str_replace($sql_command, ")(", ") AND (");
-            if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
-        }
-        $query = $database->query($sql_command);
-        while($row = $query->fetch_array()){
-            $result[] = new Video($row["id"], $flags);
-        }
-        return $result;
+        return parent::__find(fields: array(
+            "id" => $id,
+            "anime" => $anime,
+            "available" => $available?->value
+        ), table: 'video', class: 'Objects\Video', sql: $sql, flags: $flags);
     }
 
+    /**
+     * @return array
+     */
+    protected function valuesArray(): array
+    {
+        return array(
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("video"),
+            "video_type" => $this->video_type?->getId(),
+            "numeration" => $this->numeration,
+            "title"=> $this->title,
+            "synopsis"=> $this->synopsis,
+            "duration"=> $this->duration,
+            "opening_start"=> $this->opening_start,
+            "opening_end"=> $this->opening_end,
+            "ending_start" => $this->ending_start,
+            "ending_end" => $this->ending_end,
+            "path" => $this->path,
+            "available" => $this->available?->value
+        );
+    }
 
-    #[Pure]
+    /**
+     * @return array
+     */
     public function toArray(): array
     {
         $array = array(
-            "id" => $this->id,
+            "id" => $this->getId(),
             "video_type" => $this->video_type?->toArray(),
             "numeration" => $this->numeration,
             "title"=> $this->title,
@@ -290,13 +204,6 @@ class Video {
         $array["dubbing"] = $this->dubbing != null ? array() : null;
         if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
         return $array;
-    }
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
     }
 
     /**
@@ -318,9 +225,9 @@ class Video {
     }
 
     /**
-     * @return int|mixed|null
+     * @return int|null
      */
-    public function getNumeration(): mixed
+    public function getNumeration(): ?int
     {
         return $this->numeration;
     }
@@ -336,9 +243,9 @@ class Video {
     }
 
     /**
-     * @return mixed|String|null
+     * @return String|null
      */
-    public function getTitle(): mixed
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -354,9 +261,9 @@ class Video {
     }
 
     /**
-     * @return mixed|String|null
+     * @return String|null
      */
-    public function getSynopsis(): mixed
+    public function getSynopsis(): ?string
     {
         return $this->synopsis;
     }
@@ -372,9 +279,9 @@ class Video {
     }
 
     /**
-     * @return int|mixed|null
+     * @return int|null
      */
-    public function getDuration(): mixed
+    public function getDuration(): ?int
     {
         return $this->duration;
     }
@@ -390,9 +297,9 @@ class Video {
     }
 
     /**
-     * @return int|mixed|null
+     * @return int|null
      */
-    public function getOpeningStart(): mixed
+    public function getOpeningStart(): ?int
     {
         return $this->opening_start;
     }
@@ -408,9 +315,9 @@ class Video {
     }
 
     /**
-     * @return int|mixed|null
+     * @return int|null
      */
-    public function getOpeningEnd(): mixed
+    public function getOpeningEnd(): ?int
     {
         return $this->opening_end;
     }
@@ -426,9 +333,9 @@ class Video {
     }
 
     /**
-     * @return int|mixed|null
+     * @return int|null
      */
-    public function getEndingStart(): mixed
+    public function getEndingStart(): ?int
     {
         return $this->ending_start;
     }
@@ -444,9 +351,9 @@ class Video {
     }
 
     /**
-     * @return int|mixed|null
+     * @return int|null
      */
-    public function getEndingEnd(): mixed
+    public function getEndingEnd(): ?int
     {
         return $this->ending_end;
     }
@@ -462,9 +369,9 @@ class Video {
     }
 
     /**
-     * @return mixed|String|null
+     * @return String|null
      */
-    public function getPath(): mixed
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -533,12 +440,4 @@ class Video {
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getFlags(): array
-    {
-        return $this->flags;
-    }
 }
-?>

@@ -1,244 +1,130 @@
 <?php
+
 namespace Objects;
-/*
- * Class imports
- */
 
 use DateTime;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Pure;
-use mysqli;
-
-/*
- * Object Imports
- */
-
-use Objects\LogAction;
-use Objects\User;
-
-/*
- * Exception Imports
- */
-use Exceptions\UniqueKey;
-use Exceptions\RecordNotFound;
-use Exceptions\IOException;
-use Exceptions\MalformedJSON;
-use Exception;
+use Enumerators\Availability;
+use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
-use Exceptions\TableNotFound;
+use Exceptions\IOException;
 use Exceptions\NotNullable;
-
-/*
- * Enumerator Imports
- */
-use Enumerators\Availability;
-/*
- * Others
- */
+use Exceptions\RecordNotFound;
+use Exceptions\TableNotFound;
+use Exceptions\UniqueKey;
 use Functions\Database;
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
+use ReflectionException;
 
-class Punishment {
-    // Database
-    private ?Mysqli $database;
-
-    // Flags
-
-    public const NORMAL = 0;
-    public const ALL = 1;
+class Punishment extends Entity
+{
+    // FLAGS
 
     // DEFAULT STRUCTURE
 
-    private ?int $id = null;
-    private ?PunishmentType $punishment_type = null;
-    private ?String $reason = null;
-    private ?DateTime $lasts_until = null;
-    private ?DateTime $creation_date = null;
-    private ?User $performed_by = null;
-    private ?User $revoked_by = null;
-    private ?String $revoked_reason = null;
-    private ?Availability $available = Availability::AVAILABLE;
+    protected ?PunishmentType $punishment_type = null;
+    protected ?String $reason = null;
+    protected ?DateTime $lasts_until = null;
+    protected ?User $performed_by = null;
+    protected ?DateTime $performed_date = null;
+    protected ?User $revoked_by = null;
+    protected ?DateTime $revoked_date = null;
+    protected ?String $revoked_reason = null;
+    protected ?Availability $available = Availability::AVAILABLE;
 
     // RELATIONS
 
-    private array $flags;
-
     /**
      * @param int|null $id
      * @param array $flags
+     * @throws ReflectionException
      * @throws RecordNotFound
-     * @throws MalformedJSON
-     * @throws Exception
      */
-    function __construct(int $id = null, array $flags = array(self::NORMAL)) {
-        $this->flags = $flags;
-        try {
-            $this->database = Database::getConnection();
-        } catch(IOException $e){
-            $this->database = null;
-        }
-        if($id != null && $this->database != null){
-            $database = $this->database;
-            $query = $database->query("SELECT * FROM punishment WHERE id = $id;");
-            if($query->num_rows > 0){
-                $row = $query->fetch_array();
-                $this->id = $row["id"];
-                //$this->user = $row["user"] != "" ? new User($row["user"]) : null;
-                $this->punishment_type = new PunishmentType($row["punishment_type"]);
-                $this->reason = $row["reason"];
-                $this->lasts_until = $row["lasts_until"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["lasts_until"]) : null;
-                $this->creation_date = $row["creation_date"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["creation_date"]) : null;
-                $this->performed_by = $row["performed_by"] != "" ? new User($row["performed_by"]) : null;
-                $this->revoked_by = $row["revoked_by"] != "" ? new User($row["performed_by"]) : null;
-                $this->revoked_reason = $row["revoked_reason"];
-                $this->available = $row["available"] != "" ? Availability::getAvailability($row["available"]) : Availability::AVAILABLE;
-            } else {
-                throw new RecordNotFound();
-            }
-        }
+    public function __construct(int $id = null, array $flags = array(self::NORMAL))
+    {
+        parent::__construct(table: "punishment", id: $id, flags: $flags);
     }
 
     /**
-     * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store(User $user) : Punishment{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        if (!isset($user)) throw new NotNullable(argument: 'user');
-        $database = $this->database;
-        $database->query("START TRANSACTION");
-        $query_keys_values = array(
-            "id" => $this->id != null ? $this->id : Database::getNextIncrement("punishment"),
-            "user" => $user->getId(),
-            "punishment_type" => $this->punishment_type?->store()->getId(),
-            "reason" => $this->reason ?? null,
-            "lasts_until" => $this->lasts_until?->format(Database::DateFormat),
-            "creation_date" => $this->creation_date?->format(Database::DateFormat),
-            "performed_by" => $this->performed_by?->store()->getId(),
-            "revoked_by" => $this->revoked_by?->store()->getId(),
-            "revoked_reason" => $this->revoked_reason ?? null,
-            "available" => $this->available?->value,
-        );
-        foreach($query_keys_values as $key => $value) {
-            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "punishment")) {
-                $size = Database::getColumnSize(column: $key, table: "punishment");
-                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
-            } else if(!Database::isNullable(column: $key, table: 'punishment') && $value == null){
-                throw new NotNullable($key);
-            }
-        }
-        if($this->id == null || $database->query("SELECT id from punishment where id = $this->id")->num_rows == 0) {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "punishment") && !Database::isUniqueValue(column: $key, table: "punishment", value: $value)) throw new UniqueKey($key);
-            }
-            $sql_keys = "";
-            $sql_values = "";
-            foreach($query_keys_values as $key => $value){
-                $sql_keys .= $key . ",";
-                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
-            }
-            $sql_keys = substr($sql_keys,0,-1);
-            $sql_values = substr($sql_values,0,-1) ;
-            $sql = "INSERT INTO punishment ($sql_keys) VALUES ($sql_values)";
-        } else {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "punishment") && !Database::isUniqueValue(column: $key, table: "punishment", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
-            }
-            $update_sql = "";
-            foreach($query_keys_values as $key => $value){
-                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
-            }
-            $update_sql = substr($update_sql,0,-1);
-            $sql = "UPDATE punishment SET $update_sql WHERE id = $this->id";
-        }
-        $database->query($sql);
-        $database->query("COMMIT");
+        parent::__store(values: array("user" => $user?->getId()));
         return $this;
     }
 
     /**
-     * This method will remove the object from the database.
-     * @return $this
      * @throws IOException
      */
     public function remove() : Punishment{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $this->available = Availability::NOT_AVAILABLE;
-        $sql = "UPDATE punishment SET available = '$this->available->value' WHERE id = $this->id";
-        $database->query($sql);
+        parent::__remove(method: Removal::AVAILABILITY);
         return $this;
     }
 
     /**
-     * @param int|null $id
-     * @param int|null $user
-     * @param int|null $punishment_type
-     * @param int|null $performed_by
-     * @param int|null $revoked_by
-     * @param Availability $available
-     * @param string|null $sql
-     * @param array $flags
-     * @return array
-     * @throws MalformedJSON
-     * @throws RecordNotFound
+     * @throws ReflectionException
      */
-    public static function find(int $id = null, int $user = null, int $punishment_type = null, int $performed_by = null, int $revoked_by = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
-        $result = array();
-        try {
-            $database = Database::getConnection();
-        } catch(IOException $e){
-            return $result;
-        }
-        if($sql != null){
-            $sql_command = "SELECT id from punishment WHERE " . $sql;
-        } else {
-            $sql_command = "SELECT id from punishment WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "") .
-                ($user != null ? "(user != null AND user = '$user')" : "") .
-                ($available != null ? "(available != null AND available = '$available->value')" : "") .
-                ($punishment_type != null ? "(punishment_type != null AND punishment_type = '$punishment_type')" : "") .
-                ($performed_by != null ? "(performed_by != null AND performed_by = '$performed_by')" : "")
-                ($revoked_by != null ? "(revoked_by != null AND revoked_by = '$revoked_by')" : "");
-            $sql_command = str_replace($sql_command, ")(", ") AND (");
-            if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
-        }
-        $query = $database->query($sql_command);
-        $result = array();
-        while($row = $query->fetch_array()){
-            $result[] = new Punishment($row["id"], $flags);
-        }
-        return $result;
+    public static function find(int $id = null, int $user = null, int $punishment_type = null, int $performed_by = null, int $revoked_by = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]) : array{
+        return parent::__find(fields: array(
+            "id" => $id,
+            "user" => $user,
+            "punishment_type" => $punishment_type,
+            "performed_by" => $performed_by,
+            "revoked_by" => $revoked_by,
+            "available" => $available?->value
+        ), table: 'punishment', class: 'Objects\Punishment', sql: $sql, flags: $flags);
     }
 
-    #[ArrayShape(["id" => "int|mixed|null", "punishment_type" => "array|null", "reason" => "mixed|null|String", "lasts_until" => "\DateTime|false|null", "creation_date" => "\DateTime|false|null", "performed_by" => "array|null", "revoked_by" => "array|null", "revoked_reason" => "mixed|null|String", "available" => "array|null"])]
-    #[Pure]
+    /**
+     * @return array
+     * @throws ColumnNotFound
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
+     */
+
+    protected function valuesArray(): array
+    {
+        return array(
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("punishment"),
+            "punishment_type" => $this->punishment_type?->store()->getId(),
+            "reason" => $this->reason ?? null,
+            "lasts_until" => $this->lasts_until?->format(Database::DateFormat),
+            "performed_by" => $this->performed_by?->store()->getId(),
+            "performed_date" => $this->performed_date?->format(Database::DateFormat),
+            "revoked_by" => $this->revoked_by?->store()->getId(),
+            "revoked_date" => $this->revoked_date?->format(Database::DateFormat),
+            "revoked_reason" => $this->revoked_reason ?? null,
+            "available" => $this->available?->value,
+        );
+    }
+
+    /**
+     * @return array
+     */
     public function toArray(): array
     {
         return array(
-            "id" => $this->id,
+            "id" => $this->getId(),
             "punishment_type" => $this->punishment_type?->toArray(),
             "reason" => $this->reason,
-            "lasts_until" => $this->lasts_until,
-            "creation_date" => $this->creation_date,
+            "lasts_until" => $this->lasts_until?->format(Database::DateFormat),
             "performed_by" => $this->performed_by?->toArray(),
+            "performed_date" => $this->performed_date?->format(Database::DateFormat),
             "revoked_by" => $this->revoked_by?->toArray(),
+            "revoked_date" => $this->revoked_date?->format(Database::DateFormat),
             "revoked_reason" => $this->revoked_reason,
             "available" => $this->available?->toArray()
         );
-    }
-    /**
-     * @return int|mixed
-     */
-    public function getId(): mixed
-    {
-        return $this->id;
     }
 
     /**
@@ -260,9 +146,9 @@ class Punishment {
     }
 
     /**
-     * @return mixed|String
+     * @return String|null
      */
-    public function getReason(): mixed
+    public function getReason(): ?string
     {
         return $this->reason;
     }
@@ -298,18 +184,22 @@ class Punishment {
     /**
      * @return DateTime
      */
-    public function getCreationDate(): DateTime
+    public function getPerformedDate(): DateTime
     {
-        return $this->creation_date;
+        return $this->performed_date;
     }
 
     /**
-     * @param DateTime $creation_date
+     * @param DateTime|String $performed_date
      * @return Punishment
      */
-    public function setCreationDate(DateTime $creation_date): Punishment
+    public function setPerformedDate(DateTime|String $performed_date): Punishment
     {
-        $this->creation_date = $creation_date;
+        if(is_string($performed_date)){
+            $this->performed_date = DateTime::createFromFormat(Database::DateFormat, $performed_date);
+        } else if(is_a($performed_date, "DateTime")){
+            $this->performed_date = $performed_date;
+        }
         return $this;
     }
 
@@ -350,9 +240,31 @@ class Punishment {
     }
 
     /**
-     * @return mixed|String
+     * @return DateTime
      */
-    public function getRevokedReason(): mixed
+    public function getRevokedDate(): DateTime
+    {
+        return $this->revoked_date;
+    }
+
+    /**
+     * @param DateTime|String $revoked_date
+     * @return Punishment
+     */
+    public function setRevokedDate(DateTime|String $revoked_date): Punishment
+    {
+        if(is_string($revoked_date)){
+            $this->revoked_date = DateTime::createFromFormat(Database::DateFormat, $revoked_date);
+        } else if(is_a($revoked_date, "DateTime")){
+            $this->revoked_date = $revoked_date;
+        }
+        return $this;
+    }
+
+    /**
+     * @return String|null
+     */
+    public function getRevokedReason(): ?string
     {
         return $this->revoked_reason;
     }
@@ -385,12 +297,4 @@ class Punishment {
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getFlags(): array
-    {
-        return $this->flags;
-    }
 }
-?>

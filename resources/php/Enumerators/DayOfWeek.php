@@ -36,7 +36,7 @@ enum DayOfWeek: int
         );
     }
 
-    public static function getDayOfWeek(?int $num) : ?DayOfWeek {
+    public static function getItem(?int $num) : ?DayOfWeek {
         return match ($num) {
             1 => self::MONDAY,
             2 => self::TUESDAY,

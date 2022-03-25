@@ -27,7 +27,7 @@ enum Verification: int
         );
     }
 
-    public static function getVerification(?int $num) : ?Verification{
+    public static function getItem(?int $num) : ?Verification{
         return match ($num) {
             0 => self::NOT_VERIFIED,
             1 => self::VERIFIED,

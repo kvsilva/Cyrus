@@ -1,30 +1,58 @@
 <?php
-
 namespace Objects;
+/*
+ * Class imports
+ */
 
 use DateTime;
+use Exception;
+use JetBrains\PhpStorm\Pure;
+use mysqli;
+
+/*
+ * Object Imports
+ */
+
+use Objects\Role;
+use Objects\Permission;
+use Objects\Language;
+use Objects\Resource;
+use Objects\Log;
+
+/*
+ * Exception Imports
+ */
+use Exceptions\UniqueKey;
+use Exceptions\NotNullable;
+use Exceptions\InvalidDataType;
+use Exceptions\RecordNotFound;
+use Exceptions\MalformedJSON;
+use Exceptions\IOException;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\TableNotFound;
+
+/*
+ * Enumerator Imports
+ */
 use Enumerators\Availability;
 use Enumerators\NightMode;
-use Enumerators\Removal;
-use Enumerators\Sex;
 use Enumerators\Verification;
-use Exception;
-use Exceptions\ColumnNotFound;
-use Exceptions\InvalidDataType;
-use Exceptions\InvalidSize;
-use Exceptions\IOException;
-use Exceptions\MalformedJSON;
-use Exceptions\NotNullable;
-use Exceptions\RecordNotFound;
-use Exceptions\TableNotFound;
-use Exceptions\UniqueKey;
+use Enumerators\Sex;
+
+/*
+ * Others
+ */
 use Functions\Database;
-use ReflectionException;
 
-class User extends Entity
-{
-    // FLAGS
 
+class User_old {
+
+    // Database
+    private ?Mysqli $database = null;
+
+    public const NORMAL = 0;
+    public const ALL = 1;
     public const ROLES = 2;
     public const PUNISHMENTS = 3;
     public const LOGS = 4;
@@ -32,24 +60,27 @@ class User extends Entity
 
     // DEFAULT STRUCTURE
 
-    protected ?String $email = null;
-    protected ?String $username = null;
-    protected ?String $password = null;
-    protected ?DateTime $birthdate = null;
-    protected ?Sex $sex = null;
-    protected ?DateTime $creation_date = null;
-    protected ?String $status = null;
-    protected ?Resource $profile_image = null;
-    protected ?Resource $profile_background = null;
-    protected ?String $about_me = null;
-    protected ?Verification $verified = null;
-    protected ?Language $display_language = null;
-    protected ?Language $email_communication_language = null;
-    protected ?Language $translation_language = null;
-    protected ?NightMode $night_mode = null;
-    protected ?Availability $available = null;
+    private ?int $id = null;
+    private ?String $email = null;
+    private ?String $username = null;
+    private ?String $password = null;
+    private ?DateTime $birthdate = null;
+    private ?Sex $sex = null;
+    private ?DateTime $creation_date = null;
+    private ?String $status = null;
+    private ?Resource $profile_image = null;
+    private ?Resource $profile_background = null;
+    private ?String $about_me = null;
+    private ?Verification $verified = null;
+    private ?Language $display_language = null;
+    private ?Language $email_communication_language = null;
+    private ?Language $translation_language = null;
+    private ?NightMode $night_mode = null;
+    private ?Availability $available = null;
 
     // RELATIONS
+
+    private array $flags;
 
     // User::Roles
     private ?array $roles = null;
@@ -66,174 +97,90 @@ class User extends Entity
     /**
      * @param int|null $id
      * @param array $flags
-     * @throws ReflectionException
-     * @throws RecordNotFound
-     */
-    public function __construct(int $id = null, array $flags = array(self::NORMAL))
-    {
-        parent::__construct(table: "user", id: $id, flags: $flags);
-    }
-
-    /**
-     * @return void
      * @throws RecordNotFound
      * @throws MalformedJSON
      */
-    protected function buildRelations()
-    {
-        $id = $this->getId();
-        $database = $this->getDatabase();
-        if(in_array(self::ROLES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
-            $this->roles = array();
-            $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
-            while($row = $query->fetch_array()){
-                $this->roles[] = new Role($row["id"]);
-            }
+    function __construct(int $id = null, array $flags = array(self::NORMAL)) {
+        try {
+            $this->database = Database::getConnection();
+        } catch(IOException $e){
+            $this->database = null;
         }
-        if(in_array(self::PUNISHMENTS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
-            $this->punishments = array();
-            $query = $database->query("SELECT id FROM PUNISHMENT WHERE user = $id;");
-            while($row = $query->fetch_array()){
-                $this->punishments[] = new Punishment($row["id"]);
-            }
-        }
-        if(in_array(self::LOGS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
-            $this->logs = array();
-            $query = $database->query("SELECT id FROM log WHERE user = $id;");
-            while($row = $query->fetch_array()){
-                $this->logs[] = new Log($row["id"]);
-            }
-        }
-        if(in_array(self::PURCHASES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
-            $this->logs = array();
-            $query = $database->query("SELECT id FROM account_purchase WHERE user = $id;");
-            while($row = $query->fetch_array()){
-                $this->logs[] = new AccountPurchase($row["id"]);
+        $this->flags = $flags;
+        if($id != null && $this->database != null){
+            $database = $this->database;
+            $query = $database->query("SELECT * FROM USER WHERE id = $id;");
+            if($query->num_rows > 0){
+                $row = $query->fetch_array();
+                $this->id = $row["id"];
+                $this->email = $row["email"];
+                $this->username = $row["username"];
+                $this->password = $row["password"];
+                $this->birthdate = $row["birthdate"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["birthdate"] . " 00:00:00") : null;
+                $this->sex = $row["sex"] != "" ? Sex::getItem($row["sex"]) : null;
+                $this->creation_date = $row["creation_date"] != "" ? DateTime::createFromFormat(Database::DateFormat, $row["creation_date"]) : null;
+                $this->status = $row["status"];
+                $this->profile_image = $row["profile_image"] != "" ? new Resource($row["profile_image"]) : null;
+                $this->profile_background = $row["profile_background"] != "" ? new Resource($row["profile_background"]) : null;
+                $this->about_me = $row["about_me"];
+
+                $this->verified = Verification::getItem($row["verified"]);
+                $this->display_language = $row["display_language"] != "" ? new Language($row["display_language"]) : null;
+                $this->email_communication_language = $row["email_communication_language"] != "" ? new Language($row["email_communication_language"]) : null;
+                $this->translation_language = $row["translation_language"] != "" ? new Language($row["translation_language"]) : null;
+                $this->night_mode = NightMode::getItem($row["night_mode"]);
+                $this->available = Availability::getItem($row["available"]);
+                if(in_array(self::ROLES, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->roles = array();
+                    $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
+                    while($row = $query->fetch_array()){
+                        $this->roles[] = new Role($row["id"]);
+                    }
+                }
+                if(in_array(self::PUNISHMENTS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->punishments = array();
+                    $query = $database->query("SELECT id FROM PUNISHMENT WHERE user = $id;");
+                    while($row = $query->fetch_array()){
+                        $this->punishments[] = new Punishment($row["id"]);
+                    }
+                }
+                if(in_array(self::LOGS, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->logs = array();
+                    $query = $database->query("SELECT id FROM log WHERE user = $id;");
+                    while($row = $query->fetch_array()){
+                        $this->logs[] = new Log($row["id"]);
+                    }
+                }
+                if(in_array(self::PURCHASES, $this->flags) || in_array(self::ALL, $this->flags)){
+                    $this->logs = array();
+                    $query = $database->query("SELECT id FROM account_purchase WHERE user = $id;");
+                    while($row = $query->fetch_array()){
+                        $this->logs[] = new AccountPurchase($row["id"]);
+                    }
+                }
+            } else {
+                throw new RecordNotFound();
             }
         }
     }
 
     /**
+     * This method will update the data in the database, according to the object properties
      * @return $this
-     * @throws ColumnNotFound
      * @throws IOException
+     * @throws UniqueKey
+     * @throws ColumnNotFound
+     * @throws TableNotFound
      * @throws InvalidSize
      * @throws NotNullable
-     * @throws TableNotFound
-     * @throws UniqueKey
      */
-    public function store() : User{
-        parent::__store();
-        return $this;
-    }
-
-    /**
-     * @return void
-     */
-    protected function updateRelations()
+    public function store() : User
     {
-        $database = $this->getDatabase();
-        $id = $this->getId();
-        if (in_array(self::ROLES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
-            $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
-            while ($row = $query->fetch_array()) {
-                $remove = true;
-                foreach ($this->roles as $role) {
-                    $role->store();
-                    if ($role->getId() == $row["id"]) {
-                        $remove = false;
-                        break;
-                    }
-                }
-                if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $id AND role = $row[id]");
-            }
-            foreach ($this->roles as $role) {
-                $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($id, $role->getId())");
-            }
-        }
-        if (in_array(self::PUNISHMENTS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
-            $query = $database->query("SELECT id FROM punishment WHERE user = $id;");
-            while ($row = $query->fetch_array()) {
-                $remove = true;
-                foreach ($this->punishments as $punishment) {
-                    if ($punishment->getId() == $row["id"]) {
-                        $remove = false;
-                        break;
-                    }
-                }
-                if ($remove) {
-                    try { (new Punishment($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
-                }
-            }
-            foreach ($this->punishments as $punishment) {
-                $punishment->store($this);
-            }
-        }
-        if (in_array(self::LOGS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
-            $query = $database->query("SELECT id FROM log WHERE user = $id");
-            while ($row = $query->fetch_array()) {
-                $remove = true;
-                foreach ($this->logs as $log) {
-                    if ($log->getId() == $row["id"]) {
-                        $remove = false;
-                        break;
-                    }
-                }
-                if ($remove) {
-                    try { (new Log($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
-                }
-            }
-            foreach ($this->logs as $log) {
-                $log->store();
-            }
-        }
-        if (in_array(self::PURCHASES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
-            $query = $database->query("SELECT id FROM account_purchase WHERE user = $id;");
-            while ($row = $query->fetch_array()) {
-                $remove = true;
-                foreach ($this->purchases as $purchase) {
-                    if ($purchase->getId() == $row["id"]) {
-                        $remove = false;
-                        break;
-                    }
-                }
-                if ($remove) {
-                    try { (new AccountPurchase($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
-                }
-            }
-            foreach ($this->purchases as $purchase) {
-                $purchase->store($this);
-            }
-        }
-    }
-
-    /**
-     * @throws IOException
-     */
-    public function remove() : User{
-        parent::__remove(method: Removal::AVAILABILITY);
-        return $this;
-    }
-
-    /**
-     * @throws ReflectionException
-     */
-    public static function find(int $id = null, string $email = null, string $username = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]) : array{
-        return parent::__find(fields: array(
-            "id" => $id,
-            "email" => $email,
-            "username" => $username,
-            "available" => $available?->value
-        ), table: 'user', class: 'Objects\User', sql: $sql, flags: $flags);
-    }
-
-    /**
-     * @return array
-     */
-    protected function valuesArray(): array
-    {
-        return array(
-            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("user"),
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+        $database->query("START TRANSACTION");
+        $query_keys_values = array(
+            "id" => $this->id != null ? $this->id : Database::getNextIncrement("user"),
             "email" => $this->email,
             "username" => $this->username,
             "password" => $this->password,
@@ -251,15 +198,170 @@ class User extends Entity
             "night_mode" => $this->night_mode != null ? $this->night_mode->value : NightMode::DISABLE->value,
             "available" => $this->available != null ? $this->available->value : Availability::AVAILABLE->value
         );
+        foreach($query_keys_values as $key => $value) {
+            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "user")) {
+                $size = Database::getColumnSize(column: $key, table: "user");
+                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
+            } else if(!Database::isNullable(column: $key, table: 'user') && $value == null){
+                throw new NotNullable($key);
+            }
+        }
+        if ($this->id == null || $database->query("SELECT id from user where id = $this->id")->num_rows == 0) {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "user") && !Database::isUniqueValue(column: $key, table: "user", value: $value)) throw new UniqueKey($key);
+            }
+            $sql_keys = "";
+            $sql_values = "";
+            foreach ($query_keys_values as $key => $value) {
+                $sql_keys .= $key . ",";
+                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+            }
+            $sql_keys = substr($sql_keys, 0, -1);
+            $sql_values = substr($sql_values, 0, -1);
+            $sql = "INSERT INTO user ($sql_keys) VALUES ($sql_values)";
+        } else {
+            foreach ($query_keys_values as $key => $value) {
+                if (Database::isUniqueKey(column: $key, table: "user") && !Database::isUniqueValue(column: $key, table: "user", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
+            }
+            $update_sql = "";
+            foreach ($query_keys_values as $key => $value) {
+                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+            }
+            $update_sql = substr($update_sql, 0, -1);
+            $sql = "UPDATE user SET $update_sql WHERE id = $this->id";
+        }
+        $database->query($sql);
+        // Relations
+        if (in_array(self::ROLES, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->roles as $role) {
+                    $role->store();
+                    if ($role->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $this->id AND role = $row[id]");
+            }
+            foreach ($this->roles as $role) {
+                $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($this->id, $role->getId())");
+            }
+        }
+        if (in_array(self::PUNISHMENTS, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM punishment WHERE user = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->punishments as $punishment) {
+                    if ($punishment->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    try { (new Punishment($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
+                }
+            }
+            foreach ($this->punishments as $punishment) {
+                $punishment->store($this);
+            }
+        }
+        if (in_array(self::LOGS, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM log WHERE user = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->logs as $log) {
+                    if ($log->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    try { (new Log($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
+                }
+            }
+            foreach ($this->logs as $log) {
+                $log->store();
+            }
+        }
+        if (in_array(self::PURCHASES, $this->flags) || in_array(self::ALL, $this->flags)) {
+            $query = $database->query("SELECT id FROM account_purchase WHERE user = $this->id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->purchases as $purchase) {
+                    if ($purchase->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    try { (new AccountPurchase($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
+                }
+            }
+            foreach ($this->purchases as $purchase) {
+                $purchase->store($this);
+            }
+        }
+        $database->query("COMMIT");
+        return $this;
     }
 
     /**
-     * @return array
+     * This method will remove the object from the database, however, for logging reasons, the record will only be hidden in queries.
+     * @return $this
+     * @throws IOException
      */
+    public function remove() : User{
+        if ($this->database == null) throw new IOException("Could not access database services.");
+        $database = $this->database;
+        $this->available = Availability::NOT_AVAILABLE;
+        $sql = "UPDATE user SET available = '$this->available->value' WHERE id = $this->id";
+        $database->query($sql);
+        return $this;
+    }
+
+    /**
+     * @param int|null $id
+     * @param string|null $email
+     * @param string|null $username
+     * @param Availability $availability
+     * @param string|null $sql
+     * @param array $flags
+     * @return array
+     * @throws RecordNotFound
+     * @throws MalformedJSON
+     */
+    public static function find(int $id = null, string $email = null, string $username = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
+        $result = array();
+        try {
+            $database = Database::getConnection();
+        } catch(IOException $e){
+            return $result;
+        }
+        if($sql != null){
+            $sql_command = "SELECT id from USER WHERE " . $sql;
+        } else {
+            $sql_command = "SELECT id from USER WHERE " .
+                ($id != null ? "(id != null AND id = '$id') " : "") .
+                ($email != null ? "(email != null AND email = '$email') " : "") .
+                ($username != null ? "(username != null AND username = '$username') " : "") .
+                ($availability != null ? "(available != null AND available = '$availability->value') " : "");
+            $sql_command = str_replace($sql_command, ")(", ") AND (");
+            if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
+        }
+        $query = $database->query($sql_command);
+        while($row = $query->fetch_array()){
+            $result[] = new User($row["id"], $flags);
+        }
+        return $result;
+    }
+
+    #[Pure]
     public function toArray(): array
     {
         $array = array(
-            "id" => $this->getId(),
+            "id" => $this->id,
             "email" => $this->email,
             "username" => $this->username,
             "birthdate" => $this->birthdate?->format(Database::DateFormat),
@@ -302,6 +404,14 @@ class User extends Entity
             }
         }
         return $array;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     /**
@@ -612,6 +722,14 @@ class User extends Entity
     /**
      * @return array
      */
+    public function getFlags(): array
+    {
+        return $this->flags;
+    }
+
+    /**
+     * @return array
+     */
     public function getRoles(): array
     {
         return $this->roles;
@@ -726,3 +844,7 @@ class User extends Entity
     }
 
 }
+
+
+
+?>

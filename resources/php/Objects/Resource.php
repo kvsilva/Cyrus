@@ -1,200 +1,102 @@
 <?php
+
 namespace Objects;
-/*
- * Class imports
- */
 
 use Enumerators\Availability;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Pure;
-use mysqli;
-
-/*
- * Object Imports
- */
-
-
-/*
- * Exception Imports
- */
-use Exceptions\UniqueKey;
-use Exceptions\RecordNotFound;
+use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
-use Exceptions\TableNotFound;
 use Exceptions\NotNullable;
-
-/*
- * Enumerator Imports
- */
-
-/*
- * Others
- */
+use Exceptions\RecordNotFound;
+use Exceptions\TableNotFound;
+use Exceptions\UniqueKey;
 use Functions\Database;
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
+use ReflectionException;
 
-
-class Resource {
-
-    private ?MySqli $database = null;
-
-    // Flags
-
-    public const NORMAL = 0;
-    public const ALL = 1;
+class Resource extends Entity
+{
+    // FLAGS
 
     // DEFAULT STRUCTURE
 
-    private ?int $id = null;
-    private ?String $title = null;
-    private ?String $description = null;
-    private ?String $extension = null;
-    private ?String $path = null;
-    private ?Availability $available = null;
+    protected ?String $title = null;
+    protected ?String $description = null;
+    protected ?String $extension = null;
+    protected ?String $path = null;
+    protected ?Availability $available = null;
 
     // RELATIONS
 
-    private array $flags;
     /**
      * @param int|null $id
      * @param array $flags
+     * @throws ReflectionException
      * @throws RecordNotFound
      */
-    function __construct(int $id = null, array $flags = array(self::NORMAL)) {
-        $this->flags = $flags;
-        try {
-            $this->database = Database::getConnection();
-        } catch(IOException $e){
-            $this->database = null;
-        }
-        if($id != null && $this->database != null){
-            $database = $this->database;
-            $query = $database->query("SELECT * FROM resource WHERE id = $id;");
-            if($query->num_rows > 0){
-                $row = $query->fetch_array();
-                $this->id = $row["id"];
-                $this->title = $row["title"];
-                $this->description = $row["description"];
-                $this->extension = $row["extension"];
-                $this->path = $row["path"];
-                $this->available = Availability::getAvailability($row["available"]);
-            } else {
-                throw new RecordNotFound();
-            }
-        }
+    public function __construct(int $id = null, array $flags = array(self::NORMAL))
+    {
+        parent::__construct(table: "resource", id: $id, flags: $flags);
     }
 
     /**
-     * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : Resource{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $database->query("START TRANSACTION");
-        $query_keys_values = array(
-            "id" => $this->id != null ? $this->id : Database::getNextIncrement("resource"),
+        parent::__store();
+        return $this;
+    }
+
+    /**
+     * @throws IOException
+     */
+    public function remove() : Resource{
+        parent::__remove(method: Removal::AVAILABILITY);
+        return $this;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public static function find(int $id = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
+        return parent::__find(fields: array(
+            "id" => $id,
+            "available" => $available?->value
+        ), table: 'resource', class: 'Objects\Resource', sql: $sql, flags: $flags);
+    }
+
+    /**
+     * @return array
+     */
+    #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "int|null"])]
+    protected function valuesArray(): array
+    {
+        return array(
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("resource"),
             "title" => $this->title,
             "description" => $this->description,
             "extension" => $this->extension,
             "path" => $this->path,
             "available" => $this->available?->value
         );
-        foreach($query_keys_values as $key => $value) {
-            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "resource")) {
-                $size = Database::getColumnSize(column: $key, table: "resource");
-                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
-            } else if(!Database::isNullable(column: $key, table: 'resource') && $value == null){
-                throw new NotNullable($key);
-            }
-        }
-        if($this->id == null || $database->query("SELECT id from resource where id = $this->id")->num_rows == 0) {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "resource") && !Database::isUniqueValue(column: $key, table: "resource", value: $value)) throw new UniqueKey($key);
-            }
-            $sql_keys = "";
-            $sql_values = "";
-            foreach($query_keys_values as $key => $value){
-                $sql_keys .= $key . ",";
-                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
-            }
-            $sql_keys = substr($sql_keys,0,-1);
-            $sql_values = substr($sql_values,0,-1) ;
-            $sql = "INSERT INTO resource ($sql_keys) VALUES ($sql_values)";
-        } else {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "resource") && !Database::isUniqueValue(column: $key, table: "resource", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
-            }
-            $update_sql = "";
-            foreach($query_keys_values as $key => $value){
-                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
-            }
-            $update_sql = substr($update_sql,0,-1);
-            $sql = "UPDATE resource SET $update_sql WHERE id = $this->id";
-        }
-        $database->query($sql);
-        $database->query("COMMIT");
-        return $this;
     }
 
     /**
-     * This method will remove the object from the database.
-     * @return $this
-     * @throws IOException
-     */
-    public function remove() : Resource{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $this->available = Availability::NOT_AVAILABLE;
-        $sql = "UPDATE season SET available = '$this->available->value' WHERE id = $this->id";
-        $database->query($sql);
-        return $this;
-    }
-
-    /**
-     * @param int|null $id
-     * @param Availability $available
-     * @param string|null $sql
-     * @param array $flags
      * @return array
-     * @throws RecordNotFound
      */
-    public static function find(int $id = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
-        $result = array();
-        try {
-            $database = Database::getConnection();
-        } catch(IOException $e){
-            return $result;
-        }
-        if($sql != null){
-            $sql_command = "SELECT id from resource WHERE " . $sql;
-        } else {
-            $sql_command = "SELECT id from resource WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "") .
-                ($available != null ? "(available != null AND available = '$available->value')" : "");
-            $sql_command = str_replace($sql_command, ")(", ") AND (");
-            if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
-        }
-        $query = $database->query($sql_command);
-        while($row = $query->fetch_array()){
-            $result[] = new Resource($row["id"], $flags);
-        }
-        return $result;
-    }
-
-    #[ArrayShape(["id" => "int|mixed|null", "title" => "mixed|null|String", "description" => "mixed|null|String", "extension" => "mixed|null|String", "path" => "mixed|null|String", "available" => "array|null"])]
-    #[Pure]
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "array|null"])]
     public function toArray(): array
     {
         return array(
-            "id" => $this->id,
+            "id" => $this->getId(),
             "title" => $this->title,
             "description" => $this->description,
             "extension" => $this->extension,
@@ -202,81 +104,74 @@ class Resource {
             "available" => $this->available?->toArray()
         );
     }
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     /**
-     * @return String
+     * @return String|null
      */
-    public function getTitle(): String
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
     /**
-     * @param String $title
+     * @param String|null $title
      * @return Resource
      */
-    public function setTitle(String $title): Resource
+    public function setTitle(?string $title): Resource
     {
         $this->title = $title;
         return $this;
     }
 
     /**
-     * @return String
+     * @return String|null
      */
-    public function getDescription(): String
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
     /**
-     * @param String $description
+     * @param String|null $description
      * @return Resource
      */
-    public function setDescription(String $description): Resource
+    public function setDescription(?string $description): Resource
     {
         $this->description = $description;
         return $this;
     }
 
     /**
-     * @return String
+     * @return String|null
      */
-    public function getExtension(): String
+    public function getExtension(): ?string
     {
         return $this->extension;
     }
 
     /**
-     * @param String $extension
+     * @param String|null $extension
      * @return Resource
      */
-    public function setExtension(String $extension): Resource
+    public function setExtension(?string $extension): Resource
     {
         $this->extension = $extension;
         return $this;
     }
 
     /**
-     * @return String
+     * @return String|null
      */
-    public function getPath(): String
+    public function getPath(): ?string
     {
         return $this->path;
     }
 
     /**
-     * @param String $path
+     * @param String|null $path
      * @return Resource
      */
-    public function setPath(String $path): Resource
+    public function setPath(?string $path): Resource
     {
         $this->path = $path;
         return $this;
@@ -300,12 +195,4 @@ class Resource {
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getFlags(): array
-    {
-        return $this->flags;
-    }
 }
-?>

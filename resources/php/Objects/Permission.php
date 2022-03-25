@@ -1,193 +1,83 @@
 <?php
+
 namespace Objects;
-/*
- * Class imports
- */
 
-use Exceptions\NotNullable;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Pure;
-use mysqli;
-
-/*
- * Object Imports
- */
-
-
-/*
- * Exception Imports
- */
-use Exceptions\UniqueKey;
-use Exceptions\RecordNotFound;
+use Enumerators\Availability;
+use Enumerators\Removal;
+use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
-use Exceptions\ColumnNotFound;
+use Exceptions\NotNullable;
+use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
-
-/*
- * Enumerator Imports
- */
-
-/*
- * Others
- */
+use Exceptions\UniqueKey;
 use Functions\Database;
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
+use ReflectionException;
 
-class Permission {
-
-    // Database
-    private ?MySqli $database = null;
-
-    // Flags
-
-    public const NORMAL = 0;
-    public const ALL = 1;
+class Permission extends Entity
+{
+    // FLAGS
 
     // DEFAULT STRUCTURE
-
-    private ?int $id = null;
-    private ?String $tag = null;
-    private ?String $name = null;
-    private ?String $description = null;
+    protected ?String $tag = null;
+    protected ?String $name = null;
+    protected ?String $description = null;
 
     // RELATIONS
 
-    private array $flags;
     /**
      * @param int|null $id
      * @param array $flags
+     * @throws ReflectionException
      * @throws RecordNotFound
      */
-    function __construct(int $id = null, array $flags = array(self::NORMAL)) {
-        $this->flags = $flags;
-        try {
-            $this->database = Database::getConnection();
-        } catch(IOException $e){
-            $this->database = null;
-        }
-        if($id != null && $this->database != null){
-            $database = $this->database;
-            $query = $database->query("SELECT * FROM permission WHERE id = $id;");
-            if($query->num_rows > 0){
-                $row = $query->fetch_array();
-                $this->id = $row["id"];
-                $this->tag = $row["tag"];
-                $this->name = $row["name"];
-                $this->description = $row["description"];
-            } else {
-                throw new RecordNotFound();
-            }
-        }
+    public function __construct(int $id = null, array $flags = array(self::NORMAL))
+    {
+        parent::__construct(table: "permission", id: $id, flags: $flags);
     }
 
     /**
-     * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : Permission{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $database->query("START TRANSACTION");
-        $query_keys_values = array(
-            "id" => $this->id != null ? $this->id : Database::getNextIncrement("permission"),
-            "tag" => $this->tag,
-            "name" => $this->name,
-            "description" => $this->description
-        );
-        foreach($query_keys_values as $key => $value) {
-            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "permission")) {
-                $size = Database::getColumnSize(column: $key, table: "permission");
-                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
-            } else if(!Database::isNullable(column: $key, table: 'permission') && $value == null){
-                throw new NotNullable($key);
-            }
-        }
-        if ($this->id == null || $database->query("SELECT id from permission where id = $this->id")->num_rows == 0) {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "permission") && !Database::isUniqueValue(column: $key, table: "permission", value: $value)) throw new UniqueKey($key);
-            }
-            $sql_keys = "";
-            $sql_values = "";
-            foreach ($query_keys_values as $key => $value) {
-                $sql_keys .= $key . ",";
-                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
-            }
-            $sql_keys = substr($sql_keys, 0, -1);
-            $sql_values = substr($sql_values, 0, -1);
-            $sql = "INSERT INTO permission ($sql_keys) VALUES ($sql_values)";
-        } else {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "permission") && !Database::isUniqueValue(column: $key, table: "permission", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
-            }
-            $update_sql = "";
-            foreach ($query_keys_values as $key => $value) {
-                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
-            }
-            $update_sql = substr($update_sql, 0, -1);
-            $sql = "UPDATE permission SET $update_sql WHERE id = $this->id";
-        }
-        $database->query($sql);
-        // Relations
-        $database->query("COMMIT");
+        parent::__store();
         return $this;
     }
 
     /**
-     * This method will remove the object from the database.
-     * @return $this
      * @throws IOException
      */
     public function remove() : Permission{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $database->query("DELETE FROM ROLE_PERMISSION where permission = $this->id");
-        $database->query("DELETE FROM permission where id = $this->id");
+        parent::__remove();
         return $this;
     }
 
     /**
-     * @param int|null $id
-     * @param string|null $tag
-     * @param string|null $sql
-     * @param array $flags
-     * @return array
-     * @throws RecordNotFound
+     * @throws ReflectionException
      */
-    public static function find(int $id = null, string $tag = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        $result = array();
-        try {
-            $database = Database::getConnection();
-        } catch(IOException $e){
-            return $result;
-        }
-        if($sql != null){
-            $sql_command = "SELECT id from permission WHERE " . $sql;
-        } else {
-            $sql_command = "SELECT id from permission WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "") .
-                ($tag != null ? "(tag != null AND tag = '$tag')" : "");
-            $sql_command = str_replace($sql_command, ")(", ") AND (");
-            if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
-        }
-        $query = $database->query($sql_command);
-        while($row = $query->fetch_array()){
-            $result[] = new Permission($row["id"], $flags);
-        }
-        return $result;
+    public static function find(int $id = null, string $tag = null,  string $sql = null, array $flags = [self::NORMAL]) : array{
+        return parent::__find(fields: array(
+            "id" => $id,
+            "tag" => $tag
+        ), table: 'permission', class: 'Objects\Permission', sql: $sql, flags: $flags);
     }
 
-    #[ArrayShape(["id" => "int|mixed", "tag" => "mixed", "name" => "mixed|String", "description" => "mixed"])]
-    #[Pure]
-    public function toArray(): array
+    /**
+     * @return array
+     */
+    #[ArrayShape(["id" => "int|mixed", "tag" => "null|String", "name" => "null|String", "description" => "null|String"])]
+    protected function valuesArray(): array
     {
         return array(
-            "id" => $this->id,
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("permission"),
             "tag" => $this->tag,
             "name" => $this->name,
             "description" => $this->description
@@ -195,73 +85,73 @@ class Permission {
     }
 
     /**
-     * @return int|mixed
+     * @return array
      */
-    public function getId(): mixed
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "tag" => "null|String", "name" => "null|String", "description" => "null|String"])]
+    public function toArray(): array
     {
-        return $this->id;
+        return array(
+            "id" => $this->getId(),
+            "tag" => $this->tag,
+            "name" => $this->name,
+            "description" => $this->description
+        );
     }
 
     /**
-     * @return mixed|String
+     * @return String|null
      */
-    public function getTag(): mixed
+    public function getTag(): ?string
     {
         return $this->tag;
     }
 
     /**
-     * @param mixed|String $tag
-     * @return $this
+     * @param String|null $tag
+     * @return Permission
      */
-    public function setTag(mixed $tag): Permission
+    public function setTag(?string $tag): Permission
     {
         $this->tag = $tag;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String|null
      */
-    public function getName(): mixed
+    public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
-     * @param mixed|String $name
+     * @param String|null $name
      * @return Permission
      */
-    public function setName(mixed $name): Permission
+    public function setName(?string $name): Permission
     {
         $this->name = $name;
         return $this;
     }
 
     /**
-     * @return mixed|String
+     * @return String|null
      */
-    public function getDescription(): mixed
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
     /**
-     * @param mixed|String $description
+     * @param String|null $description
      * @return Permission
      */
-    public function setDescription(mixed $description): Permission
+    public function setDescription(?string $description): Permission
     {
         $this->description = $description;
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getFlags(): array
-    {
-        return $this->flags;
-    }
+
+
 }
-?>

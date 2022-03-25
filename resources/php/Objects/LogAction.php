@@ -1,199 +1,100 @@
 <?php
+
 namespace Objects;
-/*
- * Class imports
- */
 
-use Exceptions\NotNullable;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Pure;
-use mysqli;
-
-/*
- * Object Imports
- */
-
-
-/*
- * Exception Imports
- */
-use Exceptions\UniqueKey;
-use Exceptions\RecordNotFound;
+use Enumerators\Availability;
+use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
+use Exceptions\NotNullable;
+use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
-
-/*
- * Enumerator Imports
- */
-
-/*
- * Others
- */
+use Exceptions\UniqueKey;
 use Functions\Database;
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
+use ReflectionException;
 
-
-class LogAction {
-
-    // Database
-    private ?MySqli $database = null;
-
-    // Flags
-
-    public const NORMAL = 0;
-    public const ALL = 1;
+class LogAction extends Entity
+{
+    // FLAGS
 
     // DEFAULT STRUCTURE
 
-    private ?int $id = null;
-    private ?String $name = null;
-    private ?String $description = null;
+    protected ?String $name = null;
+    protected ?String $description = null;
 
     // RELATIONS
 
-    private array $flags;
     /**
      * @param int|null $id
      * @param array $flags
+     * @throws ReflectionException
      * @throws RecordNotFound
      */
-    function __construct(int $id = null, array $flags = array(self::NORMAL)) {
-        $this->flags = $flags;
-        try {
-            $this->database = Database::getConnection();
-        } catch(IOException $e){
-            $this->database = null;
-        }
-        if($id != null && $this->database != null){
-            $database = $this->database;
-            $query = $database->query("SELECT * FROM log_action WHERE id = $id;");
-            if($query->num_rows > 0){
-                $row = $query->fetch_array();
-                $this->id = $row["id"];
-                $this->name = $row["name"];
-                $this->description = $row["description"];
-            } else {
-                throw new RecordNotFound();
-            }
-        }
+    public function __construct(int $id = null, array $flags = array(self::NORMAL))
+    {
+        parent::__construct(table: "log_action", id: $id, flags: $flags);
     }
 
     /**
-     * This method will update the data in the database, according to the object properties
      * @return $this
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : LogAction{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $database->query("START TRANSACTION");
-        $query_keys_values = array(
-            "id" => $this->id != null ? $this->id : Database::getNextIncrement("log_action"),
-            "name" => $this->name,
-            "description" => $this->description
-        );
-        foreach($query_keys_values as $key => $value) {
-            if (!Database::isWithinColumnSize(value: $value, column: $key, table: "log_action")) {
-                $size = Database::getColumnSize(column: $key, table: "log_action");
-                throw new InvalidSize(column: $key, maximum: $size->getMaximum(), minimum: $size->getMinimum());
-            } else if(!Database::isNullable(column: $key, table: 'log_action') && $value == null){
-                throw new NotNullable($key);
-            }
-        }
-        if($this->id == null || $database->query("SELECT id from log_action where id = $this->id")->num_rows == 0) {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "log_action") && !Database::isUniqueValue(column: $key, table: "log_action", value: $value)) throw new UniqueKey($key);
-            }
-            $sql_keys = "";
-            $sql_values = "";
-            foreach($query_keys_values as $key => $value){
-                $sql_keys .= $key . ",";
-                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
-            }
-            $sql_keys = substr($sql_keys,0,-1);
-            $sql_values = substr($sql_values,0,-1) ;
-            $sql = "INSERT INTO log_action ($sql_keys) VALUES ($sql_values)";
-        } else {
-            foreach ($query_keys_values as $key => $value) {
-                if (Database::isUniqueKey(column: $key, table: "log_action") && !Database::isUniqueValue(column: $key, table: "log_action", value: $value, ignore_record: ["id" => $this->id])) throw new UniqueKey($key);
-            }
-            $update_sql = "";
-            foreach($query_keys_values as $key => $value){
-                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
-            }
-            $update_sql = substr($update_sql,0,-1);
-            $sql = "UPDATE log_action SET $update_sql WHERE id = $this->id";
-        }
-        $database->query($sql);
-        $database->query("COMMIT");
+        parent::__store();
         return $this;
     }
 
     /**
-     * This method will remove the object from the database.
-     * @return $this
      * @throws IOException
      */
     public function remove() : LogAction{
-        if ($this->database == null) throw new IOException("Could not access database services.");
-        $database = $this->database;
-        $database->query("DELETE FROM log_action where id = $this->id");
+        parent::__remove();
         return $this;
     }
 
     /**
-     * @param int|null $id
-     * @param String|null $name
-     * @param string|null $sql
-     * @param array $flags
-     * @return array
-     * @throws RecordNotFound
+     * @throws ReflectionException
      */
-    public static function find(int $id = null, String $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
-        $result = array();
-        try {
-            $database = Database::getConnection();
-        } catch(IOException $e){
-            return $result;
-        }
-        if($sql != null){
-            $sql_command = "SELECT id from log_action WHERE " . $sql;
-        } else {
-            $sql_command = "SELECT id from log_action WHERE " .
-                ($id != null ? "(id != null AND id = '$id')" : "") .
-                ($name != null ? "(name != null AND name = '$name')" : "");
-            $sql_command = str_replace($sql_command, ")(", ") AND (");
-            if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
-        }
-        $query = $database->query($sql_command);
-        while($row = $query->fetch_array()){
-            $result[] = new LogAction($row["id"], $flags);
-        }
-        return $result;
+    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+        return parent::__find(fields: array(
+            "id" => $id,
+            "name" => $name
+        ), table: 'log_action', class: 'Objects\LogAction', sql: $sql, flags: $flags);
     }
 
-    #[ArrayShape(["id" => "int|mixed", "name" => "mixed|String", "description" => "mixed|String"])]
-    #[Pure]
-    public function toArray(): array
+    /**
+     * @return array
+     */
+    #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "description" => "null|String"])]
+    protected function valuesArray(): array
     {
         return array(
-            "id" => $this->id,
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("log_action"),
             "name" => $this->name,
             "description" => $this->description
         );
     }
+
     /**
-     * @return int
+     * @return array
      */
-    public function getId(): int
+    #[Pure]
+    #[ArrayShape(["id" => "int|null", "name" => "null|String", "description" => "null|String"])]
+    public function toArray(): array
     {
-        return $this->id;
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name,
+            "description" => $this->description
+        );
     }
 
     /**
@@ -232,12 +133,4 @@ class LogAction {
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getFlags(): array
-    {
-        return $this->flags;
-    }
 }
-?>

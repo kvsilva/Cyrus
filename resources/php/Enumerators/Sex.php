@@ -29,7 +29,7 @@ enum Sex: int
         );
     }
 
-    public static function getSex(?int $num) : ?Sex{
+    public static function getItem(?int $num) : ?Sex{
         return match ($num) {
             1 => self::MALE,
             2 => self::FEMALE,

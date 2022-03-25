@@ -1,23 +1,46 @@
 <?php
-
 namespace Objects;
+/*
+ * Class imports
+ */
 
-use Enumerators\Availability;
-use Enumerators\Removal;
-use Exceptions\ColumnNotFound;
-use Exceptions\InvalidSize;
-use Exceptions\IOException;
-use Exceptions\NotNullable;
-use Exceptions\RecordNotFound;
-use Exceptions\TableNotFound;
-use Exceptions\UniqueKey;
-use Functions\Database;
+use DateTime;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
+use mysqli;
+
+/*
+ * Object Imports
+ */
+
+use Objects\LogAction;
+use Objects\User;
+
+/*
+ * Exception Imports
+ */
+use Exceptions\UniqueKey;
+use Exceptions\RecordNotFound;
+use Exceptions\IOException;
+use Exceptions\MalformedJSON;
+use Exception;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\TableNotFound;
+use Exceptions\NotNullable;
+
+/*
+ * Enumerator Imports
+ */
+use Enumerators\Availability;
+/*
+ * Others
+ */
+use Functions\Database;
 use ReflectionException;
 
-class PunishmentType extends Entity
-{
+class TicketStatus extends Entity {
+
     // FLAGS
 
     // DEFAULT STRUCTURE
@@ -29,12 +52,12 @@ class PunishmentType extends Entity
     /**
      * @param int|null $id
      * @param array $flags
-     * @throws ReflectionException
      * @throws RecordNotFound
+     * @throws ReflectionException
      */
     public function __construct(int $id = null, array $flags = array(self::NORMAL))
     {
-        parent::__construct(table: "punishment_type", id: $id, flags: $flags);
+        parent::__construct(table: "ticket_status", id: $id, flags: $flags);
     }
 
     /**
@@ -46,7 +69,7 @@ class PunishmentType extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store() : PunishmentType{
+    public function store() : TicketStatus{
         parent::__store();
         return $this;
     }
@@ -54,7 +77,7 @@ class PunishmentType extends Entity
     /**
      * @throws IOException
      */
-    public function remove() : PunishmentType{
+    public function remove() : TicketStatus{
         parent::__remove();
         return $this;
     }
@@ -62,11 +85,11 @@ class PunishmentType extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name
-        ), table: 'punishment_type', class: 'Objects\PunishmentType', sql: $sql, flags: $flags);
+        ), table: 'ticket_status', class: 'Objects\TicketStatus', sql: $sql, flags: $flags);
     }
 
     /**
@@ -76,7 +99,7 @@ class PunishmentType extends Entity
     protected function valuesArray(): array
     {
         return array(
-            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("punishment_type"),
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("ticket_status"),
             "name" => $this->name
         );
     }
@@ -92,7 +115,6 @@ class PunishmentType extends Entity
             "name" => $this->name
         );
     }
-
     /**
      * @return String|null
      */
@@ -103,12 +125,12 @@ class PunishmentType extends Entity
 
     /**
      * @param String|null $name
-     * @return PunishmentType
+     * @return TicketStatus
      */
-    public function setName(?string $name): PunishmentType
+    public function setName(?string $name): TicketStatus
     {
         $this->name = $name;
         return $this;
     }
-
 }
+?>

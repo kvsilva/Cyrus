@@ -4,21 +4,21 @@ namespace Enumerators;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
-enum Maturity: int
+enum Removal: int
 {
-    case NORMAL = 0;
-    case MATURE = 1;
+    case DELETE = 0;
+    case AVAILABILITY = 1;
 
     public function name(): string
     {
         return match ($this) {
-            self::NORMAL => 'Normal',
-            self::MATURE => 'Mature',
+            self::DELETE => 'Delete',
+            self::AVAILABILITY => 'Availability',
         };
     }
 
     #[Pure]
-    #[ArrayShape(["name" => "string", "value" => "\Maturity"])]
+    #[ArrayShape(["name" => "string", "value" => "\Availability"])]
     public function toArray() : array
     {
         return array(
@@ -27,11 +27,11 @@ enum Maturity: int
         );
     }
 
-    public static function getItem(?int $num) : ?Maturity {
+    public static function getItem(?int $num) : ?Removal {
         return match ($num) {
-            0 => self::NORMAL,
-            1 => self::MATURE,
-            default => null,
+            0 => self::DELETE,
+            1 => self::AVAILABILITY,
+            default => null
         };
     }
 }
