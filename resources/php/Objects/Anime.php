@@ -24,6 +24,7 @@ class Anime extends Entity
 
     public const VIDEOS = 2;
     public const SEASONS = 3;
+    public const GENDERS = 4;
 
     // DEFAULT STRUCTURE
 
@@ -45,6 +46,8 @@ class Anime extends Entity
     private ?array $videos = null;
     // Anime::Seasons
     private ?array $seasons = null;
+    // Anime::Genders
+    private ?array $genders = null;
 
     /**
      * @param int|null $id
@@ -75,9 +78,16 @@ class Anime extends Entity
         }
         if($this->hasFlag(self::VIDEOS)){
             $this->videos = array();
-            $query = $database->query("SELECT id FROM video WHERE anime = $id AND season = null AND available = '" . Availability::AVAILABLE->value . "';");
+            $query = $database->query("SELECT id FROM video as 'id' WHERE anime = $id AND season = null AND available = '" . Availability::AVAILABLE->value . "';");
             while($row = $query->fetch_array()){
                 $this->videos[] = new Video($row["id"]);
+            }
+        }
+        if($this->hasFlag(self::GENDERS)){
+            $this->videos = array();
+            $query = $database->query("SELECT gender as 'id'FROM anime_gender WHERE anime = $id;");
+            while($row = $query->fetch_array()){
+                $this->videos[] = new Gender($row["id"]);
             }
         }
     }
@@ -137,6 +147,25 @@ class Anime extends Entity
             }
             foreach ($this->videos as $video) {
                 $video->store(anime: $this);
+            }
+        }
+        if ($this->hasFlag(self::GENDERS)) {
+            $query = $database->query("SELECT gender as 'id' FROM anime_gender WHERE anime = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->videos as $video) {
+                    if ($video->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    $database->query("DELETE FROM anime_gender where anime = $id AND gender = $row[id]");
+                }
+            }
+            foreach ($this->genders as $gender) {
+                $gender->store();
+                $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($id, " . $gender->getId() . ")");
             }
         }
     }

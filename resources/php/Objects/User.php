@@ -14,6 +14,7 @@ use Exceptions\InvalidDataType;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
 use Exceptions\MalformedJSON;
+use Exceptions\NotInitialized;
 use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
@@ -30,6 +31,7 @@ class User extends Entity
     public const LOGS = 4;
     public const PURCHASES = 5;
     public const TICKETS = 6;
+    public const ANIME_STATUS = 7;
 
     // DEFAULT STRUCTURE
 
@@ -66,6 +68,25 @@ class User extends Entity
 
     // User::Tickets
     private ?array $tickets = null;
+
+    // User::AnimeStatus
+    /**
+     * @var array|null
+     * array(
+     *      array(
+     *          "status" => (new AnimeStatus()),
+     *          "list" => array(
+     *          )
+     *       ),
+     *      array(
+     *          "status" => (new AnimeStatus()),
+     *          "list" => array(
+     *          )
+     *       )
+     *   );
+     */
+    private ?array $anime_status = null;
+
 
     /**
      * @param int|null $id
@@ -122,6 +143,18 @@ class User extends Entity
                 $this->tickets[] = new Ticket($row["id"]);
             }
         }
+        if($this->hasFlag(self::ANIME_STATUS)){
+            $this->anime_status = array();
+            $query = $database->query("SELECT DISTINCT status as 'id' FROM user_anime_status WHERE user = $id;");
+            while($row = $query->fetch_array()){
+                $status = new AnimeStatus($row["id"]);
+                $this->anime_status[] = array("status" => $status, "list" => array());
+                $animes = $database->query("SELECT anime as 'id' FROM user_anime_status WHERE user = $id and status = $row[id] ORDER BY date;");
+                while($anime = $animes->fetch_array()){
+                    $this->anime_status[sizeof($this->anime_status)]["list"] = new Anime($anime["id"]);
+                }
+            }
+        }
     }
 
     /**
@@ -140,6 +173,7 @@ class User extends Entity
 
     /**
      * @return void
+     * @throws ReflectionException|RecordNotFound
      */
     protected function updateRelations()
     {
@@ -173,7 +207,7 @@ class User extends Entity
                     }
                 }
                 if ($remove) {
-                    try { (new Punishment($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
+                    try { (new Punishment($row["id"]))->remove(); } catch (RecordNotFound|IOException|Exception $e) {}
                 }
             }
             foreach ($this->punishments as $punishment) {
@@ -209,7 +243,7 @@ class User extends Entity
                     }
                 }
                 if ($remove) {
-                    try { (new AccountPurchase($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
+                    try { (new AccountPurchase($row["id"]))->remove(); } catch (RecordNotFound|IOException|Exception $e) {}
                 }
             }
             foreach ($this->purchases as $purchase) {
@@ -232,6 +266,39 @@ class User extends Entity
             }
             foreach ($this->tickets as $ticket) {
                 $ticket->store($this);
+            }
+        }
+        if ($this->hasFlag(self::ANIME_STATUS)) {
+            $query = $database->query("SELECT DISTINCT status as 'id' FROM user_anime_status WHERE user = $id;");
+            while ($row = $query->fetch_array()) {
+                $status = new AnimeStatus($row["id"]);
+                $status_list_loc = null;
+                foreach($this->anime_status as $k => $v){
+                    if($v["status"]->getId() == $status->getId()){
+                        $status_list_loc = $k;
+                        break;
+                    }
+                }
+                $animes = $database->query("SELECT anime as 'id' FROM user_anime_status WHERE user = $id and status = $row[id] ORDER BY date;");
+                while ($anime = $animes->fetch_array()) {
+                    $remove = true;
+                    foreach ($this->anime_status[$status_list_loc]["list"] as $anime_status) {
+                        if ($anime_status->getId() == $anime["id"]) {
+                            $remove = false;
+                            break;
+                        }
+                    }
+                    if ($remove) {
+                        $database->query("DELETE FROM user_anime_status WHERE user = $id AND anime = $anime[id] AND status = $row[id]");
+                    }
+                }
+            }
+            foreach ($this->anime_status as $status_arr) {
+                foreach ($status_arr["list"] as $key => $anime){
+                    $anime->store();
+                    $status = AnimeStatus::find(name: $key)[0];
+                    $database->query("INSERT IGNORE INTO user_anime_status (user, anime, status) VALUES ($id, ". $anime->getId() .", ". $status->getId() .")");
+                }
             }
         }
     }
@@ -258,6 +325,12 @@ class User extends Entity
 
     /**
      * @return array
+     * @throws ColumnNotFound
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     protected function valuesArray(): array
     {
@@ -332,6 +405,8 @@ class User extends Entity
         }
         $array["tickets"] = $this->tickets != null ? array() : null;
         if($array["tickets"] != null) foreach($this->tickets as $value) $array["tickets"][] = $value->toArray();
+        $array["anime_status"] = $this->anime_status != null ? array() : null;
+        if($array["anime_status"] != null) foreach($this->anime_status as $value) $array["anime_status"][] = $value->toArray();
         return $array;
     }
 
@@ -661,10 +736,11 @@ class User extends Entity
     /**
      * @param Role $role
      * @return User
-     * @throws InvalidDataType
+     * @throws NotInitialized
      */
     public function addRole(Role $role): User
     {
+        if($this->roles == null) throw new NotInitialized("roles");
         $this->roles[] = $role;
         return $this;
     }
@@ -674,9 +750,11 @@ class User extends Entity
      * @param int|null $id
      * @return $this
      * @throws InvalidDataType
+     * @throws NotInitialized
      */
     public function removeRole(Role $role = null, int $id = null): User
     {
+        if($this->roles == null) throw new NotInitialized("roles");
         $remove = array();
         if($role != null){
             for ($i = 0; $i < count($this->roles); $i++) {
@@ -699,8 +777,10 @@ class User extends Entity
      * @param Permission $permission
      * @param String|null $tag
      * @return bool
+     * @throws NotInitialized
      */
     public function hasPermission(Permission $permission, String $tag = null) : bool{
+        if($this->roles == null) throw new NotInitialized("roles");
         foreach($this->roles as $element){
             if($element->hasPermission($permission, $tag)) return true;
         }
@@ -726,11 +806,13 @@ class User extends Entity
     }
 
     /**
-     * @param Punishment $punishment
+     * @param Punishment $entity
      * @return User
+     * @throws NotInitialized
      */
     public function addPunishment(Punishment $entity): User
     {
+        if($this->punishments == null) throw new NotInitialized("punishments");
         $this->punishments[] = $entity;
         return $this;
     }
@@ -739,9 +821,11 @@ class User extends Entity
      * @param Punishment|null $entity
      * @param int|null $id
      * @return $this
+     * @throws NotInitialized
      */
     public function removePunishment(Punishment $entity = null, int $id = null): User
     {
+        if($this->punishments == null) throw new NotInitialized("punishments");
         $remove = array();
         if($entity != null){
             for ($i = 0; $i < count($this->punishments); $i++) {
@@ -781,9 +865,11 @@ class User extends Entity
     /**
      * @param Log $entity
      * @return User
+     * @throws NotInitialized
      */
     public function addLog(Log $entity): User
     {
+        if($this->logs == null) throw new NotInitialized("logs");
         $this->logs[] = $entity;
         return $this;
     }
@@ -792,9 +878,11 @@ class User extends Entity
      * @param Log|null $entity
      * @param int|null $id
      * @return $this
+     * @throws NotInitialized
      */
     public function removeLog(Log $entity = null, int $id = null): User
     {
+        if($this->logs == null) throw new NotInitialized("logs");
         $remove = array();
         if($entity != null){
             for ($i = 0; $i < count($this->logs); $i++) {
@@ -834,9 +922,11 @@ class User extends Entity
     /**
      * @param AccountPurchase $entity
      * @return User
+     * @throws NotInitialized
      */
     public function addPurchase(AccountPurchase $entity): User
     {
+        if($this->purchases == null) throw new NotInitialized("purchases");
         $this->purchases[] = $entity;
         return $this;
     }
@@ -848,6 +938,7 @@ class User extends Entity
      */
     public function removePurchase(AccountPurchase $entity = null, int $id = null): User
     {
+        if($this->purchases == null) throw new NotInitialized("purchases");
         $remove = array();
         if($entity != null){
             for ($i = 0; $i < count($this->purchases); $i++) {
@@ -887,9 +978,11 @@ class User extends Entity
     /**
      * @param Ticket $entity
      * @return User
+     * @throws NotInitialized
      */
     public function addTicket(Ticket $entity): User
     {
+        if($this->tickets == null) throw new NotInitialized("tickets");
         $this->tickets[] = $entity;
         return $this;
     }
@@ -898,9 +991,11 @@ class User extends Entity
      * @param Ticket|null $entity
      * @param int|null $id
      * @return $this
+     * @throws NotInitialized
      */
     public function removeTicket(Ticket $entity = null, int $id = null): User
     {
+        if($this->tickets == null) throw new NotInitialized("tickets");
         $remove = array();
         if($entity != null){
             for ($i = 0; $i < count($this->tickets); $i++) {
@@ -916,6 +1011,66 @@ class User extends Entity
             }
         }
         foreach($remove as $item) unset($this->tickets[$item]);
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getAnimestatus(): ?array
+    {
+        return $this->anime_status;
+    }
+
+    /**
+     * @param array|null $anime_status
+     * @return User
+     */
+    public function setAnimestatus(?array $anime_status): User
+    {
+        $this->anime_status = $anime_status;
+        return $this;
+    }
+
+    /**
+     * @param AnimeStatus $entity
+     * @param Anime $anime
+     * @return User
+     * @throws NotInitialized
+     */
+    public function addAnimeStatus(AnimeStatus $entity, Anime $anime): User
+    {
+        if($this->anime_status == null) throw new NotInitialized("anime_status");
+        foreach($this->anime_status as $key => $value){
+            if($this->anime_status[$key]["status"]?->getId() == $entity->getId()){
+                $this->anime_status[$key]["list"][] = $anime;
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param AnimeStatus $entity
+     * @param Anime|null $anime
+     * @param int|null $id
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeAnimeStatus(AnimeStatus $entity, Anime $anime = null, int $id = null): User
+    {
+        if($this->anime_status == null) throw new NotInitialized("anime_status");
+        $remove = array();
+        $status_loc = null;
+        for ($i = 0; $i < count($this->anime_status); $i++) {
+            if ($this->anime_status[$i]["status"]->getId() == $entity->getId()) {
+                $status_loc = $i;
+                foreach($this->anime_status[$i]["list"] as $key => $value){
+                    if(($entity != null && $value->getId() == $anime->getId()) || ($id != null && $value->getId() == $id))
+                    $remove[] = $key;
+                }
+            }
+        }
+        if($status_loc != null) foreach($remove as $item) unset($this->anime_status[$status_loc]["list"][$item]);
         return $this;
     }
 
