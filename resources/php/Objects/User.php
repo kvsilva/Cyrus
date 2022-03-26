@@ -28,7 +28,8 @@ class User extends Entity
     public const ROLES = 2;
     public const PUNISHMENTS = 3;
     public const LOGS = 4;
-    public const PURCHASES = 4;
+    public const PURCHASES = 5;
+    public const TICKETS = 6;
 
     // DEFAULT STRUCTURE
 
@@ -63,6 +64,9 @@ class User extends Entity
     // User::Purchases
     private ?array $purchases = null;
 
+    // User::Tickets
+    private ?array $tickets = null;
+
     /**
      * @param int|null $id
      * @param array $flags
@@ -77,38 +81,45 @@ class User extends Entity
     /**
      * @return void
      * @throws RecordNotFound
-     * @throws MalformedJSON
+     * @throws ReflectionException
      */
     protected function buildRelations()
     {
         $id = $this->getId();
         $database = $this->getDatabase();
-        if(in_array(self::ROLES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
+        if($this->hasFlag(self::ROLES)){
             $this->roles = array();
             $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->roles[] = new Role($row["id"]);
             }
         }
-        if(in_array(self::PUNISHMENTS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
+        if($this->hasFlag(self::PUNISHMENTS)){
             $this->punishments = array();
             $query = $database->query("SELECT id FROM PUNISHMENT WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->punishments[] = new Punishment($row["id"]);
             }
         }
-        if(in_array(self::LOGS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
+        if($this->hasFlag(self::LOGS)){
             $this->logs = array();
             $query = $database->query("SELECT id FROM log WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->logs[] = new Log($row["id"]);
             }
         }
-        if(in_array(self::PURCHASES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())){
+        if($this->hasFlag(self::PURCHASES)){
             $this->logs = array();
             $query = $database->query("SELECT id FROM account_purchase WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->logs[] = new AccountPurchase($row["id"]);
+            }
+        }
+        if($this->hasFlag(self::TICKETS)){
+            $this->tickets = array();
+            $query = $database->query("SELECT id FROM ticket WHERE user = $id;");
+            while($row = $query->fetch_array()){
+                $this->tickets[] = new Ticket($row["id"]);
             }
         }
     }
@@ -134,7 +145,7 @@ class User extends Entity
     {
         $database = $this->getDatabase();
         $id = $this->getId();
-        if (in_array(self::ROLES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
+        if ($this->hasFlag(self::ROLES)) {
             $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
@@ -151,7 +162,7 @@ class User extends Entity
                 $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($id, $role->getId())");
             }
         }
-        if (in_array(self::PUNISHMENTS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
+        if ($this->hasFlag(self::PUNISHMENTS)) {
             $query = $database->query("SELECT id FROM punishment WHERE user = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
@@ -169,7 +180,7 @@ class User extends Entity
                 $punishment->store($this);
             }
         }
-        if (in_array(self::LOGS, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
+        if ($this->hasFlag(self::LOGS)) {
             $query = $database->query("SELECT id FROM log WHERE user = $id");
             while ($row = $query->fetch_array()) {
                 $remove = true;
@@ -187,7 +198,7 @@ class User extends Entity
                 $log->store();
             }
         }
-        if (in_array(self::PURCHASES, $this->getFlags()) || in_array(self::ALL, $this->getFlags())) {
+        if ($this->hasFlag(self::PURCHASES)) {
             $query = $database->query("SELECT id FROM account_purchase WHERE user = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
@@ -203,6 +214,24 @@ class User extends Entity
             }
             foreach ($this->purchases as $purchase) {
                 $purchase->store($this);
+            }
+        }
+        if ($this->hasFlag(self::TICKETS)) {
+            $query = $database->query("SELECT id FROM ticket WHERE user = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->tickets as $ticket) {
+                    if ($ticket->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    try { (new Ticket($row["id"]))->remove(); } catch (RecordNotFound|IOException|Exception $e) {}
+                }
+            }
+            foreach ($this->tickets as $ticket) {
+                $ticket->store($this);
             }
         }
     }
@@ -301,6 +330,8 @@ class User extends Entity
                 }
             }
         }
+        $array["tickets"] = $this->tickets != null ? array() : null;
+        if($array["tickets"] != null) foreach($this->tickets as $value) $array["tickets"][] = $value->toArray();
         return $array;
     }
 
@@ -646,19 +677,21 @@ class User extends Entity
      */
     public function removeRole(Role $role = null, int $id = null): User
     {
-        if(isset($role)) {
+        $remove = array();
+        if($role != null){
             for ($i = 0; $i < count($this->roles); $i++) {
                 if ($this->roles[$i]->getId() == $role->getId()) {
-                    unset($this->roles[$i]);
+                    $remove[] = $i;
                 }
             }
-        } else if (isset($id)){
+        } else if($id != null) {
             for ($i = 0; $i < count($this->roles); $i++) {
                 if ($this->roles[$i]->getId() == $id) {
-                    unset($this->roles[$id]);
+                    $remove[] = $i;
                 }
             }
         }
+        foreach($remove as $item) unset($this->roles[$item]);
         return $this;
     }
 
@@ -696,32 +729,193 @@ class User extends Entity
      * @param Punishment $punishment
      * @return User
      */
-    public function addPunishment(Punishment $punishment): User
+    public function addPunishment(Punishment $entity): User
     {
-        $this->punishments[] = $punishment;
+        $this->punishments[] = $entity;
         return $this;
     }
 
     /**
-     * @param Punishment|null $punishment
+     * @param Punishment|null $entity
      * @param int|null $id
      * @return $this
      */
-    public function removePunishment(Punishment $punishment = null, int $id = null): User
+    public function removePunishment(Punishment $entity = null, int $id = null): User
     {
-        if(isset($punishment)) {
+        $remove = array();
+        if($entity != null){
             for ($i = 0; $i < count($this->punishments); $i++) {
-                if ($this->punishments[$i]->getId() == $punishment->getId()) {
-                    unset($this->punishments[$i]);
+                if ($this->punishments[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
                 }
             }
-        } else if (isset($id)){
+        } else if($id != null) {
             for ($i = 0; $i < count($this->punishments); $i++) {
                 if ($this->punishments[$i]->getId() == $id) {
-                    unset($this->punishments[$id]);
+                    $remove[] = $i;
                 }
             }
         }
+        foreach($remove as $item) unset($this->punishments[$item]);
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLogs(): ?array
+    {
+        return $this->logs;
+    }
+
+    /**
+     * @param array|null $logs
+     * @return User
+     */
+    public function setLogs(?array $logs): User
+    {
+        $this->logs = $logs;
+        return $this;
+    }
+
+    /**
+     * @param Log $entity
+     * @return User
+     */
+    public function addLog(Log $entity): User
+    {
+        $this->logs[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param Log|null $entity
+     * @param int|null $id
+     * @return $this
+     */
+    public function removeLog(Log $entity = null, int $id = null): User
+    {
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->logs); $i++) {
+                if ($this->logs[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->logs); $i++) {
+                if ($this->logs[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->logs[$item]);
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getPurchases(): ?array
+    {
+        return $this->purchases;
+    }
+
+    /**
+     * @param array|null $purchases
+     * @return User
+     */
+    public function setPurchases(?array $purchases): User
+    {
+        $this->purchases = $purchases;
+        return $this;
+    }
+
+    /**
+     * @param AccountPurchase $entity
+     * @return User
+     */
+    public function addPurchase(AccountPurchase $entity): User
+    {
+        $this->purchases[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param AccountPurchase|null $entity
+     * @param int|null $id
+     * @return $this
+     */
+    public function removePurchase(AccountPurchase $entity = null, int $id = null): User
+    {
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->purchases); $i++) {
+                if ($this->purchases[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->purchases); $i++) {
+                if ($this->purchases[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->purchases[$item]);
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getTickets(): ?array
+    {
+        return $this->tickets;
+    }
+
+    /**
+     * @param array|null $tickets
+     * @return User
+     */
+    public function setTickets(?array $tickets): User
+    {
+        $this->tickets = $tickets;
+        return $this;
+    }
+
+    /**
+     * @param Ticket $entity
+     * @return User
+     */
+    public function addTicket(Ticket $entity): User
+    {
+        $this->tickets[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param Ticket|null $entity
+     * @param int|null $id
+     * @return $this
+     */
+    public function removeTicket(Ticket $entity = null, int $id = null): User
+    {
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->tickets); $i++) {
+                if ($this->tickets[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->tickets); $i++) {
+                if ($this->tickets[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->tickets[$item]);
         return $this;
     }
 

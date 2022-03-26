@@ -85,13 +85,13 @@ abstract class Entity {
                 $row = $query->fetch_array(MYSQLI_ASSOC);
                 $reflection = (new ReflectionClass($this));
                 foreach($row as $key => $value){
-                    echo $key . " = " . $value;
-                    echo "<br>";
                     if($value != null) {
                         if(!is_bool(get_parent_class(get_called_class()))){
                             if(property_exists($reflection->getParentClass()->getName(), $key)){
+                                if(!$reflection->getParentClass()->getProperty($key)->isProtected() && !$reflection->getParentClass()->getProperty($key)->isPublic()) continue;
                                 $type = $reflection->getParentClass()->getProperty($key)->getType();
                             } else if (property_exists(get_called_class(), $key)){
+                                if(!$reflection->getProperty($key)->isProtected() && !$reflection->getProperty($key)->isPublic()) continue;
                                 $type = $reflection->getProperty($key)->getType();
                             }
                             if(isset($type)){

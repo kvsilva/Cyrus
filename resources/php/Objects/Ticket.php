@@ -42,6 +42,7 @@ use ReflectionException;
 class Ticket extends Entity {
 
     // FLAGS
+    public const MESSAGES = 2;
 
     // DEFAULT STRUCTURE
     protected ?String $title = null;
@@ -54,6 +55,8 @@ class Ticket extends Entity {
 
     // RELATIONS
 
+    private ?array $messages = null;
+
     /**
      * @param int|null $id
      * @param array $flags
@@ -63,6 +66,24 @@ class Ticket extends Entity {
     public function __construct(int $id = null, array $flags = array(self::NORMAL))
     {
         parent::__construct(table: "ticket", id: $id, flags: $flags);
+    }
+
+    /**
+     * @return void
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     */
+    protected function buildRelations()
+    {
+        $database = $this->getDatabase();
+        $id = $this->getId();
+        if($this->hasFlag(self::MESSAGES)){
+            $this->messages = array();
+            $query = $database->query("SELECT id as 'id' FROM ticket_message WHERE ticket = $id;");
+            while($row = $query->fetch_array()){
+                $this->messages[] = new TicketMessage($row["id"], array(Entity::ALL));
+            }
+        }
     }
 
     /**
@@ -78,6 +99,37 @@ class Ticket extends Entity {
     public function store(User $user) : Ticket{
         parent::__store(values: array("user" => $user?->getId()));
         return $this;
+    }
+
+    /**
+     * @return void
+     * @throws IOException
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     */
+    #[Pure]
+    protected function updateRelations()
+    {
+        $database = $this->getDatabase();
+        $id = $this->getId();
+        if ($this->hasFlag(self::ALL)) {
+            $query = $database->query("SELECT id as 'id' FROM ticket_message WHERE ticket = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->messages as $message) {
+                    if ($message->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    (new TicketMessage($row["id"]))->remove();
+                }
+            }
+            foreach ($this->messages as $message) {
+                $message->store();
+            }
+        }
     }
 
     /**
@@ -123,7 +175,7 @@ class Ticket extends Entity {
     #[ArrayShape(["id" => "int|mixed", "attended_by" => "array", "status" => "array", "created_at" => "null|string", "closed_at" => "null|string", "closed_by" => "array|null", "evaluation" => "int|null"])]
     public function toArray(): array
     {
-        return array(
+        $array = array(
             "id" => $this->getId(),
             "attended_by" => $this->attended_by->toArray(),
             "status" => $this->status->toArray(),
@@ -132,6 +184,10 @@ class Ticket extends Entity {
             "closed_by" => $this->closed_by?->toArray(),
             "evaluation" => $this->evaluation
         );
+        // Relations
+        $array["messages"] = $this->messages != null ? array() : null;
+        if($array["messages"] != null) foreach($this->messages as $value) $array["messages"][] = $value->toArray();
+        return $array;
     }
 
     /**
@@ -260,6 +316,55 @@ class Ticket extends Entity {
         return $this;
     }
 
+    /**
+     * @return array|null
+     */
+    public function getMessages(): ?array
+    {
+        return $this->messages;
+    }
+
+    /**
+     * @param array|null $messages
+     * @return Ticket
+     */
+    public function setMessages(?array $messages): Ticket
+    {
+        $this->messages = $messages;
+        return $this;
+    }
+
+    /**
+     * @param TicketMessage $message
+     * @return Ticket
+     */
+    public function addMessage(TicketMessage $message) : Ticket{
+        $this->messages[] = $message;
+        return $this;
+    }
+
+    /**
+     * @param TicketMessage|null $message
+     * @param int|null $id
+     * @return void
+     */
+    public function removeMessage(TicketMessage $message = null, int $id = null){
+        $remove = array();
+        if($message != null){
+            for ($i = 0; $i < count($this->messages); $i++) {
+                if ($this->messages[$i]->getId() == $message->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->messages); $i++) {
+                if ($this->messages[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->messages[$item]);
+    }
 
 }
 ?>

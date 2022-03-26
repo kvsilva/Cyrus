@@ -11,6 +11,7 @@ use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
 use Exceptions\UniqueKey;
+use Functions\Database;
 use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 
@@ -20,9 +21,11 @@ class Example_Object extends Entity
 
     // DEFAULT STRUCTURE
 
-    private ?String $title = null;
+    protected ?String $title = null;
 
     // RELATIONS
+
+    private ?array $relations = null;
 
     /**
      * @param int|null $id
@@ -37,12 +40,20 @@ class Example_Object extends Entity
 
     /**
      * @return void
+     * @throws RecordNotFound
+     * @throws ReflectionException
      */
-    #[Pure]
     protected function buildRelations()
     {
         $database = $this->getDatabase();
         $id = $this->getId();
+        if($this->hasFlag(self::NORMAL)){
+            $this->relations = array();
+            $query = $database->query("SELECT object as 'id' FROM example_object WHERE id = $id;");
+            while($row = $query->fetch_array()){
+                $this->relations[] = new Example_Object($row["id"], array(Entity::ALL));
+            }
+        }
     }
 
     /**
@@ -61,12 +72,34 @@ class Example_Object extends Entity
 
     /**
      * @return void
+     * @throws IOException
+     * @throws RecordNotFound
+     * @throws ReflectionException
      */
     #[Pure]
     protected function updateRelations()
     {
         $database = $this->getDatabase();
         $id = $this->getId();
+        if ($this->hasFlag(self::ALL)) {
+            $query = $database->query("SELECT object as 'id' FROM example_object WHERE id = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->relations as $relation) {
+                    if ($relation->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    (new Example_Object($row["id"]))->remove();
+                    $query = $database->query("DELETE FROM example_object_relation where object = $id AND relation = $row[id];");
+                }
+            }
+            foreach ($this->relations as $relation) {
+                $relation->store();
+            }
+        }
     }
 
     /**
@@ -93,7 +126,7 @@ class Example_Object extends Entity
     protected function valuesArray(): array
     {
         return array(
-
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("example_object")
         );
     }
 
@@ -102,9 +135,13 @@ class Example_Object extends Entity
      */
     public function toArray(): array
     {
-        return array(
-
+        $array = array(
+            "id" => $this->getId()
         );
+        // Relations
+        $array["relations"] = $this->relations != null ? array() : null;
+        if($array["relations"] != null) foreach($this->relations as $value) $array["relations"][] = $value->toArray();
+        return $array;
     }
 
 }
