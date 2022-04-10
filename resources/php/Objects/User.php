@@ -54,20 +54,20 @@ class User extends Entity
 
     // RELATIONS
 
-    // User::Roles
-    private ?array $roles = null;
+    // User::RolesArray
+    private ?RolesArray $roles = null;
 
     // User::Punishments
-    private ?array $punishments = null;
+    private ?PunishmentsArray $punishments = null;
 
     // User::Logs
-    private ?array $logs = null;
+    private ?LogsArray $logs = null;
 
     // User::Purchases
-    private ?array $purchases = null;
+    private ?PurchasesArray $purchases = null;
 
     // User::Tickets
-    private ?array $tickets = null;
+    private ?TicketsArray $tickets = null;
 
     // User::AnimeStatus
     /**
@@ -109,35 +109,35 @@ class User extends Entity
         $id = $this->getId();
         $database = $this->getDatabase();
         if($this->hasFlag(self::ROLES)){
-            $this->roles = array();
+            $this->roles = new RolesArray();
             $query = $database->query("SELECT role as 'id' FROM USER_ROLE WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->roles[] = new Role($row["id"]);
             }
         }
         if($this->hasFlag(self::PUNISHMENTS)){
-            $this->punishments = array();
+            $this->punishments = new PunishmentsArray();
             $query = $database->query("SELECT id FROM PUNISHMENT WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->punishments[] = new Punishment($row["id"]);
             }
         }
         if($this->hasFlag(self::LOGS)){
-            $this->logs = array();
+            $this->logs = new LogsArray();
             $query = $database->query("SELECT id FROM log WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->logs[] = new Log($row["id"]);
             }
         }
         if($this->hasFlag(self::PURCHASES)){
-            $this->logs = array();
+            $this->purchases = new PurchasesArray();
             $query = $database->query("SELECT id FROM account_purchase WHERE user = $id;");
             while($row = $query->fetch_array()){
-                $this->logs[] = new AccountPurchase($row["id"]);
+                $this->purchases[] = new AccountPurchase($row["id"]);
             }
         }
         if($this->hasFlag(self::TICKETS)){
-            $this->tickets = array();
+            $this->tickets = new TicketsArray();
             $query = $database->query("SELECT id FROM ticket WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->tickets[] = new Ticket($row["id"]);
@@ -193,7 +193,8 @@ class User extends Entity
                 if ($remove) $database->query("DELETE FROM USER_ROLE WHERE user = $id AND role = $row[id]");
             }
             foreach ($this->roles as $role) {
-                $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($id, $role->getId())");
+                $role_id = $role->getId();
+                $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($id, $role_id)");
             }
         }
         if ($this->hasFlag(self::PUNISHMENTS)) {
@@ -225,7 +226,7 @@ class User extends Entity
                     }
                 }
                 if ($remove) {
-                    try { (new Log($row["id"]))->remove(); } catch (MalformedJSON|RecordNotFound|IOException|Exception $e) {}
+                    try { (new Log($row["id"]))->remove(); } catch (RecordNotFound|IOException|Exception $e) {}
                 }
             }
             foreach ($this->logs as $log) {
@@ -338,7 +339,7 @@ class User extends Entity
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("user"),
             "email" => $this->email,
             "username" => $this->username,
-            "password" => $this->password,
+            "password" => $this->password != null && password_get_info($this->password)["algoName"] === 'unknown' ? $this->setPassword($this->password)->getPassword() : $this->password,
             "birthdate" => $this->birthdate?->format(Database::DateFormat),
             "sex" => $this->sex != null ? $this->sex->value : Sex::OTHER->value,
             "creation_date" => $this->creation_date?->format(Database::DateFormat),
@@ -379,18 +380,29 @@ class User extends Entity
             "available" => $this->available?->toArray()
         );
         // Relations
-        $array["roles"] = $this->roles != null ? array() : null;
-        if($array["roles"] != null) foreach($this->roles as $value) $array["roles"][] = $value->toArray();
-        $array["logs"] = $this->logs != null ? array() : null;
-        if($array["logs"] != null) foreach($this->logs as $value) $array["logs"][] = $value->toArray();
-        $array["punishments"] = $this->punishments != null ? array() : null;
-        if($array["punishments"] != null) foreach($this->punishments as $value) $array["punishments"][] = $value->toArray();
-        $array["purchases"] = $this->purchases != null ? array() : null;
+        $array["roles"] = null;
+        if($this->roles != null) {
+            $array["roles"] = array();
+            foreach($this->roles as $value) $array["roles"][] = $value->toArray();
+        }
+        $array["logs"] = null;
+        if($this->logs != null) {
+            $array["logs"] = array();
+            foreach($this->logs as $value) $array["logs"][] = $value->toArray();
+        }
+        $array["punishments"] = null;
+        if($this->punishments != null) {
+            $array["punishments"] = array();
+            foreach($this->punishments as $value) $array["punishments"][] = $value->toArray();
+        }
+        $array["purchases"] = null;
         if($array["purchases"] != null) {
-            $array["current"][] = null;
-            $array["rescue"][] = array();
-            $array["rescued"][] = array();
-            $array["revoked"][] = array();
+            $array["purchases"] = array(
+                "current" => null,
+                "rescue" => array(),
+                "rescued" => array(),
+                "revoked" => array()
+            );
             foreach($this->purchases as $value) {
                 if($value->isActive()){
                     $array["purchases"]["current"] = $value->toArray();
@@ -403,10 +415,16 @@ class User extends Entity
                 }
             }
         }
-        $array["tickets"] = $this->tickets != null ? array() : null;
-        if($array["tickets"] != null) foreach($this->tickets as $value) $array["tickets"][] = $value->toArray();
-        $array["anime_status"] = $this->anime_status != null ? array() : null;
-        if($array["anime_status"] != null) foreach($this->anime_status as $value) $array["anime_status"][] = $value->toArray();
+        $array["tickets"] = null;
+        if($this->tickets != null) {
+            $array["tickets"] = array();
+            foreach($this->tickets as $value) $array["tickets"][] = $value->toArray();
+        }
+        $array["anime_status"] = null;
+        if($this->anime_status != null) {
+            $array["anime_status"] = array();
+            foreach($this->anime_status as $value) $array["anime_status"][] = $value->toArray();
+        }
         return $array;
     }
 
@@ -715,18 +733,18 @@ class User extends Entity
     }
 
     /**
-     * @return array
+     * @return RolesArray
      */
-    public function getRoles(): array
+    public function getRoles(): RolesArray
     {
         return $this->roles;
     }
 
     /**
-     * @param array $roles
+     * @param RolesArray $roles
      * @return User
      */
-    public function setRoles(array $roles): User
+    public function setRoles(RolesArray $roles): User
     {
         $this->roles = $roles;
         return $this;
@@ -748,7 +766,6 @@ class User extends Entity
      * @param Role|null $role
      * @param int|null $id
      * @return $this
-     * @throws InvalidDataType
      * @throws NotInitialized
      */
     public function removeRole(Role $role = null, int $id = null): User
@@ -787,9 +804,9 @@ class User extends Entity
     }
 
     /**
-     * @return array
+     * @return PunishmentsArray
      */
-    public function getPunishments(): array
+    public function getPunishments(): PunishmentsArray
     {
         return $this->punishments;
     }
@@ -798,7 +815,7 @@ class User extends Entity
      * @param array $punishments
      * @return User
      */
-    public function setPunishments(array $punishments): User
+    public function setPunishments(PunishmentsArray $punishments): User
     {
         $this->punishments = $punishments;
         return $this;
@@ -844,18 +861,18 @@ class User extends Entity
     }
 
     /**
-     * @return array|null
+     * @return LogsArray|null
      */
-    public function getLogs(): ?array
+    public function getLogs(): ?LogsArray
     {
         return $this->logs;
     }
 
     /**
-     * @param array|null $logs
+     * @param LogsArray|null $logs
      * @return User
      */
-    public function setLogs(?array $logs): User
+    public function setLogs(?LogsArray $logs): User
     {
         $this->logs = $logs;
         return $this;
@@ -901,18 +918,18 @@ class User extends Entity
     }
 
     /**
-     * @return array|null
+     * @return PurchasesArray|null
      */
-    public function getPurchases(): ?array
+    public function getPurchases(): ?PurchasesArray
     {
         return $this->purchases;
     }
 
     /**
-     * @param array|null $purchases
+     * @param PurchasesArray|null $purchases
      * @return User
      */
-    public function setPurchases(?array $purchases): User
+    public function setPurchases(?PurchasesArray $purchases): User
     {
         $this->purchases = $purchases;
         return $this;
@@ -958,18 +975,18 @@ class User extends Entity
     }
 
     /**
-     * @return array|null
+     * @return TicketsArray|null
      */
-    public function getTickets(): ?array
+    public function getTickets(): ?TicketsArray
     {
         return $this->tickets;
     }
 
     /**
-     * @param array|null $tickets
+     * @param TicketsArray|null $tickets
      * @return User
      */
-    public function setTickets(?array $tickets): User
+    public function setTickets(?TicketsArray $tickets): User
     {
         $this->tickets = $tickets;
         return $this;
@@ -1074,4 +1091,78 @@ class User extends Entity
         return $this;
     }
 
+    /** @noinspection PhpParamsInspection */
+    public function setRelation(int $relation, EntityArray $value) : User
+    {
+        switch ($relation) {
+            case self::ROLES:
+                $this->setRoles($value);
+                break;
+            case self::LOGS:
+                $this->setLogs($value);
+                break;
+            case self::PURCHASES:
+                $this->setPurchases($value);
+                break;
+            case self::TICKETS:
+                $this->setTickets($value);
+                break;
+            case self::ANIME_STATUS:
+                //$this->setAnimestatus($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws NotInitialized
+     * @noinspection PhpParamsInspection
+     */
+    public function addRelation(int $relation, Entity $value) : User
+    {
+        switch ($relation) {
+            case self::ROLES:
+                $this->addRole($value);
+                break;
+            case self::LOGS:
+                $this->addLog($value);
+                break;
+            case self::PURCHASES:
+                $this->addPurchase($value);
+                break;
+            case self::TICKETS:
+                $this->addTicket($value);
+                break;
+            case self::ANIME_STATUS:
+                //$this->addAnimeStatus($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws NotInitialized
+     * @noinspection PhpParamsInspection
+     */
+    public function removeRelation(int $relation, Entity $value = null, int $id = null) : User
+    {
+        switch ($relation) {
+            case self::ROLES:
+                $this->removeRole($value, $id);
+                break;
+            case self::LOGS:
+                $this->removeLog($value, $id);
+                break;
+            case self::PURCHASES:
+                $this->removePurchase($value, $id);
+                break;
+            case self::TICKETS:
+                $this->removeTicket($value, $id);
+                break;
+            case self::ANIME_STATUS:
+                //$this->removeAnimeStatus($value, $id);
+                break;
+        }
+        return $this;
+    }
 }

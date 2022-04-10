@@ -11,6 +11,7 @@ class Response
     private ?String $description;
     private array $details;
     private array $data;
+    private array $errors;
 
     /**
      * @param bool $status
@@ -18,12 +19,13 @@ class Response
      * @param array $details
      * @param array $data
      */
-    public function __construct(bool $status = true, ?string $description = null, array $details = array(), array $data = array())
+    public function __construct(bool $status = true, ?string $description = null, array $details = array(), array $data = array(), array $errors = array())
     {
         $this->status = $status;
         $this->setDescription($description);
         $this->data = $data;
         $this->details = $details;
+        $this->errors = $errors;
     }
 
     /**
@@ -60,6 +62,14 @@ class Response
             $array["details"] = array();
             foreach($this->details as $key => $value){
                 $array["details"][$key] = $value;
+            }
+        }
+        if(sizeof($this->errors) > 0) {
+            $array["errors"] = array();
+            foreach ($this->errors as $key => $value) {
+                if (is_subclass_of($value, "Objects\Entity")) {
+                    $array["errors"][$key] = $value->toArray();
+                } else $array["errors"][$key] = $value;
             }
         }
         if(sizeof($this->data) > 0) {

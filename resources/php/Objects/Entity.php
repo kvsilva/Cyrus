@@ -6,6 +6,7 @@ namespace Objects;
 
 use DateTime;
 use Enumerators\Removal;
+use Exceptions\NotInitialized;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use mysqli;
@@ -43,7 +44,8 @@ use ReflectionEnum;
 use ReflectionException;
 use ReflectionMethod;
 
-abstract class Entity {
+abstract class Entity
+{
 
     // Database
     private ?Mysqli $database;
@@ -95,66 +97,130 @@ abstract class Entity {
     /**
      * @throws ReflectionException
      */
-    private function arrayObject(array $array): static
+    private function arrayObject(array $array): void
     {
         $reflection = (new ReflectionClass($this));
-        foreach($array as $key => $value){
-            if($value != null) {
-                if(!is_bool(get_parent_class(get_called_class()))){
-                    if(property_exists($reflection->getParentClass()->getName(), $key)){
-                        if(!$reflection->getParentClass()->getProperty($key)->isProtected() && !$reflection->getParentClass()->getProperty($key)->isPublic()) continue;
-                        $type = $reflection->getParentClass()->getProperty($key)->getType();
-                    } else if (property_exists(get_called_class(), $key)){
-                        if(!$reflection->getProperty($key)->isProtected() && !$reflection->getProperty($key)->isPublic()) continue;
-                        $type = $reflection->getProperty($key)->getType();
-                    }
-                    $value_type = gettype($value) == "object" ? get_class($value) : gettype($value);
-                    if(isset($type)){
-                        if($value == "") {
-                            $this->{$key} = null;
-                        } else if (str_contains(strtolower($type), "datetime")){
-                            $date = DateTime::createFromFormat(Database::DateFormat, $value);
-                            if(is_bool($date)) $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
-                            $this->{$key} = $date;
-                        } else if (str_contains(strtolower($type), "objects\\")) {
-                            $name = substr(strtolower($type), 1);
-                            if(is_array($value)){
-                                $class = (new ReflectionClass($name));
-                                $class->newInstanceArgs(array("id" => null));
-                                $this->{$key} = $class->getMethod("arrayToObject")->invokeArgs(object: null, args: array($value));
+        foreach($this->getValidFlags($this, $array["relations"] ?? null) as $flag){
+            if(!$this->hasFlag($flag)){
+                $this->flags[] = $flag;
+            }
+        }
+        $this->flags = $this->getValidFlags($this, $array["relations"] ?? null);
+        foreach($array as $key => $value) {
+            if (strtolower($key) != "relations") {
+                if ($value != null) {
+                    if (!is_bool(get_parent_class(get_called_class()))) {
+                        if (property_exists($reflection->getParentClass()->getName(), $key)) {
+                            if (!$reflection->getParentClass()->getProperty($key)->isProtected() && !$reflection->getParentClass()->getProperty($key)->isPublic()) continue;
+                            $type = $reflection->getParentClass()->getProperty($key)->getType();
+                        } else if (property_exists(get_called_class(), $key)) {
+                            if (!$reflection->getProperty($key)->isProtected() && !$reflection->getProperty($key)->isPublic()) continue;
+                            $type = $reflection->getProperty($key)->getType();
+                        }
+                        $value_type = gettype($value) == "object" ? get_class($value) : gettype($value);
+                        if (isset($type)) {
+                            if ($value == "") {
+                                $this->{$key} = null;
+                            } else if (str_contains(strtolower($type), "datetime")) {
+                                $date = DateTime::createFromFormat(Database::DateFormat, $value);
+                                if (is_bool($date)) $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
+                                $this->{$key} = $date;
+                            } else if (str_contains(strtolower($type), "objects\\")) {
+                                $name = substr(strtolower($type), 1);
+                                if (is_array($value)) {
+                                    $class = (new ReflectionClass($name));
+                                    $class->newInstanceArgs(array("id" => null));
+                                    $this->{$key} = $class->getMethod("arrayToObject")->invokeArgs(object: null, args: array($value));
+                                } else {
+                                    $this->{$key} = (new ReflectionClass($name))->newInstanceArgs(array($value));
+                                }
+                            } else if (str_contains(strtolower($type), "enumerators\\")) {
+                                $name = substr(strtolower($type), 1);
+                                if (is_array($value)) {
+                                    $this->{$key} = (new ReflectionEnum($name))->getMethod("getItem")->invokeArgs(object: null, args: array($value["value"]));
+                                } else {
+                                    $this->{$key} = (new ReflectionEnum($name))->getMethod("getItem")->invokeArgs(object: null, args: array($value));
+                                }
                             } else {
-                                $this->{$key} = (new ReflectionClass($name))->newInstanceArgs(array($value));
+                                $this->{$key} = $value;
                             }
-                        } else if (str_contains(strtolower($type), "enumerators\\")){
-                            $name = substr(strtolower($type), 1);
-                            if(is_array($value)){
-                                $this->{$key} = (new ReflectionEnum($name))->getMethod("getItem")->invokeArgs(object: null, args: array($value["value"]));
-                            } else {
-                                $this->{$key} = (new ReflectionEnum($name))->getMethod("getItem")->invokeArgs(object: null, args: array($value));
-                            }
-                        } else {
-                            $this->{$key} = $value;
                         }
                     }
                 }
             }
         }
-        $this->buildRelations();
-        return $this;
+        if($this->getId() != null) $this->buildRelations();
+        $this->arrayRelations($array["relations"] ?? null);
     }
 
     /**
      * @throws ReflectionException
      */
-    public static function arrayToObject(Entity|String $object, array $array, int $id = null) : Entity
+    private function arrayRelations(?array $relations) : void
     {
-        if(!is_string($object)){
-            $object = get_class($object);
+        if($relations != null) {
+            foreach ($relations as $key => $value) {
+                if(sizeof($value) == 0) continue;
+                $const = $this->getConstant(strtoupper($key));
+                $array_name = "Objects\\" . ucwords($key) . "Array";
+                if (class_exists($array_name)) {
+                    $object_name = (new ReflectionClass($array_name))->newInstanceArgs()->isArrayOf();
+                    if(!$this->hasFlag($const)){
+                        $this->flags[] = $const;
+                        if($this->getId() != null) $this->buildRelations();
+                        $this->setRelation($const, (new ReflectionClass($array_name))->newInstanceArgs());
+                    }
+                    foreach ($value as $relation_array) {
+                        if(sizeof($relation_array) == 0) continue;
+                        // relation_array hasValidFields
+                        $obj = static::arrayToObject(object: $object_name, array: $relation_array);
+                        $this->addRelation($const, $obj);
+                    }
+                }
+            }
         }
-        $object = (new ReflectionClass($object))->newInstanceArgs(array("id" => $id));
-        return $object->arrayObject($array);
     }
 
+    /**
+     * @throws ReflectionException
+     */
+    private function getValidFlags(Entity|string $object, array $array = null) : array
+    {
+        if (is_string($object)) {
+            $object = (new ReflectionClass($object))->newInstanceWithoutConstructor();
+        }
+        $flags = array(Entity::NORMAL);
+        if($array != null) {
+            foreach ($array as $flag => $relation) {
+                if ($object->hasConstant(strtoupper($flag))) {
+                    $flags[] = $object->getConstant(strtoupper($flag));
+                }
+            }
+        }
+        return $flags;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public static function arrayToObject(Entity|String $object, array $array = array(), int $id = null, array $flags = array(self::NORMAL)) : Entity
+    {
+        if($id == null && isset($array["id"])) $id = $array["id"];
+        if(is_string($object)){
+            $object = (new ReflectionClass($object))->newInstanceArgs(array("id" => $id, "flags" => $flags));
+        }
+        $object->arrayObject($array);
+        return $object; // is Entity
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public static function arrayToRelations(Entity $object, array $array, int $id = null, array $flags = array(self::NORMAL)) : Entity
+    {
+        if($array != null && sizeof($array) > 0) $object->arrayRelations($array);
+        return $object; // is Entity
+    }
     /**
      * @return void
      */
@@ -219,7 +285,7 @@ abstract class Entity {
         $database->query($sql);
         $database->query("COMMIT");
         $this->id = $query_keys_values["id"];
-        $this->updateRelations();
+        if($this->getId() != null) $this->updateRelations();
         return $this;
     }
 
@@ -311,6 +377,36 @@ abstract class Entity {
     }
 
     /**
+     * @param int $flag
+     * @return array
+     */
+    protected function addFlag(int $flag): array
+    {
+        if(!$this->hasFlag($flag)){
+            $this->flags[] = $flag;
+            if($this->getId() != null) $this->buildRelations();
+        }
+        return $this->flags;
+    }
+
+    /**
+     * @param array $flags
+     * @return array
+     */
+    protected function addFlags(array $flags): array
+    {
+        $newFlag = false;
+        foreach($flags as $flag){
+            if(!$this->hasFlag($flag)){
+                $newFlag = true;
+                $this->flags[] = $flag;
+            }
+        }
+        if($newFlag && $this->getId() != null) $this->buildRelations();
+        return $this->flags;
+    }
+
+    /**
      * @return mysqli|null
      */
     protected function getDatabase(): ?mysqli
@@ -334,6 +430,65 @@ abstract class Entity {
     protected function hasFlag(int $flag) : bool{
         return (in_array($flag, $this->getFlags()) || in_array(self::ALL, $this->getFlags()));
     }
+
+    /**
+     * @param int $relation
+     * @param mixed $value
+     * @return $this
+     */
+    public function setRelation(int $relation, EntityArray $value) : Entity{
+        return $this;
+    }
+
+    /**
+     * @param int $relation
+     * @param Entity $value
+     * @return $this
+     */
+    public function addRelation(int $relation, Entity $value) : Entity
+    {
+        return $this;
+    }
+
+    /**
+     * @param int $relation
+     * @param Entity|null $value
+     * @param int|null $id
+     * @return $this
+     */
+    public function removeRelation(int $relation, Entity $value = null, int $id = null) : Entity
+    {
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getConstants(): array
+    {
+        $reflection = (new ReflectionClass($this));
+        return $reflection->getConstants();
+    }
+
+    /**
+     * @return array
+     */
+    public function getConstant(String $name): mixed
+    {
+        $reflection = (new ReflectionClass($this));
+        return $reflection->getConstant($name);
+    }
+
+    /**
+     * @param String $name
+     * @return bool
+     */
+    public function hasConstant(String $name): bool
+    {
+        $reflection = (new ReflectionClass($this));
+        return !is_bool($reflection->getConstant($name));
+    }
+
 
 }
 ?>

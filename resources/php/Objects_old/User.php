@@ -82,7 +82,7 @@ class User_old {
 
     private array $flags;
 
-    // User::Roles
+    // User::RolesArray
     private ?array $roles = null;
 
     // User::Punishments
