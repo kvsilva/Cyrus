@@ -23,7 +23,7 @@ enum NightMode: int
     {
         return array(
             "name" => $this::name(),
-            "value" => $this
+            "value" => $this->value
         );
     }
 

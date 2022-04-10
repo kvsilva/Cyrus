@@ -81,13 +81,13 @@ class LogAction_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return LogAction
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : LogAction{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -137,7 +137,7 @@ class LogAction_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return LogAction
      * @throws IOException
      */
     public function remove() : LogAction{
@@ -154,6 +154,7 @@ class LogAction_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, String $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();

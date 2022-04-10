@@ -1,7 +1,7 @@
 <?php
 /** Database Values **/
 
-$database_settings = array(
+/*$database_settings = array(
     "address" => "localhost",
     "port" => 3306,
     "username" => "root",
@@ -22,5 +22,5 @@ if ($database->connect_error) {
 } else {
     $database->select_db($database_settings["database"]);
     $database->set_charset($database_settings["charset"]);
-}
+}*/
 ?>

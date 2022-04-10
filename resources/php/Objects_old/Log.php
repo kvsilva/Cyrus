@@ -63,8 +63,9 @@ class Log_old {
     /**
      * @param int|null $id
      * @param array $flags
-     * @throws RecordNotFound
      * @throws MalformedJSON
+     * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
@@ -99,13 +100,13 @@ class Log_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return Log
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : Log{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -156,7 +157,7 @@ class Log_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return Log
      * @throws IOException
      */
     public function remove() : Log{
@@ -173,8 +174,8 @@ class Log_old {
      * @param string|null $sql
      * @param array $flags
      * @return array
-     * @throws MalformedJSON
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, int $user = null, int $action_type = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();

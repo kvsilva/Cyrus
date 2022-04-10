@@ -5,8 +5,8 @@ namespace Functions;
 use JetBrains\PhpStorm\Pure;
 
 class Size{
-    private float $maximum = 0;
-    private float $minimum = 0;
+    private float $maximum;
+    private float $minimum;
 
     /**
      * @param float|int $maximum

@@ -79,13 +79,13 @@ class PunishmentType_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return PunishmentType
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws ColumnNotFound
+     * @throws NotNullable
      * @throws TableNotFound
      * @throws UniqueKey
-     * @throws NotNullable
      */
     public function store() : PunishmentType{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -134,7 +134,7 @@ class PunishmentType_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return PunishmentType
      * @throws IOException
      */
     public function remove() : PunishmentType{
@@ -150,6 +150,7 @@ class PunishmentType_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
@@ -200,7 +201,7 @@ class PunishmentType_old {
 
     /**
      * @param mixed|String $name
-     * @return $this
+     * @return PunishmentType
      */
     public function setName(mixed $name): PunishmentType
     {

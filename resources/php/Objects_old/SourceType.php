@@ -80,13 +80,13 @@ class SourceType_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return SourceType
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : SourceType{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -135,7 +135,7 @@ class SourceType_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return SourceType
      * @throws IOException
      */
     public function remove() : SourceType{
@@ -152,6 +152,7 @@ class SourceType_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();

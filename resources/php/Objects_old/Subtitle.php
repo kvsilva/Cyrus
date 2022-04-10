@@ -56,10 +56,12 @@ class Subtitle_old {
     // RELATIONS
 
     private array $flags;
+
     /**
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
@@ -147,7 +149,7 @@ class Subtitle_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return Subtitle
      * @throws IOException
      */
     public function remove() : Subtitle{
@@ -167,6 +169,7 @@ class Subtitle_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, int $video = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();

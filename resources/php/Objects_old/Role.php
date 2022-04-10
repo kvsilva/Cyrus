@@ -63,6 +63,7 @@ class Role_old {
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
@@ -93,13 +94,13 @@ class Role_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return Role
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : Role{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -168,7 +169,7 @@ class Role_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return Role
      * @throws IOException
      */
     public function remove() : Role{
@@ -187,6 +188,7 @@ class Role_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
@@ -292,7 +294,7 @@ class Role_old {
     /**
      * @param Permission|null $permission
      * @param int|null $id
-     * @return $this
+     * @return Role
      * @throws InvalidDataType
      */
     public function removePermission(Permission $permission = null, int $id = null): Role

@@ -6,11 +6,12 @@ use Exceptions\ColumnNotFound;
 use Exceptions\IOException;
 use Exceptions\TableNotFound;
 use mysqli;
+use mysqli_sql_exception;
 
-require_once (dirname(__FILE__).'/../database.php');
 class Database
 {
     public const DateFormat = "Y-m-d H:i:s";
+    public const DateFormatSimplified = "Y-m-d";
 
     private static array $database_settings = array(
         "address" => "localhost",
@@ -28,16 +29,20 @@ class Database
      */
     public static function getConnection() :  Mysqli{
         if(self::$database == null || !self::$database->stat()) {
-            self::$database = new mysqli(
-                hostname: self::$database_settings["address"],
-                username: self::$database_settings["username"],
-                password: self::$database_settings["password"],
-                port: self::$database_settings["port"]);
-            if (self::$database->connect_error) {
+            try {
+                self::$database = new mysqli(
+                    hostname: self::$database_settings["address"],
+                    username: self::$database_settings["username"],
+                    password: self::$database_settings["password"],
+                    port: self::$database_settings["port"]);
+                if (self::$database->connect_error) {
+                    throw new IOException(address: self::$database_settings["address"], port: self::$database_settings["port"]);
+                } else {
+                    self::$database->select_db(self::$database_settings["database"]);
+                    self::$database->set_charset(self::$database_settings["charset"]);
+                }
+            } catch (mysqli_sql_exception $e){
                 throw new IOException(address: self::$database_settings["address"], port: self::$database_settings["port"]);
-            } else {
-                self::$database->select_db(self::$database_settings["database"]);
-                self::$database->set_charset(self::$database_settings["charset"]);
             }
         }
         return self::$database;
@@ -143,7 +148,7 @@ class Database
             $scale = $row["NUMERIC_SCALE"] != "" ?? 0;
             if(isset(self::$data_types_text[$row["DATA_TYPE"]])){
                 $size = $row["COLUMN_TYPE"];
-                $regex = '/(?:\[[^][]*]|\([^()]*\)|{[^{}]*})(*SKIP)(*F)|[^][(){}]+/m';
+                $regex = '(\([^()]*\))';/*/(?:\[[^][]*]|\([^()]*\)|{[^{}]*})(*SKIP)(*F)|[^][(){}]+/m*/
                 $result = str_replace("(", "", preg_replace($regex, '', $size));
                 $size = str_replace(")", "", $result);
                 return new Size($size);
@@ -189,7 +194,7 @@ class Database
             $scale = $row["NUMERIC_SCALE"] != "" ?? 0;
             if(isset(self::$data_types_text[$row["DATA_TYPE"]])){
                 $size = $row["COLUMN_TYPE"];
-                $regex = '/(?:\[[^][]*]|\([^()]*\)|{[^{}]*})(*SKIP)(*F)|[^][(){}]+/m';
+                $regex = '(\([^()]*\))';/*/(?:\[[^][]*]|\([^()]*\)|{[^{}]*})(*SKIP)(*F)|[^][(){}]+/m*/
                 $result = str_replace("(", "", preg_replace($regex, '', $size));
                 $size = str_replace(")", "", $result);
                 return strlen($value . "") <= $size;

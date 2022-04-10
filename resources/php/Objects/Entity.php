@@ -39,6 +39,7 @@ use Enumerators\Availability;
  */
 use Functions\Database;
 use ReflectionClass;
+use ReflectionEnum;
 use ReflectionException;
 use ReflectionMethod;
 
@@ -73,6 +74,7 @@ abstract class Entity {
     function __construct(String $table, int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
         $this->table = $table;
+        $this->id = $id;
         try {
             $this->database = Database::getConnection();
         } catch(IOException $e){
@@ -83,38 +85,74 @@ abstract class Entity {
             $query = $database->query("SELECT * FROM $table WHERE id = $id;");
             if($query->num_rows > 0){
                 $row = $query->fetch_array(MYSQLI_ASSOC);
-                $reflection = (new ReflectionClass($this));
-                foreach($row as $key => $value){
-                    if($value != null) {
-                        if(!is_bool(get_parent_class(get_called_class()))){
-                            if(property_exists($reflection->getParentClass()->getName(), $key)){
-                                if(!$reflection->getParentClass()->getProperty($key)->isProtected() && !$reflection->getParentClass()->getProperty($key)->isPublic()) continue;
-                                $type = $reflection->getParentClass()->getProperty($key)->getType();
-                            } else if (property_exists(get_called_class(), $key)){
-                                if(!$reflection->getProperty($key)->isProtected() && !$reflection->getProperty($key)->isPublic()) continue;
-                                $type = $reflection->getProperty($key)->getType();
-                            }
-                            if(isset($type)){
-                                if($value == "") {
-                                    $this->{$key} = null;
-                                } else if (strtolower($type) == "datetime"){
-                                    $this->{$key} = DateTime::createFromFormat(Database::DateFormat, $value);
-                                } else if (str_starts_with(strtolower($type), "objects\\")) {
-                                    $this->{$key} = (new ReflectionClass($type))->newInstanceArgs(array($value));
-                                } else if (str_starts_with(strtolower($type), "enumerators\\")){
-                                    $this->{$key} = (new ReflectionMethod($type, "getItem"))->invoke((new ReflectionClass($type))->newInstanceWithoutConstructor(), $value);
-                                } else {
-                                    $this->{$key} = $value;
-                                }
-                            }
-                        }
-                    }
-                }
-                $this->buildRelations();
+                $this->arrayObject($row);
             } else {
                 throw new RecordNotFound();
             }
         }
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function arrayObject(array $array): static
+    {
+        $reflection = (new ReflectionClass($this));
+        foreach($array as $key => $value){
+            if($value != null) {
+                if(!is_bool(get_parent_class(get_called_class()))){
+                    if(property_exists($reflection->getParentClass()->getName(), $key)){
+                        if(!$reflection->getParentClass()->getProperty($key)->isProtected() && !$reflection->getParentClass()->getProperty($key)->isPublic()) continue;
+                        $type = $reflection->getParentClass()->getProperty($key)->getType();
+                    } else if (property_exists(get_called_class(), $key)){
+                        if(!$reflection->getProperty($key)->isProtected() && !$reflection->getProperty($key)->isPublic()) continue;
+                        $type = $reflection->getProperty($key)->getType();
+                    }
+                    $value_type = gettype($value) == "object" ? get_class($value) : gettype($value);
+                    if(isset($type)){
+                        if($value == "") {
+                            $this->{$key} = null;
+                        } else if (str_contains(strtolower($type), "datetime")){
+                            $date = DateTime::createFromFormat(Database::DateFormat, $value);
+                            if(is_bool($date)) $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
+                            $this->{$key} = $date;
+                        } else if (str_contains(strtolower($type), "objects\\")) {
+                            $name = substr(strtolower($type), 1);
+                            if(is_array($value)){
+                                $class = (new ReflectionClass($name));
+                                $class->newInstanceArgs(array("id" => null));
+                                $this->{$key} = $class->getMethod("arrayToObject")->invokeArgs(object: null, args: array($value));
+                            } else {
+                                $this->{$key} = (new ReflectionClass($name))->newInstanceArgs(array($value));
+                            }
+                        } else if (str_contains(strtolower($type), "enumerators\\")){
+                            $name = substr(strtolower($type), 1);
+                            if(is_array($value)){
+                                $this->{$key} = (new ReflectionEnum($name))->getMethod("getItem")->invokeArgs(object: null, args: array($value["value"]));
+                            } else {
+                                $this->{$key} = (new ReflectionEnum($name))->getMethod("getItem")->invokeArgs(object: null, args: array($value));
+                            }
+                        } else {
+                            $this->{$key} = $value;
+                        }
+                    }
+                }
+            }
+        }
+        $this->buildRelations();
+        return $this;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public static function arrayToObject(Entity|String $object, array $array, int $id = null) : Entity
+    {
+        if(!is_string($object)){
+            $object = get_class($object);
+        }
+        $object = (new ReflectionClass($object))->newInstanceArgs(array("id" => $id));
+        return $object->arrayObject($array);
     }
 
     /**
@@ -238,7 +276,6 @@ abstract class Entity {
             $sql_command = str_replace(") AND (", ")(", $sql_command);
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
-        echo $sql_command;
         $query = $database->query($sql_command);
         while($row = $query->fetch_array(MYSQLI_ASSOC)){
             $result[] = (new ReflectionClass($class))->newInstanceArgs(array($row["id"], $flags));
@@ -258,9 +295,9 @@ abstract class Entity {
     abstract protected function valuesArray() : array;
 
     /**
-     * @return int|mixed
+     * @return int|null
      */
-    public function getId(): mixed
+    public function getId(): ?int
     {
         return $this->id;
     }

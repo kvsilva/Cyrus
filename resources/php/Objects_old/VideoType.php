@@ -80,13 +80,13 @@ class VideoType_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return VideoType
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : VideoType{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -135,7 +135,7 @@ class VideoType_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return VideoType
      * @throws IOException
      */
     public function remove() : VideoType{
@@ -152,6 +152,7 @@ class VideoType_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
@@ -205,7 +206,7 @@ class VideoType_old {
 
     /**
      * @param mixed|String|null $name
-     * @return SourceType
+     * @return VideoType
      */
     public function setName(mixed $name): VideoType
     {

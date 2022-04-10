@@ -73,6 +73,7 @@ class Video_old {
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
@@ -121,14 +122,17 @@ class Video_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @param Anime $anime
+     * @param Season|null $season
+     * @return Video
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
      * @throws RecordNotFound
+     * @throws TableNotFound
+     * @throws UniqueKey
+     * @throws \ReflectionException
      */
     public function store(Anime $anime, ?Season $season = null) : Video{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -222,7 +226,7 @@ class Video_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return Video
      * @throws IOException
      */
     public function remove() : Video{
@@ -242,6 +246,7 @@ class Video_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, int $anime = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();

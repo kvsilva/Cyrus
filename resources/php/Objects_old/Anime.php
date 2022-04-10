@@ -81,6 +81,7 @@ class Anime_old {
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;
@@ -130,14 +131,15 @@ class Anime_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return Anime
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
      * @throws RecordNotFound
+     * @throws TableNotFound
+     * @throws UniqueKey
+     * @throws \ReflectionException
      */
     public function store() : Anime{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -229,7 +231,7 @@ class Anime_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return Anime
      * @throws IOException
      */
     public function remove() : Anime{
@@ -250,6 +252,7 @@ class Anime_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();

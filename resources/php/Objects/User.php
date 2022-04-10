@@ -365,7 +365,7 @@ class User extends Entity
             "email" => $this->email,
             "username" => $this->username,
             "birthdate" => $this->birthdate?->format(Database::DateFormat),
-            "sex" => $this->sex,
+            "sex" => $this->sex?->toArray(),
             "creation_date" => $this->creation_date?->format(Database::DateFormat),
             "status" => $this->status,
             "profile_image" => $this->profile_image?->toArray(),
@@ -456,7 +456,6 @@ class User extends Entity
 
     /**
      * @param mixed $password
-     * @return User
      */
     public function setPassword(String $password, bool $encrypt = true): User
     {
@@ -935,6 +934,7 @@ class User extends Entity
      * @param AccountPurchase|null $entity
      * @param int|null $id
      * @return $this
+     * @throws NotInitialized
      */
     public function removePurchase(AccountPurchase $entity = null, int $id = null): User
     {

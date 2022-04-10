@@ -82,13 +82,13 @@ class Audience_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return Audience
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : Audience{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -138,7 +138,7 @@ class Audience_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return Audience
      * @throws IOException
      */
     public function remove() : Audience{
@@ -150,10 +150,13 @@ class Audience_old {
 
     /**
      * @param int|null $id
+     * @param String|null $name
+     * @param int|null $minimum_age
      * @param string|null $sql
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, String $name = null, int $minimum_age = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();

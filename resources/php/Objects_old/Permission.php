@@ -82,13 +82,13 @@ class Permission_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
+     * @return Permission
+     * @throws ColumnNotFound
      * @throws IOException
      * @throws InvalidSize
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws TableNotFound
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : Permission{
         if ($this->database == null) throw new IOException("Could not access database services.");
@@ -140,7 +140,7 @@ class Permission_old {
 
     /**
      * This method will remove the object from the database.
-     * @return $this
+     * @return Permission
      * @throws IOException
      */
     public function remove() : Permission{
@@ -158,6 +158,7 @@ class Permission_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, string $tag = null, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
@@ -212,7 +213,7 @@ class Permission_old {
 
     /**
      * @param mixed|String $tag
-     * @return $this
+     * @return Permission
      */
     public function setTag(mixed $tag): Permission
     {

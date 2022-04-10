@@ -49,7 +49,13 @@ class Example_Object extends Entity
         $id = $this->getId();
         if($this->hasFlag(self::NORMAL)){
             $this->relations = array();
-            $query = $database->query("SELECT object as 'id' FROM example_object WHERE id = $id;");
+            $query = $database->query("# noinspection SqlResolveForFile
+
+# noinspection SqlResolveForFile
+
+# noinspection SqlResolveForFile
+
+SELECT object as 'id' FROM example_object WHERE id = $id;");
             while($row = $query->fetch_array()){
                 $this->relations[] = new Example_Object($row["id"], array(Entity::ALL));
             }
@@ -82,7 +88,13 @@ class Example_Object extends Entity
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::ALL)) {
-            $query = $database->query("SELECT object as 'id' FROM example_object WHERE id = $id;");
+            $query = $database->query("# noinspection SqlResolveForFile
+
+# noinspection SqlResolveForFile
+
+# noinspection SqlResolveForFile
+
+SELECT object as 'id' FROM example_object WHERE id = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
                 foreach ($this->relations as $relation) {
@@ -93,7 +105,13 @@ class Example_Object extends Entity
                 }
                 if ($remove) {
                     (new Example_Object($row["id"]))->remove();
-                    $query = $database->query("DELETE FROM example_object_relation where object = $id AND relation = $row[id];");
+                    $query = $database->query("# noinspection SqlResolveForFile
+
+# noinspection SqlResolveForFile
+
+# noinspection SqlResolveForFile
+
+DELETE FROM example_object_relation where object = $id AND relation = $row[id];");
                 }
             }
             foreach ($this->relations as $relation) {

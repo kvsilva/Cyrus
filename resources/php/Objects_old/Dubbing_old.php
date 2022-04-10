@@ -56,10 +56,12 @@ class DubbingOld {
     // RELATIONS
 
     private array $flags;
+
     /**
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
+     * @throws \ReflectionException
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         $this->flags = $flags;

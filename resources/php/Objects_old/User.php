@@ -98,7 +98,7 @@ class User_old {
      * @param int|null $id
      * @param array $flags
      * @throws RecordNotFound
-     * @throws MalformedJSON
+     * @throws \ReflectionException
      */
     function __construct(int $id = null, array $flags = array(self::NORMAL)) {
         try {
@@ -166,13 +166,13 @@ class User_old {
 
     /**
      * This method will update the data in the database, according to the object properties
-     * @return $this
-     * @throws IOException
-     * @throws UniqueKey
+     * @return User
      * @throws ColumnNotFound
-     * @throws TableNotFound
+     * @throws IOException
      * @throws InvalidSize
      * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     public function store() : User
     {
@@ -309,7 +309,7 @@ class User_old {
 
     /**
      * This method will remove the object from the database, however, for logging reasons, the record will only be hidden in queries.
-     * @return $this
+     * @return User
      * @throws IOException
      */
     public function remove() : User{
@@ -330,7 +330,7 @@ class User_old {
      * @param array $flags
      * @return array
      * @throws RecordNotFound
-     * @throws MalformedJSON
+     * @throws \ReflectionException
      */
     public static function find(int $id = null, string $email = null, string $username = null, Availability $availability = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
         $result = array();
@@ -759,8 +759,7 @@ class User_old {
     /**
      * @param Role|null $role
      * @param int|null $id
-     * @return $this
-     * @throws InvalidDataType
+     * @return User
      */
     public function removeRole(Role $role = null, int $id = null): User
     {
@@ -823,7 +822,7 @@ class User_old {
     /**
      * @param Punishment|null $punishment
      * @param int|null $id
-     * @return $this
+     * @return User
      */
     public function removePunishment(Punishment $punishment = null, int $id = null): User
     {

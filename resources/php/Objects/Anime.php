@@ -78,7 +78,7 @@ class Anime extends Entity
         }
         if($this->hasFlag(self::VIDEOS)){
             $this->videos = array();
-            $query = $database->query("SELECT id FROM video as 'id' WHERE anime = $id AND season = null AND available = '" . Availability::AVAILABLE->value . "';");
+            $query = $database->query("SELECT id FROM video as 'id' WHERE anime = $id AND season IS NULL AND available = '" . Availability::AVAILABLE->value . "';");
             while($row = $query->fetch_array()){
                 $this->videos[] = new Video($row["id"]);
             }
@@ -134,7 +134,7 @@ class Anime extends Entity
             }
         }
         if ($this->hasFlag(self::VIDEOS)) {
-            $query = $database->query("SELECT id FROM video WHERE anime = $id AND season = null AND available = '" . Availability::AVAILABLE->value . "';");
+            $query = $database->query("SELECT id FROM video WHERE anime = $id AND season IS NULL AND available = '" . Availability::AVAILABLE->value . "';");
             while ($row = $query->fetch_array()) {
                 $remove = true;
                 foreach ($this->videos as $video) {
