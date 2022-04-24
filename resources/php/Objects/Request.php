@@ -30,12 +30,13 @@ class Request
     /**
      * @param array $array
      * @param User|null $user
+     * @throws ReflectionException
      */
     public function __construct(array $array, ?User $user = null)
     {
+        session_start();
         try {
             if (!Database::getConnection()->stat()) (new Response(status: false, description: API_MESSAGES::DATABASE_OFFLINE))->encode(print: true);
-            //Database::getConnection()->query("DELETE FROM USER;");
         } catch (IOException $e){
             (new Response(status: false, description: API_MESSAGES::DATABASE_OFFLINE))->encode(print: true);
             return;
@@ -43,7 +44,7 @@ class Request
         $this->raw = $array;
         $this->target = $array["target"] ?? null;
         $this->setAction($array["action"]);
-        $this->data = $array["data"] ?? array();
+        $this->data = isset($array["data"]) && $array["data"] != null ? $array["data"] : array();
         $this->user = $user;
         $this->time = new DateTime();
         $object_name = "Objects\\" . ucwords($this->target);
@@ -53,7 +54,6 @@ class Request
             $this->object = new ReflectionClass($object_name);
             $this->flags = array(Entity::NORMAL);
             if(isset($this->raw["flags"])){
-                echo "1";
                 foreach($this->raw["flags"] as $flag){
                     foreach($this->object->getConstants() as $constant => $value){
                         if(strtoupper($flag) == $constant) if(!in_array($value, $this->flags)) $this->flags[] = $value;
@@ -73,17 +73,21 @@ class Request
                         }
                         unset($this->data[$key]["relations"]);
                     }
-                    $obj = $this->handle(object_name: $object_name, data: $this->data[$key], relations: $relations, flags: $flags);
+                    $obj = $this->handleClass(object_name: $object_name, data: $this->data[$key], relations: $relations, flags: $flags);
                     $success[] = $obj?->toArray();
                 } catch (Exception $e){
                     $errors[] = array("error" => $e->getMessage(), "data" => $this->data[$key]);
                 }
             }
-        }
-        if(sizeof($errors) > 0){
-            (new Response(status: false, description: API_MESSAGES::GENERIC_ERROR_DATA, data: $success, errors: $errors))->encode(print: true);
+
+            if(sizeof($errors) > 0){
+                (new Response(status: false, description: API_MESSAGES::GENERIC_ERROR_DATA, data: $success, errors: $errors))->encode(print: true);
+            } else {
+                (new Response(status: true, data: $success))->encode(print: true);
+            }
+
         } else {
-            (new Response(status: true, data: $success))->encode(print: true);
+            $this->handle(data: $this->data);
         }
     }
 
@@ -97,11 +101,12 @@ class Request
      * @throws ReflectionException
      * @throws NotNullable
      */
-    private function handle(String $object_name, array $data = array(), array $relations = array(), array $flags = array(Entity::NORMAL)) : ?Entity{
+    private function handleClass(String $object_name, array $data = array(), array $relations = array(), array $flags = array(Entity::NORMAL)) : ?Entity{
         $id = $data["id"] ?? null;
         $object = null;
         switch ($this->getAction()){
             case "query":
+                $object = Entity::arrayToObject(object: $object_name, id: $id);
                 break;
             case "update":
                 if($id == null) throw new NotNullable("id");
@@ -120,11 +125,64 @@ class Request
                 $object = $object->remove();
                 break;
             default:
-                (new Response(status: false, description: API_MESSAGES::DATABASE_OFFLINE))->encode(print: true);
+                (new Response(status: false, description: API_MESSAGES::ACTION_UNKNOWN))->encode(print: true);
                 break;
         }
         return $object;
     }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function handle(array $data = array()){
+        $id = $data["id"] ?? null;
+        switch ($this->getTarget()){
+            case "authentication":
+                if(sizeof($data) == 0){
+                    (new Response(status: false, description: API_MESSAGES::MISSING_FIELDS . "username/email & password."))->encode(print: true);
+                    return;
+                }
+                switch($this->getAction()){
+                    case "login":
+                        $username = $data["username"] ?? null;
+                        $email = $data["email"] ?? null;
+                        $password = $data["password"] ?? null;
+                        if($username == null && $email == null) {
+                            (new Response(status: false, description: API_MESSAGES::MISSING_FIELDS . "username/email."))->encode(print: true);
+                            return;
+                        }
+                        if($password == null){
+                            (new Response(status: false, description: API_MESSAGES::MISSING_FIELDS . "password."))->encode(print: true);
+                            return;
+                        }
+                        $users = User::find(email: $email, username: $username);
+                        if($users->size() > 0){
+                            if($users[0]->isPassword($password)){
+                                $_SESSION["user"] = $users[0];
+                                (new Response(status: true, description: "Welcome back, " . $users[0]->getUsername() . "."))->encode(print: true);
+                            } else {
+                                (new Response(status: false, description: "The credentials entered do not match."))->encode(print: true);
+                            }
+                        } else {
+                            (new Response(status: false, description: "The user could not be found."))->encode(print: true);
+                        }
+                        break;
+                    case "logout":
+                        $_SESSION["user"] = null;
+                        (new Response(status: true, description: "We hope to see you soon."))->encode(print: true);
+                        break;
+                    default:
+                        (new Response(status: false, description: API_MESSAGES::ACTION_UNKNOWN))->encode(print: true);
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+
+
 
     /**
      * @return mixed|String

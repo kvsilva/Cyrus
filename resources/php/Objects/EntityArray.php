@@ -8,7 +8,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReturnTypeWillChange;
 
-abstract class EntityArray extends ArrayObject
+class EntityArray extends ArrayObject
 {
     private ?Entity $object = null;
     private String $entity;

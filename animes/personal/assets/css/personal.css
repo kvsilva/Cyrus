@@ -1,0 +1,432 @@
+@import url('https://fonts.googleapis.com/css?family=Lato&display=swap');
+
+:root{
+    --background: black;
+    --font: 'Lato';
+
+    /* Colors */
+    --textColor1: white;
+    --textColor2: dimgrey;
+    --textColor3: #c5c3c3;
+    --textColor4: #84d6e7;
+    
+    --backgroundColor: black;
+    
+    --backgroundColor2: #23252B;
+    --hoverBackground: #141519;
+    --hoverFontColor: #6cdcdc;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--backgroundColor);
+    font-family: var(--font);
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Personal */
+
+#content{
+    color: var(--textColor1);
+}
+
+.content-wrapper{
+    width: 60%;
+    margin: 0 auto;
+}
+
+#series_art{
+    width: 100%;
+    height: 350px;
+    max-width: 100%;
+}
+
+#series_art #background{
+    width: 100%;
+    max-width: 100%;
+    height: inherit;
+    overflow:hidden;
+    position:absolute;
+    z-index: 1;
+}
+#series_art #background img{
+    /*filter: blur(8px);
+    -webkit-filter: blur(8px);*/
+    opacity: 0.5;
+    object-fit: cover;
+    object-position: 0 10%;
+
+    width: 100%;
+    height: inherit;
+}
+
+#series_art #profile{
+    position: absolute;
+    z-index: 2;
+    margin-top: 6%;
+    margin-left: 20%;
+    padding-bottom: 18%;
+    width: 220px;
+    height: 280px;
+}
+#series_art #profile img{
+    width: inherit;
+    height: inherit;
+}
+#information{
+    margin-top: 35px;
+}
+
+#information div > div{
+    margin-top: 18px;
+}
+#details{
+    font-size: 16px;
+    color: var(--textColor2);
+}
+
+#details > :not(:first-child):before{
+    background-color: #a0a0a0;
+    content: "";
+    display: inline-block;
+    height: 0.25rem;
+    line-height: 1;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 0.25rem;
+}
+
+#information #rating{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.star{
+    color: #F1E8CA;
+    font-size: 22px;
+    padding-right: 2px;
+}
+.star-selected, .star:hover, .star:hover~.star{
+    color: #a52834;
+    cursor: pointer;
+}
+
+
+#title h2{
+    padding: 18px 0 0;
+    font-size: 50px !important;
+}
+
+#gender span{
+    background-color: #1e956e;
+    font-size: 12px;
+    padding: 8px;
+    font-weight: 500;
+}
+
+#gender span:hover{
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#description p{
+    font-size: 16px;
+    font-weight: 500;
+}
+
+
+
+.text{
+    line-height: 24px;
+}
+
+#episodes{
+    margin-top: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.episode{
+    width: 14.5vw;
+    max-width: 16vw;
+    position: relative;
+    overflow: hidden;
+}
+
+.episode > div{
+    padding-top: 4px;
+}
+
+.episode:hover{
+    background: #141519;
+    box-shadow: 0 0 0 #141519;
+}
+
+.episode .thumbnail{
+    width: 100%;
+    height: 8vw;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.episode .thumbnail img{
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+}
+
+.episode .play{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 25px;
+}
+
+.episode_link{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.episode .series{
+    color: var(--textColor2);
+    font-weight: 600;
+    font-size: 12px;
+    overflow: hidden;
+    text-transform: uppercase;
+}
+
+.episode .title{
+    color: var(--textColor1);
+    font-size: 18px;
+    overflow: hidden;
+}
+
+.episode .reviews-count{
+    float: right;
+}
+
+.episode .thumbnail .duration{
+    top: 75%;
+    left: 80%;
+    padding: 2px 6px;
+    font-size: 16px;
+    font-weight: lighter;
+    background: rgba(0, 0, 0, .5);
+}
+
+.episode .thumbnail .duration{
+    position: absolute;
+}
+
+.episodes-list{
+    display: flex;
+    overflow: hidden;
+
+}
+
+.dropdown{
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    min-width: 50%;
+
+    float: left;
+}
+
+.dropdown .dropdown-menu{
+    background-color: var(--backgroundColor2);
+    color: var(--textColor3);
+    width: 100%;
+}
+
+.dropdown .dropdown-menu .selected{
+    background-color: var(--hoverBackground);
+    color: var(--textColor1);
+}
+
+.dropdown ul{
+    font-weight: 800;
+}
+
+.dropdown .dropdown-toggle{
+    font-size: 18px;
+    font-weight: 500;
+    padding: 8px 0;
+}
+
+
+.dropdown:hover{
+    color: var(--textColor4);
+    cursor: pointer;
+}
+
+.dropdown ul li{
+    padding: 12px 25px 12px 15px;
+    font-weight: 400;
+}
+
+.dropdown ul li:hover{
+    color: var(--textColor1);
+    background-color: var(--hoverBackground);
+    cursor: pointer;
+}
+
+
+.dropdown > *:not(:last-child){
+    margin-right: 8px;
+}
+
+.order{
+    float: right;
+    color: var(--textColor3);
+    font-size: 15px;
+    padding: 8px 15px;
+}
+
+.order span{
+    font-weight: 800;
+}
+
+.order:hover{
+    background-color: var(--hoverBackground);
+    color: var(--textColor1);
+    cursor: pointer;
+}
+
+.seasons-switch{
+    display: flex;
+
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.previous-season, .next-season{
+    color: var(--textColor3);
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.previous-season:not(.disable):hover, .next-season:not(.disable):hover{
+    color: var(--textColor1);
+    cursor: pointer;
+}
+
+.previous-season.disable:hover, .next-season.disable:hover{
+    cursor: context-menu;
+}
+
+.previous-season.disable, .next-season.disable{
+    color: var(--textColor2);
+}
+
+a{
+    text-decoration: none;
+    color: var(--textColor2);
+    z-index: 2;
+    transition: color .2s ease;
+
+}
+a:hover{
+    text-decoration: underline;
+    color: var(--textColor1);
+}
+
+.separator{
+    border-left: 1px solid green;
+
+}
+
+.series a{
+    z-index: 2;
+}
+
+.episode a{
+    z-index: 2;
+}
+
+
+.previous-season{
+    float: left;
+    margin-right: auto;
+}
+
+.next-season{
+    float: right;
+    margin-left: auto;
+}
+
+#reviews {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+#reviews .controller{
+    display: grid;
+    grid-template: "reviews-average-rating reviews-count reviews-filters" auto/ max-content;
+    font-size: 20px;
+}
+
+.reviews-average-rating{
+    grid-area: reviews-average-rating;
+}
+.reviews-count{
+    grid-area: reviews-count;
+
+}
+
+
+.reviews-average-rating{
+    z-index: 1;
+
+}
+
+
+.reviews-average-rating{
+    padding-right: 15px;
+}
+
+.reviews-average-rating, .reviews-count{
+    margin-right: auto;
+}
+.reviews-filters{
+    display: inline-flex;
+    flex-wrap: wrap;
+    margin-left: auto;
+    grid-area: reviews-filters;
+    color: var(--textColor3);
+}
+
+.reviews-filters .dropdown{
+    min-width: 25%;
+}
+
+.reviews-filters .dropdown:hover{
+    color: var(--textColor1);
+    background-color: var(--hoverBackground);
+}
+
+.reviews-filters .dropdown-toggle{
+    padding: 8px;
+}
+
+.reviews-filters > *:not(:first-child) {
+    margin-left: 15px;
+}

@@ -313,9 +313,17 @@ class User extends Entity
     }
 
     /**
+     * @param int|null $id
+     * @param string|null $email
+     * @param string|null $username
+     * @param Availability $available
+     * @param string|null $sql
+     * @param array $flags
+     * @return EntityArray|UsersArray
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $email = null, string $username = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, string $email = null, string $username = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]): EntityArray|UsersArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "email" => $email,
@@ -479,6 +487,24 @@ class User extends Entity
     {
         $this->password = $encrypt ? password_hash($password, PASSWORD_DEFAULT) : $password;
         return $this;
+    }
+
+    /**
+     * @param String $password
+     * @return bool
+     */
+    public function isPassword(String $password): bool
+    {
+        return password_verify($password, $this->password);
+    }
+
+    /**
+     * @param String|null $password
+     * @return String|null
+     */
+    public static function encryptPassword(?String $password): ?String
+    {
+        return $password == null ? null : password_hash($password, PASSWORD_DEFAULT);
     }
 
     /**

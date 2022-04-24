@@ -6,8 +6,6 @@ namespace Objects;
 
 use DateTime;
 use Enumerators\Removal;
-use Exceptions\NotInitialized;
-use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use mysqli;
 
@@ -24,8 +22,6 @@ use Objects\User;
 use Exceptions\UniqueKey;
 use Exceptions\RecordNotFound;
 use Exceptions\IOException;
-use Exceptions\MalformedJSON;
-use Exception;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\TableNotFound;
@@ -322,11 +318,16 @@ abstract class Entity
      * @param String $class
      * @param string|null $sql
      * @param array $flags
-     * @return array
+     * @return EntityArray
      * @throws ReflectionException
      */
-    protected static function __find(array $fields, String $table, String $class, string $sql = null, array $flags = [self::NORMAL]) : array{
-        $result = array();
+    protected static function __find(array $fields, String $table, String $class, string $sql = null, array $flags = [self::NORMAL]): EntityArray
+    {
+        if(class_exists($class . "sArray")){
+            $result = (new ReflectionClass($class . "sArray"))->newInstanceArgs(array());
+        } else {
+            $result = new EntityArray();
+        }
         try {
             $database = Database::getConnection();
         } catch(IOException $e){
@@ -336,17 +337,18 @@ abstract class Entity
             $sql_command = "SELECT id from $table WHERE " . $sql;
         } else {
             $sql_command = "SELECT id from $table WHERE ";
+            $clause = false;
             foreach($fields as $key => $value){
-                $sql_command .= ($value != null ? "($key IS NOT NULL AND $key = '$value')" : "");
+                $clause = true;
+                $sql_command .= ($value != null ? "($key IS NOT NULL AND $key = '$value') AND " : "");
             }
-            $sql_command = str_replace(") AND (", ")(", $sql_command);
+            if($clause) $sql_command = substr($sql_command,0,-4);
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $query = $database->query($sql_command);
         while($row = $query->fetch_array(MYSQLI_ASSOC)){
             $result[] = (new ReflectionClass($class))->newInstanceArgs(array($row["id"], $flags));
         }
-
         return $result;
     }
 
