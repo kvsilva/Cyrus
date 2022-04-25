@@ -5,16 +5,17 @@
     --font: 'Lato';
 
     /* Colors */
-    --textColor1: white;
-    --textColor2: dimgrey;
-    --textColor3: #c5c3c3;
-    --textColor4: #84d6e7;
+    --color0: #9067e8;
+    --color0_light: #b495f8;
+    --color1: white;
+    --color2: dimgrey;
+    --color3: #c5c3c3;
+    --color4: #6cdcdc;
     
     --backgroundColor: black;
     
     --backgroundColor2: #23252B;
     --hoverBackground: #141519;
-    --hoverFontColor: #6cdcdc;
 }
 
 * {
@@ -32,7 +33,7 @@ body {
 /* Personal */
 
 #content{
-    color: var(--textColor1);
+    color: var(--color1);
 }
 
 .content-wrapper{
@@ -87,7 +88,7 @@ body {
 }
 #details{
     font-size: 16px;
-    color: var(--textColor2);
+    color: var(--color2);
 }
 
 #details > :not(:first-child):before{
@@ -103,24 +104,29 @@ body {
     width: 0.25rem;
 }
 
-#information #rating{
+.rating{
     display: flex;
     flex-direction: row-reverse;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-end;
     width: 100%;
+    font-size: 15px;
 }
 
 .star{
-    color: #F1E8CA;
+    color: white;
     font-size: 22px;
     padding-right: 2px;
 }
-.star-selected, .star:hover, .star:hover~.star{
-    color: #a52834;
+
+.star-selected, .star:hover:not(.static), .star:hover:not(.static)~.star{
+    color: #4831af;
     cursor: pointer;
 }
 
+.star.filled{
+    color: #4831af;
+}
 
 #title h2{
     padding: 18px 0 0;
@@ -205,7 +211,7 @@ body {
 }
 
 .episode .series{
-    color: var(--textColor2);
+    color: var(--color2);
     font-weight: 600;
     font-size: 12px;
     overflow: hidden;
@@ -213,7 +219,7 @@ body {
 }
 
 .episode .title{
-    color: var(--textColor1);
+    color: var(--color1);
     font-size: 18px;
     overflow: hidden;
 }
@@ -240,6 +246,64 @@ body {
     overflow: hidden;
 
 }
+.review-title{
+    font-weight: 900;
+}
+
+.review-description{
+    font-size: 18px;
+    margin-top: 20px;
+
+}
+
+.review-description:not(.expanded){
+    max-height: 100px;
+    -webkit-mask-image: linear-gradient(to bottom,#000 calc(100% - 30px),#0000);
+}
+
+.review-username{
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.review-date{
+    color: var(--color3);
+}
+
+.evaluate-review{
+    font-size: 16px !important;
+}
+
+.evaluate-review button:not(:disabled){
+    color: var(--color4) !important;
+}
+
+.review-options{
+    font-size: 20px !important;
+    float: right;
+    margin-top: 15px;
+
+}
+.review-options .cyrus-btn{
+    color: var(--color3) !important;
+}
+.review-options > *:not(:last-child){
+    margin-right: 15px;
+}
+
+#reviews-list > *:not(:first-child){
+    margin-top: 70px;
+}
+
+/* Override Properties */
+
+.evaluate-review .cyrus-btn-simple{
+    color: var(--color3) !important;
+    font-size: 14px;
+}
+
+/* -------------------*/
+
 
 .dropdown{
     display: flex;
@@ -252,13 +316,13 @@ body {
 
 .dropdown .dropdown-menu{
     background-color: var(--backgroundColor2);
-    color: var(--textColor3);
+    color: var(--color3);
     width: 100%;
 }
 
 .dropdown .dropdown-menu .selected{
     background-color: var(--hoverBackground);
-    color: var(--textColor1);
+    color: var(--color1);
 }
 
 .dropdown ul{
@@ -273,7 +337,7 @@ body {
 
 
 .dropdown:hover{
-    color: var(--textColor4);
+    color: var(--color4);
     cursor: pointer;
 }
 
@@ -283,7 +347,7 @@ body {
 }
 
 .dropdown ul li:hover{
-    color: var(--textColor1);
+    color: var(--color1);
     background-color: var(--hoverBackground);
     cursor: pointer;
 }
@@ -295,7 +359,7 @@ body {
 
 .order{
     float: right;
-    color: var(--textColor3);
+    color: var(--color3);
     font-size: 15px;
     padding: 8px 15px;
 }
@@ -306,7 +370,7 @@ body {
 
 .order:hover{
     background-color: var(--hoverBackground);
-    color: var(--textColor1);
+    color: var(--color1);
     cursor: pointer;
 }
 
@@ -318,13 +382,13 @@ body {
 }
 
 .previous-season, .next-season{
-    color: var(--textColor3);
+    color: var(--color3);
     font-size: 15px;
     font-weight: 900;
 }
 
 .previous-season:not(.disable):hover, .next-season:not(.disable):hover{
-    color: var(--textColor1);
+    color: var(--color1);
     cursor: pointer;
 }
 
@@ -333,19 +397,19 @@ body {
 }
 
 .previous-season.disable, .next-season.disable{
-    color: var(--textColor2);
+    color: var(--color2);
 }
 
 a{
     text-decoration: none;
-    color: var(--textColor2);
+    color: var(--color2);
     z-index: 2;
     transition: color .2s ease;
 
 }
 a:hover{
     text-decoration: underline;
-    color: var(--textColor1);
+    color: var(--color1);
 }
 
 .separator{
@@ -411,7 +475,7 @@ a:hover{
     flex-wrap: wrap;
     margin-left: auto;
     grid-area: reviews-filters;
-    color: var(--textColor3);
+    color: var(--color3);
 }
 
 .reviews-filters .dropdown{
@@ -419,7 +483,7 @@ a:hover{
 }
 
 .reviews-filters .dropdown:hover{
-    color: var(--textColor1);
+    color: var(--color1);
     background-color: var(--hoverBackground);
 }
 
@@ -430,3 +494,58 @@ a:hover{
 .reviews-filters > *:not(:first-child) {
     margin-left: 15px;
 }
+
+.review-post{
+    background-color: var(--hoverBackground);
+    width: 100%;
+
+}
+.review-post-user{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.review-post-username{
+    font-weight: 900;
+}
+
+.review-post-user *{
+    margin-top: 15px;
+}
+
+.review-post-user img{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+.reviewAs{
+    color: var(--color3);
+}
+
+.reviews-classified-as{
+    font-size: 12px;
+    color: var(--color3);
+    margin-left: 10px;
+}
+
+.review-post-rating{
+    margin: 25px 0;
+}
+
+.reviews-self-char-notification{
+    display: flex;
+    justify-content: flex-end;
+    float: right;
+    width: 50%;
+    margin-top: 10px;
+    margin-bottom: 18px;
+}
+
+.reviews-self-textarea{
+    height: 162px;
+}
+

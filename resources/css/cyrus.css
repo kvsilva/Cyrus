@@ -5,3 +5,185 @@
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
 }
+
+::selection {
+    color: var(--color0);
+    background: var(--hoverBackground);
+}
+
+input[type=text].cyrus-input, textarea.cyrus-input, input[type=text].cyrus-input:focus-visible, textarea.cyrus-input:focus-visible{
+    width: 100%;
+    color: var(--color1);
+    border: 1px solid var(--color3);
+    background-color: var(--background);
+    padding: 8px;
+    font-size: 16px;
+    outline: none;
+    resize: none;
+}
+
+input[type=text].cyrus-input:focus, textarea.cyrus-input:focus{
+    border-color: var(--color1);
+}
+
+
+.cyrus-input-checkbox-null{
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.cyrus-input-checkbox-checkmark{
+    background-color: #192e38;
+    border: 0.125rem solid #a0a0a0;
+    transition: border-color .2s ease;
+    box-sizing: border-box;
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-right: 0.5rem;
+    position: relative;
+    height: 25px;
+    width: 25px;
+}
+
+.cyrus-label-checkbox{
+    color: var(--color3);
+}
+
+.cyrus-label-checkbox > *{
+    display: flex;
+    align-items: center;
+
+}
+
+.cyrus-label-checkbox > *:not(.disable){
+    cursor: pointer;
+}
+
+.cyrus-label-checkbox input ~ .cyrus-input-checkbox-checkmark{
+    background-color: #192e38;
+}
+
+.cyrus-label-checkbox input:checked ~ .cyrus-input-checkbox-checkmark{
+    color: white;
+    border-color: #2abdbb;
+}
+.cyrus-label-checkbox input:checked ~ .cyrus-input-checkbox-checkmark:after{
+    display: block;
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+}
+
+.cyrus-input-checkbox-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+
+.cyrus-input-checkbox-checkmark:hover:not(.disable){
+    cursor: pointer;
+}
+
+.cyrus-form-inputs *.cyrus-input{
+
+}
+
+label.cyrus-label{
+    width: 100%;
+
+}
+
+input[type=submit].cyrus-input, input[type=reset].cyrus-input{
+    border: none;
+    background: none;
+    padding: 10px 22px;
+    font-weight: 900;
+    box-shadow:  inset 0 0 0 0.125rem var(--color0);
+    transition-duration: .2s;
+    transition-property: color,background-color,box-shadow;
+    transition-timing-function: ease;
+}
+
+input[type=reset].cyrus-input{
+    color: var(--color0);
+}
+
+input[type=reset].cyrus-input:hover{
+    color: var(--color0_light);
+    box-shadow:  inset 0 0 0 0.125rem var(--color0_light);
+    transition-timing-function: ease;
+}
+
+
+input[type=submit].cyrus-input{
+    color: var(--backgroundColor);
+    background-color: var(--color0);
+}
+
+input[type=submit].cyrus-input:hover{
+    box-shadow:  inset 0 0 0 0.125rem var(--color0_light);
+    transition-timing-function: ease;
+    background-color: var(--color0_light);
+}
+
+.cyrus-form-buttons{
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+.cyrus-form-buttons > *{
+    margin-left: 10px;
+
+}
+
+.cyrus-form-buttons > :not(:last-child) {
+
+}
+
+.cyrus-form{
+
+}
+
+.cyrus-form-inputs{
+
+}
+
+
+.cyrus-hover-pointer:not(.disable){
+    cursor: pointer;
+}
+
+/* Buttons */
+.cyrus-btn{
+    width: auto;
+    text-transform: uppercase;
+}
+.cyrus-btn-simple{
+    border: none;
+    padding: 0;
+    background: none;
+    font-weight: 700;
+    color: var(--color1);
+}
+.cyrus-btn-simple:hover {
+    color: var(--color3);
+}
+
+
+
+/*  TO DELETE  */
+
+.test{
+
+}
+.test:hover{
+    color: var(--color1); background-color: var(--hoverBackground);
+}
+
