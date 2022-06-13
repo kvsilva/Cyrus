@@ -261,7 +261,7 @@ abstract class Entity
             $sql_keys = "";
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
-                $sql_keys .= $key . ",";
+                $sql_keys .= "`" . $key . "`,";
                 $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
             }
             $sql_keys = substr($sql_keys,0,-1);
@@ -273,7 +273,7 @@ abstract class Entity
             }
             $update_sql = "";
             foreach($query_keys_values as $key => $value){
-                $update_sql .= ($key . " = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+                $update_sql .= ("`" . $key . "` = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
             }
             $update_sql = substr($update_sql,0,-1);
             $sql = "UPDATE $table SET $update_sql WHERE id = $this->id";
@@ -326,7 +326,7 @@ abstract class Entity
         if(class_exists($class . "sArray")){
             $result = (new ReflectionClass($class . "sArray"))->newInstanceArgs(array());
         } else {
-            $result = new EntityArray();
+            $result = new EntityArray($class);
         }
         try {
             $database = Database::getConnection();
@@ -340,7 +340,7 @@ abstract class Entity
             $clause = false;
             foreach($fields as $key => $value){
                 $clause = true;
-                $sql_command .= ($value != null ? "($key IS NOT NULL AND $key = '$value') AND " : "");
+                $sql_command .= ($value != null ? "($table.`$key` IS NOT NULL AND $table.`$key` = '$value') AND " : "");
             }
             if($clause) $sql_command = substr($sql_command,0,-4);
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");

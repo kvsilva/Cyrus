@@ -15,12 +15,14 @@ class EntityArray extends ArrayObject
 
     /**
      * @throws ReflectionException
+     * @noinspection PhpFieldAssignmentTypeMismatchInspection
      */
     public function __construct(String $entity = "Objects\Entity", $array = [], $flags = 0, $iteratorClass = "ArrayIterator")
     {
         parent::__construct($array, $flags, $iteratorClass);
         $this->entity = $entity;
-        if($this->object == null) /** @noinspection PhpFieldAssignmentTypeMismatchInspection */ $this->object = (new ReflectionClass($this->entity))->newInstanceWithoutConstructor();
+        $obj = (new ReflectionClass($this->entity))->newInstanceWithoutConstructor();
+        if($this->object == null) $this->object = $obj;
     }
 
     #[ReturnTypeWillChange]

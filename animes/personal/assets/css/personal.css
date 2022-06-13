@@ -1,21 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Lato&display=swap');
+@import url('../../../../resources/css/cyrus.css');
 
 :root{
-    --background: black;
-    --font: 'Lato';
 
-    /* Colors */
-    --color0: #9067e8;
-    --color0_light: #b495f8;
-    --color1: white;
-    --color2: dimgrey;
-    --color3: #c5c3c3;
-    --color4: #6cdcdc;
-    
-    --backgroundColor: black;
-    
-    --backgroundColor2: #23252B;
-    --hoverBackground: #141519;
 }
 
 * {
@@ -23,7 +10,7 @@
 }
 
 body {
-    background-color: var(--backgroundColor);
+    /*background-color: var(--backgroundColor);*/
     font-family: var(--font);
     margin: 0;
     padding: 0;
@@ -37,7 +24,9 @@ body {
 }
 
 .content-wrapper{
-    width: 60%;
+    max-width: calc(var(--content-wrapper-width) + var(--content-wrapper-padding-inline)*2);
+    padding-left: var(--content-wrapper-padding-inline);
+    padding-right: var(--content-wrapper-padding-inline);
     margin: 0 auto;
 }
 
@@ -45,6 +34,9 @@ body {
     width: 100%;
     height: 350px;
     max-width: 100%;
+    display: flex;
+    justify-content: center;
+
 }
 
 #series_art #background{
@@ -69,15 +61,12 @@ body {
 #series_art #profile{
     position: absolute;
     z-index: 2;
-    margin-top: 6%;
-    margin-left: 20%;
-    padding-bottom: 18%;
-    width: 220px;
-    height: 280px;
+    margin-top: 126px;
+    width: calc(var(--content-wrapper-width));
 }
 #series_art #profile img{
-    width: inherit;
-    height: inherit;
+    width: 220px;
+    height: 280px;
 }
 #information{
     margin-top: 35px;
@@ -165,8 +154,8 @@ body {
 }
 
 .episode{
-    width: 14.5vw;
-    max-width: 16vw;
+    width: 25%;
+    height: 250px;
     position: relative;
     overflow: hidden;
 }
@@ -182,7 +171,7 @@ body {
 
 .episode .thumbnail{
     width: 100%;
-    height: 8vw;
+    height: 65%;
     position: relative;
     display: flex;
     flex-wrap: wrap;
@@ -376,8 +365,7 @@ body {
 
 .seasons-switch{
     display: flex;
-
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     flex: 1;
 }
 
@@ -498,14 +486,14 @@ a:hover{
 .review-post{
     background-color: var(--hoverBackground);
     width: 100%;
-
 }
 .review-post-user{
     display: flex;
-    justify-content: center;
+
     align-items: center;
-    align-content: flex-start;
+
     flex-wrap: wrap;
+    flex-direction: column;
 }
 
 .review-post-username{
@@ -549,3 +537,65 @@ a:hover{
     height: 162px;
 }
 
+@media only screen and (max-width: 1570px) {
+    .content-wrapper{
+
+    }
+    .review-post-user img{
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media only screen and (max-width: 1400px) {
+    .content-wrapper{
+        --content-wrapper-padding-inline: 20px;
+    }
+
+    #series_art #profile{
+        width: initial;
+    }
+
+}
+
+@media only screen and (max-width: 1140px) {
+    .review-post-user{
+        visibility: hidden;
+        width: 0;
+        height: 0;
+    }
+    .review-post .col-9{
+        width: 95%;
+        margin: 0 auto;
+    }
+    .episode{
+        width: 33%;
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    .reviews-filters-filter-title{
+        visibility: hidden;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+    #information{
+        flex-direction: column;
+    }
+    #information div{
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 850px) {
+    .episode{
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 580px) {
+    .episode{
+        width: 100%;
+    }
+}

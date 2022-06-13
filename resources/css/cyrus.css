@@ -1,3 +1,66 @@
+:root{
+    --background: black;
+    --font: 'Lato';
+
+    /* Colors */
+    --color0: #9067e8;
+    --color0_light: #b495f8;
+    --color1: white;
+    --color2: dimgrey;
+    --color3: #c5c3c3;
+    --color4: #6cdcdc;
+
+    --backgroundColor: black;
+
+    --backgroundColor2: #23252B;
+    --hoverBackground: #141519;
+
+
+    /* Settings */
+
+    --content-wrapper-width: 1300px;
+    --content-wrapper-padding-inline: 40px;
+}
+
+body {
+    background: rgb(0,0,0);
+    color: white;
+
+
+
+
+}
+
+
+/* Header */
+
+#header{
+    width: 100%;
+    height: 60px;
+    background-color: var(--backgroundColor2);
+    position: relative;
+    color: var(--color1);
+}
+
+#header .logo{
+
+}
+
+#header .logo img{
+    width: 120px;
+    height: 40px;
+}
+
+.header-content{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Others */
+
 .no-select{
     user-select: none; /* supported by Chrome and Opera */
     -webkit-user-select: none; /* Safari */
@@ -10,6 +73,8 @@
     color: var(--color0);
     background: var(--hoverBackground);
 }
+
+/* Forms Input */
 
 input[type=text].cyrus-input, textarea.cyrus-input, input[type=text].cyrus-input:focus-visible, textarea.cyrus-input:focus-visible{
     width: 100%;
@@ -174,6 +239,61 @@ input[type=submit].cyrus-input:hover{
 }
 .cyrus-btn-simple:hover {
     color: var(--color3);
+}
+
+/* Footer */
+
+#footer{
+    /*background: rgb(60,54,65);
+    background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(48,44,51,1) 18%, rgba(70,61,78,1) 39%, rgba(84,69,97,1) 51%, rgba(88,69,103,1) 63%, rgba(94,68,116,1) 78%, rgba(98,69,124,1) 88%, rgba(110,72,144,1) 95%);
+    height: 550px;*/
+    margin-top: 140px !important;
+}
+
+.section{
+    flex: 0 0 25%;
+    display: block;
+
+}
+
+.section > * {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.section-title{
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.sections{
+    display: flex;
+    justify-content: center;
+}
+
+.copyright{
+    margin-top: 35px !important;
+    margin-bottom: 35px !important;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+
+
+.section h4{
+    margin-bottom: 12px;
+}
+
+.list{
+}
+
+.list li{
+    list-style-type: none;
+    color: var(--color3);
+    font-size: 15px;
+    margin-bottom: 8px;
+    font-weight: bold;
 }
 
 

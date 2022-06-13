@@ -3,19 +3,9 @@ require_once(dirname(__DIR__) . '\\..\\resources\\php\\AutoLoader.php');
 AutoLoader::register();
 
 use Functions\Utils;
+use Objects\GlobalSetting;
+use Others\Routing;
 
-$files = array(
-    "jquery" => (Utils::getURL() . "/resources/dependencies/JQuery/jquery-3.6.0.min.js"),
-    "bootstrap_js" => (Utils::getURL() . "/resources/dependencies/Bootstrap 5/js/bootstrap.bundle.min.js"),
-    "bootstrap_css" => (Utils::getURL() . "/resources/dependencies/Bootstrap 5/css/bootstrap.min.css"),
-    "popper_js" => (Utils::getURL() . "/resources/dependencies/Popper/popper.min.js"),
-    "fontawesome_css" => (Utils::getURL() . "/resources/dependencies/fontawesome-6.1.1/css/all.css"),
-    "personal_css" => (Utils::getURL() . "/animes/personal/assets/css/personal.css"),
-    "personal_js" => (Utils::getURL() . "/animes/personal/assets/js/personal.js"),
-    "cyrus_css" => (Utils::getURL() . "/resources/css/cyrus.css"),
-    "cyrus_js" => (Utils::getURL() . "/resources/js/cyrus.js"),
-    "icon" => (Utils::getURL() . "/resources/images/logo.png"),
-)
 ?>
 <html lang="pt_PT">
 <head>
@@ -23,28 +13,47 @@ $files = array(
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- JQuery -->
-    <script src="<?php echo $files['jquery']; ?>"></script>
+    <script src="<?php echo Utils::getDependencies("JQuery"); ?>"></script>
     <!-- Popper -->
-    <script src="<?php echo $files['popper_js']; ?>"></script>
+    <script src="<?php echo Utils::getDependencies("Popper"); ?>"></script>
     <!-- Bootstrap -->
-    <link href="<?php echo $files['bootstrap_css']; ?>" rel="stylesheet">
-    <script src="<?php echo $files['bootstrap_js']; ?>"></script>
+    <link href="<?php echo Utils::getDependencies("Bootstrap", "css"); ?>" rel="stylesheet">
+    <script src="<?php echo Utils::getDependencies("Bootstrap"); ?>"></script>
     <!-- Font Awesome -->
-    <link href="<?php echo $files['fontawesome_css']; ?>" rel="stylesheet">
+    <link href="<?php echo Utils::getDependencies("FontAwesome", "css"); ?>" rel="stylesheet">
     <!-- CSS -->
-    <link href="<?php echo $files['personal_css']; ?>" rel="stylesheet">
-    <link href="<?php echo $files['cyrus_css']; ?>" rel="stylesheet">
+    <link href="<?php echo Utils::getDependencies("Personal", "css"); ?>" rel="stylesheet">
     <!-- JavaScript -->
-    <link href="<?php echo $files['cyrus_js']; ?>" rel="stylesheet">
-    <link href="<?php echo $files['personal_js']; ?>" rel="stylesheet">
+    <script src="<?php echo Utils::getDependencies("Cyrus");?>"></script>
+    <script src="<?php echo Utils::getDependencies("Personal");?>"></script>
     <!-- Title -->
     <title>Cyrus - Attack on Titan / Shingeki no Kyojin</title>
     <!-- Logo -->
-    <link rel = "icon" href ="<?php echo $files['icon']; ?>" type = "image/x-icon">
+    <link rel = "icon" href ="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" type = "image/x-icon">
 </head>
 <body>
-<header>
-</header>
+<div id = "header">
+    <div class = "header-content">
+        <div class = "header-left">
+            <div class = "logo">
+                <img src = "<?php echo Utils::getDependencies("Cyrus", "icon");; ?>" alt="icon">
+            </div>
+        </div>
+        <div class = "header-center">
+            <span>Animes</span> <!-- Depois mostrar Popular, Lançamentos quando passar por cima, se pressionar vai pra o /animes-->
+            <span>Calendário</span>
+            <span>Géneros</span>
+            <span>Novidades</span>
+        </div>
+        <div class = "header-right">
+            <div class = "search">
+            </div>
+            <div class = "user">
+
+            </div>
+        </div>
+    </div>
+</div>
 <div id="content">
     <div id="series_art">
         <div id="background">
@@ -56,7 +65,7 @@ $files = array(
     </div>
     <div class="content-wrapper">
         <div class="row" id="information">
-            <div class="col">
+            <div class="col-6">
                 <div id="title">
                     <h2>Attack on Titan</h2>
                 </div>
@@ -83,7 +92,7 @@ $files = array(
                     <span>THRILLER</span>
                 </div>
             </div>
-            <div class="col">
+            <div class="col-3">
                 <div id="trailer">
                     <iframe width="420" height="315"
                             src="https://www.youtube.com/embed/MWSR17vEVBw">
@@ -143,8 +152,8 @@ $files = array(
         </div>
         <hr>
         <div class = "seasons-switch no-select">
-            <div class = "previous-season"><i class="fa-solid fa-angle-left"></i> TEMPORADA ANTERIOR</div>
-            <div class = "next-season disable">PRÓXIMA TEMPORADA <i class="fa-solid fa-angle-right"></i></div>
+            <div class = "previous-season"><i class="fa-solid fa-angle-left"></i> <span>TEMPORADA ANTERIOR</span></div>
+            <div class = "next-season disable"><span>PRÓXIMA TEMPORADA</span> <i class="fa-solid fa-angle-right"></i></div>
         </div>
         <div class="row" id="reviews">
             <div class = "controller">
@@ -158,7 +167,7 @@ $files = array(
                     <div class="dropdown">
                         <div class="dropdown-toggle" type="button" id="dropdown-sort" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-arrow-down-short-wide"></i>
-                            Mais Antigo
+                            <span class = "reviews-filters-filter-title">Mais Antigo</span>
                         </div>
                         <ul class="dropdown-menu" aria-labelledby="dropdown-sort">
                             <li class = "selected">Mais Antigo</li>
@@ -169,7 +178,7 @@ $files = array(
                     <div class="dropdown">
                         <div class="dropdown-toggle" id="dropdown-filter" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-sliders"></i>
-                            Filtro
+                            <span class = "reviews-filters-filter-title">Filtro</span>
                         </div>
                         <ul class="dropdown-menu" aria-labelledby="dropdown-filter">
                             <li class = "selected">Todos</li>
@@ -186,8 +195,8 @@ $files = array(
                 <div class = "review-post mt-3">
                     <div class = "row">
                         <div class = "col-2 review-post-user no select">
-                            <img draggable="false" class = "mx-auto" src = "https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
-                            <span class = "review-post-username">Kurookami</span>
+                            <img draggable="false" class = "img-fluid mx-auto" src = "https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
+                            <div class = "review-post-username">Kurookami</div>
                         </div>
                         <div class = "col-9">
                             <div class = "review-post-rating">
@@ -283,19 +292,94 @@ $files = array(
                 </div>
             </div>
         </div>
-        <div class = "toDELETE">
-            <?php
-            for($i = 0; $i < 20; $i++){
-                echo "<br>";
-            }
-            ?>
-        </div>
+
     </div>
 </div>
 
-<footer>
+<div id = "footer">
+    <div class = "content-wrapper sections">
+        <div class = "section">
+            <h4 class = "section-title">Navegação</h4>
+            <ul class = "list">
+                <li>
+                    <a href = "<?php echo Routing::getRouting("animes"); ?>">
+                        <span>Procurar animes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href = "<?php echo Routing::getRouting("calendar"); ?>">
+                        <span>Calendário</span>
+                    </a>
+                </li>
+                <li>
+                    <a href = "<?php echo Routing::getRouting("news"); ?>">
+                        <span>Novidades</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class = "section">
+            <h4 class = "section-title">Conecte-se connosco</h4>
+            <ul class = "list">
+                <?php
+                try {
+                    $array = GlobalSetting::find(category: "SocialMedia");
+                    foreach ($array as $key){?>
+                        <li>
+                            <a href = "<?php echo $key->getValue();?>">
+                                <span><?php echo $key->getName();?></span>
+                            </a>
+                        </li>
+                    <?php }
 
-</footer>
+                } catch (ReflectionException $e) {
+                    echo $e;
+                }
+
+                ?>
+            </ul>
+        </div>
+        <div class = "section">
+            <h4 class = "section-title">Cyrus</h4>
+            <ul class = "list">
+                <li>
+                    <a href = "<?php echo Routing::getRouting("about"); ?>">
+                        <span>Sobre</span>
+                    </a>
+                </li>
+                <li>
+                    <a href = "<?php echo Routing::getRouting("faq"); ?>">
+                        <span>Ajuda/FAQ</span>
+                    </a>
+                </li>
+                <li>
+                    <a href = "<?php echo Routing::getRouting("termsOfUse"); ?>">
+                        <span>Termos de Uso</span>
+                    </a>
+                </li>
+                <li>
+                    <a href = "<?php echo Routing::getRouting("privacyPolicy"); ?>">
+                        <span>Política de Privacidade</span>
+                    </a>
+                </li>
+                <li>
+                    <a href = "<?php echo Routing::getRouting("cookiesPolicy"); ?>">
+                        <span>Política de Cookies</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class = "content-wrapper ">
+        <hr>
+        <div class = "copyright">
+            <?php
+            $projectStartDate = GlobalSetting::find(name: "ProjectStartDate")[0]?->getValue();
+            ?>
+            <span>© Cyrus <?php echo date("Y") == $projectStartDate ? $projectStartDate : $projectStartDate . " - " . date('Y');?></span>
+        </div>
+    </div>
+</div>
 <script>
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
