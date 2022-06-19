@@ -56,25 +56,31 @@ class Request
             if(isset($this->raw["flags"])){
                 foreach($this->raw["flags"] as $flag){
                     foreach($this->object->getConstants() as $constant => $value){
-                        if(strtoupper($flag) == $constant) if(!in_array($value, $this->flags)) $this->flags[] = $value;
+                        if(strtoupper($flag) == $constant) {
+                            if (!in_array($value, $this->flags)) {
+                                $this->flags[] = $value;
+                            }
+                        }
                     }
                 }
             }
             foreach($this->data as $key => $value){
                 try {
                     $relations = array();
-                    $flags = array(Entity::NORMAL);
+                    //$flags = array(Entity::NORMAL);
                     if(isset($this->data[$key]["relations"])){
                         foreach($this->data[$key]["relations"] as $flag => $relation){
                             if($this->object->hasConstant(strtoupper($flag))){
-                                $flags[] = $this->object->getConstant(strtoupper($flag));
+                                //$flags[] = $this->object->getConstant(strtoupper($flag));
                                 $relations[$flag] = $relation;
                             }
                         }
                         unset($this->data[$key]["relations"]);
                     }
-                    $obj = $this->handleClass(object_name: $object_name, data: $this->data[$key], relations: $relations, flags: $flags);
-                    $success[] = $obj?->toArray();
+                    $objects = $this->handleClass(object_name: $object_name, data: $this->data[$key], relations: $relations, flags: $this->flags);
+                    foreach($objects as $object){
+                        $success[] = $object->toArray();
+                    }
                 } catch (Exception $e){
                     $errors[] = array("error" => $e->getMessage(), "data" => $this->data[$key]);
                 }
@@ -101,34 +107,43 @@ class Request
      * @throws ReflectionException
      * @throws NotNullable
      */
-    private function handleClass(String $object_name, array $data = array(), array $relations = array(), array $flags = array(Entity::NORMAL)) : ?Entity{
+    private function handleClass(String $object_name, array $data = array(), array $relations = array(), array $flags = array(Entity::NORMAL)) : ?EntityArray{
         $id = $data["id"] ?? null;
-        $object = null;
+        $obj = (new ReflectionClass($object_name))->newInstanceArgs();
+        $objects = new EntityArray(entity: $object_name);
         switch ($this->getAction()){
             case "query":
-                $object = Entity::arrayToObject(object: $object_name, id: $id);
+                $objects_find = Entity::__find(fields: $data, table: $obj->getTable(), class: $object_name, flags: $flags);
+                foreach($objects_find as $object1){
+                    $objects[] = $object1;
+                }
                 break;
             case "update":
                 if($id == null) throw new NotNullable("id");
                 $object = Entity::arrayToObject(object: $object_name, array: $data, id: $id, flags: $flags);
                 $object->store();
+                $object = Entity::__find(fields: array("id" => $object->getId()), table: $obj->getTable(), class: $object_name, flags: $flags)[0];
+                $objects[] = $object;
                 break;
             case "insert":
                 $flags = array_values(array_unique(array_merge($this->flags, $flags)));
                 $object = Entity::arrayToObject(object: $object_name, array: $id != null ? array() : $data, id: $id, flags: $flags);
                 $object = Entity::arrayToRelations($object, $relations);
                 $object->store();
+                $object = Entity::__find(fields: array("id" => $object->getId()), table: $obj->getTable(), class: $object_name, flags: $flags)[0];
+                $objects[] = $object;
                 break;
             case "remove":
                 if($id == null) throw new NotNullable("id");
                 $object = Entity::arrayToObject(object: $object_name, id: $id);
                 $object = $object->remove();
+                $objects[] = $object;
                 break;
             default:
                 (new Response(status: false, description: API_MESSAGES::ACTION_UNKNOWN))->encode(print: true);
                 break;
         }
-        return $object;
+        return $objects;
     }
 
     /**

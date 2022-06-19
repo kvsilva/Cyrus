@@ -96,15 +96,15 @@ abstract class Entity
     private function arrayObject(array $array): void
     {
         $reflection = (new ReflectionClass($this));
+
         foreach($this->getValidFlags($this, $array["relations"] ?? null) as $flag){
             if(!$this->hasFlag($flag)){
                 $this->flags[] = $flag;
             }
         }
-        $this->flags = $this->getValidFlags($this, $array["relations"] ?? null);
         foreach($array as $key => $value) {
             if (strtolower($key) != "relations") {
-                if ($value != null) {
+                if ($value !== null) {
                     if (!is_bool(get_parent_class(get_called_class()))) {
                         if (property_exists($reflection->getParentClass()->getName(), $key)) {
                             if (!$reflection->getParentClass()->getProperty($key)->isProtected() && !$reflection->getParentClass()->getProperty($key)->isPublic()) continue;
@@ -118,6 +118,7 @@ abstract class Entity
                             if ($value == "") {
                                 $this->{$key} = null;
                             } else if (str_contains(strtolower($type), "datetime")) {
+                                $value = str_replace("/","-", $value);
                                 $date = DateTime::createFromFormat(Database::DateFormat, $value);
                                 if (is_bool($date)) $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
                                 $this->{$key} = $date;
@@ -165,6 +166,7 @@ abstract class Entity
                         $this->flags[] = $const;
                         if($this->getId() != null) $this->buildRelations();
                         $this->setRelation($const, (new ReflectionClass($array_name))->newInstanceArgs());
+
                     }
                     foreach ($value as $relation_array) {
                         if(sizeof($relation_array) == 0) continue;
@@ -204,6 +206,8 @@ abstract class Entity
         if($id == null && isset($array["id"])) $id = $array["id"];
         if(is_string($object)){
             $object = (new ReflectionClass($object))->newInstanceArgs(array("id" => $id, "flags" => $flags));
+        } else {
+
         }
         $object->arrayObject($array);
         return $object; // is Entity
@@ -214,7 +218,9 @@ abstract class Entity
      */
     public static function arrayToRelations(Entity $object, array $array, int $id = null, array $flags = array(self::NORMAL)) : Entity
     {
-        if($array != null && sizeof($array) > 0) $object->arrayRelations($array);
+        if($array != null && sizeof($array) > 0) {
+            $object->arrayRelations($array);
+        }
         return $object; // is Entity
     }
     /**
@@ -262,7 +268,7 @@ abstract class Entity
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
                 $sql_keys .= "`" . $key . "`,";
-                $sql_values .= ($value != null ? "'" . $value . "'" : "null") . ",";
+                $sql_values .= ($value !== null ? "'" . $value . "'" : "default") . ",";
             }
             $sql_keys = substr($sql_keys,0,-1);
             $sql_values = substr($sql_values,0,-1) ;
@@ -273,11 +279,12 @@ abstract class Entity
             }
             $update_sql = "";
             foreach($query_keys_values as $key => $value){
-                $update_sql .= ("`" . $key . "` = " . ($value != null ? "'" . $value . "'" : "null")) . ",";
+                $update_sql .= ("`" . $key . "` = " . ($value !== null ? "'" . $value . "'" : "default")) . ",";
             }
             $update_sql = substr($update_sql,0,-1);
             $sql = "UPDATE $table SET $update_sql WHERE id = $this->id";
         }
+        //echo "Sql: \n" . $sql . "\n";
         $database->query($sql);
         $database->query("COMMIT");
         $this->id = $query_keys_values["id"];
@@ -321,7 +328,7 @@ abstract class Entity
      * @return EntityArray
      * @throws ReflectionException
      */
-    protected static function __find(array $fields, String $table, String $class, string $sql = null, array $flags = [self::NORMAL]): EntityArray
+    public static function __find(array $fields, String $table, String $class, string $sql = null, array $flags = [self::NORMAL]): EntityArray
     {
         if(class_exists($class . "sArray")){
             $result = (new ReflectionClass($class . "sArray"))->newInstanceArgs(array());
@@ -373,7 +380,7 @@ abstract class Entity
     /**
      * @return array
      */
-    protected function getFlags(): array
+    public function getFlags(): array
     {
         return $this->flags;
     }
@@ -419,7 +426,7 @@ abstract class Entity
     /**
      * @return String
      */
-    protected function getTable(): string
+    public function getTable(): string
     {
         return $this->table;
     }

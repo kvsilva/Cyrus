@@ -9,7 +9,9 @@ class Routing
     public const routing = array(
         "animes" => (Utils::BASE_URL . "animes/"),
         "calendar" => (Utils::BASE_URL . "calendar/"),
-        "news" => (Utils::BASE_URL . "news/")
+        "news" => (Utils::BASE_URL . "news/"),
+        "episode" => (Utils::BASE_URL . "episode/"),
+        "search" => (Utils::BASE_URL . "search/"),
     );
 
     public const social = array(

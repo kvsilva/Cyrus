@@ -2,10 +2,9 @@
 
 namespace Objects;
 
-
 use ReflectionException;
 
-class PurchasesArray extends EntityArray
+class GendersArray extends EntityArray
 {
     /**
      * @param $array
@@ -15,6 +14,6 @@ class PurchasesArray extends EntityArray
      */
     public function __construct($array = [], $flags = 0, $iteratorClass = "ArrayIterator")
     {
-        parent::__construct(entity: "Objects\AccountPurchase", array: $array, flags: $flags, iteratorClass: $iteratorClass);
+        parent::__construct(entity: "Objects\Gender", array: $array, flags: $flags, iteratorClass: $iteratorClass);
     }
 }

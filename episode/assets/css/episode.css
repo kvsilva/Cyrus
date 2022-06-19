@@ -1,0 +1,200 @@
+@import url('../../../resources/css/cyrus.css');
+
+
+#reviews {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+#reviews .controller{
+    display: grid;
+    grid-template: "reviews-average-rating reviews-count reviews-filters" auto/ max-content;
+    font-size: 20px;
+}
+
+.reviews-average-rating{
+    grid-area: reviews-average-rating;
+}
+.reviews-count{
+    grid-area: reviews-count;
+
+}
+
+
+.reviews-average-rating{
+    z-index: 1;
+
+}
+
+
+.reviews-average-rating{
+    padding-right: 15px;
+}
+
+.reviews-average-rating, .reviews-count{
+    margin-right: auto;
+}
+
+.review-post{
+    background-color: var(--hoverBackground);
+    width: 100%;
+}
+.review-post-user{
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.review-post-username{
+    font-weight: 900;
+}
+
+.review-post-user *{
+    margin-top: 15px;
+}
+
+.review-post-user img{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+.reviewAs{
+    color: var(--color3);
+}
+
+.reviews-classified-as{
+    font-size: 12px;
+    color: var(--color3);
+    margin-left: 10px;
+}
+
+.review-post-rating{
+    margin: 25px 0;
+}
+
+.reviews-self-char-notification{
+    display: flex;
+    justify-content: flex-end;
+    float: right;
+    width: 50%;
+    margin-top: 10px;
+    margin-bottom: 18px;
+}
+
+.reviews-self-textarea{
+    height: 162px;
+}
+
+@media only screen and (max-width: 1570px) {
+    .review-post-user img{
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media only screen and (max-width: 1140px) {
+    .review-post-user{
+        visibility: hidden;
+        width: 0;
+        height: 0;
+    }
+    .review-post .col-9{
+        width: 95%;
+        margin: 0 auto;
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    .reviews-filters-filter-title{
+        visibility: hidden;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+}
+
+.review-title{
+    font-weight: 900;
+}
+
+.review-description{
+    font-size: 18px;
+    margin-top: 20px;
+
+}
+
+.review-description:not(.expanded){
+    max-height: 100px;
+    -webkit-mask-image: linear-gradient(to bottom,#000 calc(100% - 30px),#0000);
+}
+
+.review-username{
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.review-date{
+    color: var(--color3);
+}
+
+.evaluate-review{
+    font-size: 16px !important;
+}
+
+.evaluate-review button:not(:disabled){
+    color: var(--color4) !important;
+}
+
+.review-options{
+    font-size: 20px !important;
+    float: right;
+    margin-top: 15px;
+
+}
+.review-options .cyrus-btn{
+    color: var(--color3) !important;
+}
+
+.review-options .cyrus-btn:hover {
+    color: var(--color1) !important;
+}
+
+.review-options > *:not(:last-child){
+    margin-right: 15px;
+}
+
+#reviews-list > *:not(:first-child){
+    margin-top: 70px;
+}
+
+/* Override Properties */
+
+.evaluate-review .cyrus-btn-simple{
+    color: var(--color3) !important;
+    font-size: 14px;
+}
+
+.episode-title{
+    padding-top: 6px;
+    padding-bottom: 8px;
+}
+.episode-synopsis{
+    padding-top: 8px;
+    font-size: 20px;
+}
+
+.video-player{
+    max-height: calc(100vh - 15.625rem);
+}
+
+#player0{
+    width: 100%;
+    height: auto;
+    max-height: inherit;
+    display: flex;
+}

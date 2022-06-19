@@ -1,59 +1,20 @@
 <?php
-require_once(dirname(__DIR__) . '\\..\\resources\\php\\AutoLoader.php');
-AutoLoader::register();
-
+require_once(dirname(__DIR__) . '\\..\\resources\\php\\settings.php');
 use Functions\Utils;
-use Objects\GlobalSetting;
-use Others\Routing;
-
 ?>
 <html lang="pt_PT">
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- JQuery -->
-    <script src="<?php echo Utils::getDependencies("JQuery"); ?>"></script>
-    <!-- Popper -->
-    <script src="<?php echo Utils::getDependencies("Popper"); ?>"></script>
-    <!-- Bootstrap -->
-    <link href="<?php echo Utils::getDependencies("Bootstrap", "css"); ?>" rel="stylesheet">
-    <script src="<?php echo Utils::getDependencies("Bootstrap"); ?>"></script>
-    <!-- Font Awesome -->
-    <link href="<?php echo Utils::getDependencies("FontAwesome", "css"); ?>" rel="stylesheet">
-    <!-- CSS -->
-    <link href="<?php echo Utils::getDependencies("Personal", "css"); ?>" rel="stylesheet">
-    <!-- JavaScript -->
-    <script src="<?php echo Utils::getDependencies("Cyrus");?>"></script>
-    <script src="<?php echo Utils::getDependencies("Personal");?>"></script>
-    <!-- Title -->
-    <title>Cyrus - Attack on Titan / Shingeki no Kyojin</title>
-    <!-- Logo -->
-    <link rel = "icon" href ="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" type = "image/x-icon">
+    <?php
+    include Utils::getDependencies("Cyrus", "head", true);
+    echo getHead(" - Attack on Titan");
+    ?>
+    <link href="<?php echo Utils::getDependencies("Personal", "css")?>" rel="stylesheet">
+    <script src="<?php echo Utils::getDependencies("Personal")?>"></script>
 </head>
 <body>
-<div id = "header">
-    <div class = "header-content">
-        <div class = "header-left">
-            <div class = "logo">
-                <img src = "<?php echo Utils::getDependencies("Cyrus", "icon");; ?>" alt="icon">
-            </div>
-        </div>
-        <div class = "header-center">
-            <span>Animes</span> <!-- Depois mostrar Popular, Lançamentos quando passar por cima, se pressionar vai pra o /animes-->
-            <span>Calendário</span>
-            <span>Géneros</span>
-            <span>Novidades</span>
-        </div>
-        <div class = "header-right">
-            <div class = "search">
-            </div>
-            <div class = "user">
-
-            </div>
-        </div>
-    </div>
-</div>
+<?php
+include(Utils::getDependencies("Cyrus", "header", true));
+?>
 <div id="content">
     <div id="series_art">
         <div id="background">
@@ -296,90 +257,10 @@ use Others\Routing;
     </div>
 </div>
 
-<div id = "footer">
-    <div class = "content-wrapper sections">
-        <div class = "section">
-            <h4 class = "section-title">Navegação</h4>
-            <ul class = "list">
-                <li>
-                    <a href = "<?php echo Routing::getRouting("animes"); ?>">
-                        <span>Procurar animes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href = "<?php echo Routing::getRouting("calendar"); ?>">
-                        <span>Calendário</span>
-                    </a>
-                </li>
-                <li>
-                    <a href = "<?php echo Routing::getRouting("news"); ?>">
-                        <span>Novidades</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class = "section">
-            <h4 class = "section-title">Conecte-se connosco</h4>
-            <ul class = "list">
-                <?php
-                try {
-                    $array = GlobalSetting::find(category: "SocialMedia");
-                    foreach ($array as $key){?>
-                        <li>
-                            <a href = "<?php echo $key->getValue();?>">
-                                <span><?php echo $key->getName();?></span>
-                            </a>
-                        </li>
-                    <?php }
+<?php
+include(Utils::getDependencies("Cyrus", "footer", true));
+?>
 
-                } catch (ReflectionException $e) {
-                    echo $e;
-                }
-
-                ?>
-            </ul>
-        </div>
-        <div class = "section">
-            <h4 class = "section-title">Cyrus</h4>
-            <ul class = "list">
-                <li>
-                    <a href = "<?php echo Routing::getRouting("about"); ?>">
-                        <span>Sobre</span>
-                    </a>
-                </li>
-                <li>
-                    <a href = "<?php echo Routing::getRouting("faq"); ?>">
-                        <span>Ajuda/FAQ</span>
-                    </a>
-                </li>
-                <li>
-                    <a href = "<?php echo Routing::getRouting("termsOfUse"); ?>">
-                        <span>Termos de Uso</span>
-                    </a>
-                </li>
-                <li>
-                    <a href = "<?php echo Routing::getRouting("privacyPolicy"); ?>">
-                        <span>Política de Privacidade</span>
-                    </a>
-                </li>
-                <li>
-                    <a href = "<?php echo Routing::getRouting("cookiesPolicy"); ?>">
-                        <span>Política de Cookies</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class = "content-wrapper ">
-        <hr>
-        <div class = "copyright">
-            <?php
-            $projectStartDate = GlobalSetting::find(name: "ProjectStartDate")[0]?->getValue();
-            ?>
-            <span>© Cyrus <?php echo date("Y") == $projectStartDate ? $projectStartDate : $projectStartDate . " - " . date('Y');?></span>
-        </div>
-    </div>
-</div>
 <script>
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

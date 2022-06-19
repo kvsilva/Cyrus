@@ -27,7 +27,7 @@ enum Maturity: int
         );
     }
 
-    public static function getItem(?int $num) : ?Maturity {
+    public static function getItem(int $num) : ?Maturity {
         return match ($num) {
             0 => self::NORMAL,
             1 => self::MATURE,

@@ -2,6 +2,7 @@
 
 namespace Objects;
 
+use DateTime;
 use Enumerators\Availability;
 use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
@@ -28,6 +29,7 @@ class Video extends Entity
     protected ?int $numeration = null;
     protected ?String $title = null;
     protected ?String $synopsis = null;
+    protected ?DateTime $release_date = null;
     protected ?int $duration = null;
     protected ?int $opening_start = null;
     protected ?int $opening_end = null;
@@ -35,6 +37,8 @@ class Video extends Entity
     protected ?int $ending_end = null;
     protected ?String $path = null;
     protected ?Availability $available = null;
+    // Foreign Key
+    protected ?int $anime = null;
 
     // RELATIONS
 
@@ -89,7 +93,7 @@ class Video extends Entity
      * @throws UniqueKey
      */
     public function store(Anime $anime, ?Season $season = null) : Video{
-        $values = array("anime" => $anime);
+        $values = array("anime" => $anime->getId());
         if($season != null) $values["season"] = $season;
         parent::__store(values: $values);
         return $this;
@@ -151,9 +155,11 @@ class Video extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $anime = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $anime = null, int $numeration = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
+            "numeration" => $numeration,
             "anime" => $anime,
             "available" => $available?->value
         ), table: 'video', class: 'Objects\Video', sql: $sql, flags: $flags);
@@ -170,6 +176,7 @@ class Video extends Entity
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
+            "release_date"=> $this->release_date,
             "duration"=> $this->duration,
             "opening_start"=> $this->opening_start,
             "opening_end"=> $this->opening_end,
@@ -185,12 +192,14 @@ class Video extends Entity
      */
     public function toArray(): array
     {
+
         $array = array(
             "id" => $this->getId(),
             "video_type" => $this->video_type?->toArray(),
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
+            "release_date"=> $this->release_date?->format(Database::DateFormat),
             "duration"=> $this->duration,
             "opening_start"=> $this->opening_start,
             "opening_end"=> $this->opening_end,
@@ -367,6 +376,26 @@ class Video extends Entity
         $this->ending_end = $ending_end;
         return $this;
     }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getReleaseDate(): ?DateTime
+    {
+        return $this->release_date;
+    }
+
+    /**
+     * @param DateTime|null $release_date
+     * @return Video
+     */
+    public function setReleaseDate(?DateTime $release_date): Video
+    {
+        $this->release_date = $release_date;
+        return $this;
+    }
+
+
 
     /**
      * @return String|null

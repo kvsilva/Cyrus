@@ -276,6 +276,12 @@ body {
 .review-options .cyrus-btn{
     color: var(--color3) !important;
 }
+
+.review-options .cyrus-btn:hover {
+    color: var(--color1) !important;
+}
+
+
 .review-options > *:not(:last-child){
     margin-right: 15px;
 }
@@ -291,60 +297,12 @@ body {
     font-size: 14px;
 }
 
+.evaluate-review .cyrus-btn-simple:hover {
+    color: var(--color1) !important;
+}
+
 /* -------------------*/
 
-
-.dropdown{
-    display: flex;
-    align-items: center;
-    max-width: 100%;
-    min-width: 50%;
-
-    float: left;
-}
-
-.dropdown .dropdown-menu{
-    background-color: var(--backgroundColor2);
-    color: var(--color3);
-    width: 100%;
-}
-
-.dropdown .dropdown-menu .selected{
-    background-color: var(--hoverBackground);
-    color: var(--color1);
-}
-
-.dropdown ul{
-    font-weight: 800;
-}
-
-.dropdown .dropdown-toggle{
-    font-size: 18px;
-    font-weight: 500;
-    padding: 8px 0;
-}
-
-
-.dropdown:hover{
-    color: var(--color4);
-    cursor: pointer;
-}
-
-.dropdown ul li{
-    padding: 12px 25px 12px 15px;
-    font-weight: 400;
-}
-
-.dropdown ul li:hover{
-    color: var(--color1);
-    background-color: var(--hoverBackground);
-    cursor: pointer;
-}
-
-
-.dropdown > *:not(:last-child){
-    margin-right: 8px;
-}
 
 .order{
     float: right;

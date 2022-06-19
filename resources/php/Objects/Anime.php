@@ -10,6 +10,7 @@ use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
+use Exceptions\NotInitialized;
 use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
@@ -43,11 +44,11 @@ class Anime extends Entity
     // RELATIONS
 
     // Anime::Videos
-    private ?array $videos = null;
+    private ?VideosArray $videos = null;
     // Anime::Seasons
-    private ?array $seasons = null;
+    private ?SeasonsArray $seasons = null;
     // Anime::Genders
-    private ?array $genders = null;
+    private ?GendersArray $genders = null;
 
     /**
      * @param int|null $id
@@ -70,24 +71,24 @@ class Anime extends Entity
         $database = $this->getDatabase();
         $id = $this->getId();
         if($this->hasFlag(self::SEASONS)){
-            $this->seasons = array();
-            $query = $database->query("SELECT numeration as 'id' FROM season WHERE anime = $id AND available = '" . Availability::AVAILABLE->value . "';");
+            $this->seasons = new SeasonsArray();
+            $query = $database->query("SELECT numeration as id FROM season WHERE anime = $id AND available = '" . Availability::AVAILABLE->value . "';");
             while($row = $query->fetch_array()){
                 $this->seasons[] = new Season($row["id"], array(Entity::ALL));
             }
         }
         if($this->hasFlag(self::VIDEOS)){
-            $this->videos = array();
-            $query = $database->query("SELECT id FROM video as 'id' WHERE anime = $id AND season IS NULL AND available = '" . Availability::AVAILABLE->value . "';");
+            $this->videos = new VideosArray();
+            $query = $database->query("SELECT id FROM video as id WHERE anime = $id AND season IS NULL AND available = '" . Availability::AVAILABLE->value . "';");
             while($row = $query->fetch_array()){
                 $this->videos[] = new Video($row["id"]);
             }
         }
         if($this->hasFlag(self::GENDERS)){
-            $this->videos = array();
-            $query = $database->query("SELECT gender as 'id'FROM anime_gender WHERE anime = $id;");
+            $this->genders = new GendersArray();
+            $query = $database->query("SELECT gender as id FROM anime_gender WHERE anime = $id;");
             while($row = $query->fetch_array()){
-                $this->videos[] = new Gender($row["id"]);
+                $this->genders[] = new Gender($row["id"]);
             }
         }
     }
@@ -181,7 +182,8 @@ class Anime extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "title" => $title,
@@ -222,21 +224,260 @@ class Anime extends Entity
      */
     public function toArray(): array
     {
-        return array(
+        $array = array(
             "id" => $this->getId(),
             "title" => $this->title,
             "original_title" => $this->original_title,
             "synopsis" => $this->synopsis,
             "start_date" => $this->start_date?->format(Database::DateFormat),
             "end_date" => $this->end_date?->format(Database::DateFormat),
-            "mature" => $this->mature?->value,
-            "launch_day" =>  $this->launch_day?->value,
-            "source" => $this->source?->getId(),
-            "audience" => $this->audience?->getId(),
+            "mature" => $this->mature?->toArray(),
+            "launch_day" =>  $this->launch_day?->toArray(),
+            "source" => $this->source?->toArray(),
+            "audience" => $this->audience?->toArray(),
             "trailer" => $this->trailer,
-            "available" => $this->available?->value
+            "available" => $this->available?->toArray()
         );
+        // Relations
+        $array["videos"] = null;
+        if($this->videos != null) {
+            $array["videos"] = array();
+            foreach($this->videos as $value) $array["videos"][] = $value->toArray();
+        }
+        return $array;
     }
+
+    /** @noinspection PhpParamsInspection */
+    public function setRelation(int $relation, EntityArray $value) : Anime
+    {
+        switch ($relation) {
+            case self::VIDEOS:
+                $this->setVideos($value);
+                break;
+            case self::GENDERS:
+                $this->setGenders($value);
+                break;
+            case self::SEASONS:
+                $this->setSeasons($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @param int $relation
+     * @param Entity $value
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function addRelation(int $relation, Entity $value) : Anime
+    {
+        switch ($relation) {
+            case self::VIDEOS:
+                $this->addVideo($value);
+                break;
+            case self::SEASONS:
+                $this->addSeason($value);
+                break;
+            case self::GENDERS:
+                $this->addGender($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws NotInitialized
+     * @noinspection PhpParamsInspection
+     */
+    public function removeRelation(int $relation, Entity $value = null, int $id = null) : Anime
+    {
+        switch ($relation) {
+            case self::VIDEOS:
+                $this->removeVideos($value, $id);
+                break;
+            case self::SEASONS:
+                $this->removeSeasons($value, $id);
+                break;
+            case self::GENDERS:
+                $this->removeGenders($value, $id);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @param Video|null $entity
+     * @param int|null $id
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeVideos(Video $entity = null, int $id = null): Anime
+    {
+        if($this->videos == null) throw new NotInitialized("videos");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->videos); $i++) {
+                if ($this->videos[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->videos); $i++) {
+                if ($this->videos[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->videos[$item]);
+        return $this;
+    }
+
+    /**
+     * @param Season|null $entity
+     * @param int|null $id
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeSeasons(Season $entity = null, int $id = null): Anime
+    {
+        if($this->seasons == null) throw new NotInitialized("seasons");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->seasons); $i++) {
+                if ($this->seasons[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->seasons); $i++) {
+                if ($this->seasons[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->seasons[$item]);
+        return $this;
+    }
+
+    /**
+     * @param Gender|null $entity
+     * @param int|null $id
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeGender(Gender $entity = null, int $id = null): Anime
+    {
+        if($this->genders == null) throw new NotInitialized("genders");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->genders); $i++) {
+                if ($this->genders[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->genders); $i++) {
+                if ($this->genders[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->genders[$item]);
+        return $this;
+    }
+
+    /**
+     * @param Video $entity
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function addVideo(Video $entity): Anime
+    {
+        if($this->videos == null) throw new NotInitialized("videos");
+        $this->videos[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param Season $entity
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function addSeason(Season $entity): Anime
+    {
+        if($this->seasons == null) throw new NotInitialized("seasons");
+        $this->seasons[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param Gender $entity
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function addGender(Gender $entity): Anime
+    {
+        if($this->genders == null) throw new NotInitialized("genders");
+        $this->genders[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @return VideosArray|null
+     */
+    protected function getVideos(): ?VideosArray
+    {
+        return $this->videos;
+    }
+
+    /**
+     * @param VideosArray|null $videos
+     * @return Anime
+     */
+    protected function setVideos(?VideosArray $videos): Anime
+    {
+        $this->videos = $videos;
+        return $this;
+    }
+
+    /**
+     * @return SeasonsArray|null
+     */
+    protected function getSeasons(): ?SeasonsArray
+    {
+        return $this->seasons;
+    }
+
+    /**
+     * @param SeasonsArray|null $seasons
+     * @return Anime
+     */
+    protected function setSeasons(?SeasonsArray $seasons): Anime
+    {
+        $this->seasons = $seasons;
+        return $this;
+    }
+
+    /**
+     * @return GendersArray|null
+     */
+    protected function getGenders(): ?GendersArray
+    {
+        return $this->genders;
+    }
+
+    /**
+     * @param GendersArray|null $genders
+     * @return Anime
+     */
+    protected function setGenders(?GendersArray $genders): Anime
+    {
+        $this->genders = $genders;
+        return $this;
+    }
+
+
 
     /**
      * @return String|null

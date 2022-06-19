@@ -64,7 +64,7 @@ class User extends Entity
     private ?LogsArray $logs = null;
 
     // User::Purchases
-    private ?PurchasesArray $purchases = null;
+    private ?AccountPurchasesArray $purchases = null;
 
     // User::Tickets
     private ?TicketsArray $tickets = null;
@@ -130,7 +130,7 @@ class User extends Entity
             }
         }
         if($this->hasFlag(self::PURCHASES)){
-            $this->purchases = new PurchasesArray();
+            $this->purchases = new AccountPurchasesArray();
             $query = $database->query("SELECT id FROM account_purchase WHERE user = $id;");
             while($row = $query->fetch_array()){
                 $this->purchases[] = new AccountPurchase($row["id"]);
@@ -944,18 +944,18 @@ class User extends Entity
     }
 
     /**
-     * @return PurchasesArray|null
+     * @return AccountPurchasesArray|null
      */
-    public function getPurchases(): ?PurchasesArray
+    public function getPurchases(): ?AccountPurchasesArray
     {
         return $this->purchases;
     }
 
     /**
-     * @param PurchasesArray|null $purchases
+     * @param AccountPurchasesArray|null $purchases
      * @return User
      */
-    public function setPurchases(?PurchasesArray $purchases): User
+    public function setPurchases(?AccountPurchasesArray $purchases): User
     {
         $this->purchases = $purchases;
         return $this;

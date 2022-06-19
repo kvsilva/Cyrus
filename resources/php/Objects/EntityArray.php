@@ -27,7 +27,7 @@ class EntityArray extends ArrayObject
 
     #[ReturnTypeWillChange]
     public function offsetSet($key, $value) {
-        if ($value instanceof $this->object) {
+        if ($value instanceof $this->object || is_subclass_of(get_class($value), "Entity")) {
             parent::offsetSet($key, $value);
             return;
         }

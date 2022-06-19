@@ -86,8 +86,9 @@ class Dependency
      * @param string $extension
      * @return String|null
      */
-    #[Pure] public function getImport(string $extension = "js"): ?String
+    #[Pure] public function getImport(string $extension = "js", bool $raw = false): ?String
     {
+        if($raw) return $this->getDirectory() . ($this->getVersion() != null ? ("/" . $this->getVersion()) : "") . "/"  . $this->import[$extension];
         return isset($this->import[$extension]) ? $this->location . $this->getDirectory() . ($this->getVersion() != null ? ("/" . $this->getVersion()) : "") . "/"  . $this->import[$extension] : null;
     }
 
