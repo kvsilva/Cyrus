@@ -153,7 +153,7 @@ abstract class Entity
     /**
      * @throws ReflectionException
      */
-    private function arrayRelations(?array $relations) : void
+    public function arrayRelations(?array $relations) : void
     {
         if($relations != null) {
             foreach ($relations as $key => $value) {
@@ -206,8 +206,6 @@ abstract class Entity
         if($id == null && isset($array["id"])) $id = $array["id"];
         if(is_string($object)){
             $object = (new ReflectionClass($object))->newInstanceArgs(array("id" => $id, "flags" => $flags));
-        } else {
-
         }
         $object->arrayObject($array);
         return $object; // is Entity
@@ -328,7 +326,7 @@ abstract class Entity
      * @return EntityArray
      * @throws ReflectionException
      */
-    public static function __find(array $fields, String $table, String $class, string $sql = null, array $flags = [self::NORMAL]): EntityArray
+    public static function __find(array $fields, String $table, String $class, string $sql = null, string $operator = "=", array $flags = [self::NORMAL]): EntityArray
     {
         if(class_exists($class . "sArray")){
             $result = (new ReflectionClass($class . "sArray"))->newInstanceArgs(array());
@@ -347,7 +345,7 @@ abstract class Entity
             $clause = false;
             foreach($fields as $key => $value){
                 $clause = true;
-                $sql_command .= ($value != null ? "($table.`$key` IS NOT NULL AND $table.`$key` = '$value') AND " : "");
+                $sql_command .= ($value != null ? "($table.`$key` IS NOT NULL AND $table.`$key` ". $operator ." '$value') AND " : "");
             }
             if($clause) $sql_command = substr($sql_command,0,-4);
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
@@ -360,9 +358,10 @@ abstract class Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
-    public abstract function toArray(): array;
+    public abstract function toArray(bool $minimal = false): array;
 
     /**
      * @return array
@@ -389,7 +388,7 @@ abstract class Entity
      * @param int $flag
      * @return array
      */
-    protected function addFlag(int $flag): array
+    public function addFlag(int $flag): array
     {
         if(!$this->hasFlag($flag)){
             $this->flags[] = $flag;
@@ -402,7 +401,7 @@ abstract class Entity
      * @param array $flags
      * @return array
      */
-    protected function addFlags(array $flags): array
+    public function addFlags(array $flags): array
     {
         $newFlag = false;
         foreach($flags as $flag){

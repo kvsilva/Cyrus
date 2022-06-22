@@ -142,7 +142,7 @@ class TicketMessage extends Entity
      * @return array
      */
     #[ArrayShape(["id" => "int|mixed", "author" => "array|null", "content" => "null|String", "sent_at" => "null|string"])]
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         $array = array(
             "id" => $this->getId(),

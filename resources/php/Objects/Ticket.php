@@ -173,7 +173,7 @@ class Ticket extends Entity {
      * @return array
      */
     #[ArrayShape(["id" => "int|mixed", "attended_by" => "array", "status" => "array", "created_at" => "null|string", "closed_at" => "null|string", "closed_by" => "array|null", "evaluation" => "int|null"])]
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         $array = array(
             "id" => $this->getId(),

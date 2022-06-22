@@ -97,7 +97,7 @@ class AccountPlan extends Entity
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "duration" => "mixed", "price" => "float|int", "stack" => "int|null", "maximum" => "int|null", "available" => "int|null"])]
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

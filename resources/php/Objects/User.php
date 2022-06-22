@@ -367,7 +367,7 @@ class User extends Entity
     /**
      * @return array
      */
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         $array = array(
             "id" => $this->getId(),

@@ -92,7 +92,7 @@ class Subtitle extends Entity
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "language" => "null|\Objects\Language", "path" => "null|String", "available" => "array|null"])]
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

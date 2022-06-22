@@ -2,6 +2,7 @@
 
 namespace Functions;
 
+use AutoLoader;
 use Others\Routing;
 
 class Utils
@@ -30,7 +31,6 @@ class Utils
 
     public static function getURL() : String
     {
-        //return "http://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
         self::initialize();
         return static::BASE_URL;
     }
@@ -49,7 +49,7 @@ class Utils
                 "Personal" => (new Dependency("Personal", self::BASE_URL . "animes/"))->addImport(path: "assets/js/personal.js")->addImport(path: "assets/css/personal.css", extension: "css"),
                 "Episode" => (new Dependency("Episode", self::BASE_URL))->addImport(path: "assets/js/episode.js")->addImport(path: "assets/css/episode.css", extension: "css"),
                 "Search" => (new Dependency("Search", self::BASE_URL))->addImport(path: "assets/js/search.js")->addImport(path: "assets/css/search.css", extension: "css"),
-                "Cyrus" => (new Dependency("resources", self::BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models"),
+                "Cyrus" => (new Dependency("resources", self::BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
             );
         }
     }
@@ -66,4 +66,17 @@ class Utils
         $path = isset(self::$dependencies[$name]) ? ($relative ? self::$BASE_PATH . "/" . self::$dependencies[$name]->getImport($extension, true) : self::$dependencies[$name]->getImport($extension)) : "";
         return $path;
     }
+
+    public static function getClassesInNamespace($namespace)
+    {
+        $files = scandir(dirname((__DIR__ . "\\")) . "\\" . $namespace . "\\");
+
+        $classes = array_map(function($file) use ($namespace){
+            return $namespace . '\\' . str_replace('.php', '', $file);
+        }, $files);
+        return array_filter($classes, function($possibleClass){
+            return class_exists($possibleClass);
+        });
+    }
+
 }

@@ -29,16 +29,18 @@ class Video extends Entity
     protected ?int $numeration = null;
     protected ?String $title = null;
     protected ?String $synopsis = null;
+    protected ?Resource $thumbnail = null;
     protected ?DateTime $release_date = null;
     protected ?int $duration = null;
     protected ?int $opening_start = null;
     protected ?int $opening_end = null;
     protected ?int $ending_start = null;
     protected ?int $ending_end = null;
-    protected ?String $path = null;
+    protected ?Resource $path = null;
     protected ?Availability $available = null;
     // Foreign Key
-    protected ?int $anime = null;
+    protected ?Anime $anime = null;
+    protected ?Season $season = null;
 
     // RELATIONS
 
@@ -155,14 +157,15 @@ class Video extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $anime = null, int $numeration = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, int $anime = null, int $numeration = null, String $title = null, Availability $available = Availability::AVAILABLE, string $sql = null, string $operator = "=", array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "numeration" => $numeration,
             "anime" => $anime,
+            "title" => $title,
             "available" => $available?->value
-        ), table: 'video', class: 'Objects\Video', sql: $sql, flags: $flags);
+        ), table: 'video', class: 'Objects\Video', sql: $sql, operator: $operator, flags: $flags);
     }
 
     /**
@@ -176,7 +179,7 @@ class Video extends Entity
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
-            "release_date"=> $this->release_date,
+            "release_date"=> $this->release_date?->format(Database::DateFormat),
             "duration"=> $this->duration,
             "opening_start"=> $this->opening_start,
             "opening_end"=> $this->opening_end,
@@ -190,7 +193,7 @@ class Video extends Entity
     /**
      * @return array
      */
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
 
         $array = array(
@@ -206,8 +209,14 @@ class Video extends Entity
             "ending_start" => $this->ending_start,
             "ending_end" => $this->ending_end,
             "path" => $this->path,
-            "available" => $this->available?->toArray()
+            "available" => $this->available?->toArray(),
+            "anime" => $this->anime?->toArray(),
+            "season" => $this->season?->toArray()
         );
+        if(!$minimal){
+            $array["anime"] = $this->anime?->toArray();
+            $array["season"] = $this->season?->toArray();
+        }
         $array["subtitles"] = $this->subtitles != null ? array() : null;
         if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value->toArray();
         $array["dubbing"] = $this->dubbing != null ? array() : null;
@@ -468,5 +477,60 @@ class Video extends Entity
         $this->dubbing = $dubbing;
         return $this;
     }
+
+    /**
+     * @return Resource|null
+     */
+    public function getThumbnail(): ?Resource
+    {
+        return $this->thumbnail;
+    }
+
+    /**
+     * @param Resource|null $thumbnail
+     * @return Video
+     */
+    public function setThumbnail(?Resource $thumbnail): Video
+    {
+        $this->thumbnail = $thumbnail;
+        return $this;
+    }
+
+    /**
+     * @return Anime|null
+     */
+    public function getAnime(): ?Anime
+    {
+        return $this->anime;
+    }
+
+    /**
+     * @param Anime|null $anime
+     * @return Video
+     */
+    public function setAnime(?Anime $anime): Video
+    {
+        $this->anime = $anime;
+        return $this;
+    }
+
+    /**
+     * @return Season|null
+     */
+    public function getSeason(): ?Season
+    {
+        return $this->season;
+    }
+
+    /**
+     * @param Season|null $season
+     * @return Video
+     */
+    public function setSeason(?Season $season): Video
+    {
+        $this->season = $season;
+        return $this;
+    }
+
 
 }

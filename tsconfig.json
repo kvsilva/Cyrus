@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "es6",
+    "esModuleInterop": true,
+    "declaration": true,
+    "rootDir": ".",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "stripInternal": true,
+    "useUnknownInCatchVariables": false,
+    "plugins": [
+      {
+        "transform": "tst-reflect-transformer"
+      }
+    ],
+    "lib": [
+      "es2016",
+      "dom"
+    ]
+  },
+  "reflection": {
+    "metadata": {
+      "type": "typelib" // this mode will generate and auto-import library with generated reflection metadata
+    }
+  },
+  "include": [
+    "resources/js/*",
+    "search/assets/js/*",
+  ],
+  "exclude": [
+    "node_modules",
+    "test/data"
+  ]
+}

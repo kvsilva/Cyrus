@@ -139,7 +139,7 @@ class Season extends Entity
      * @return array
      */
     #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "array|null", "videos" => "array|null"])]
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         $array = array(
             "id" => $this->getId(),

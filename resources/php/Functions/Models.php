@@ -94,8 +94,10 @@ class Models
             $enumerator .= "\n};\n";
             fwrite($file, $enumerator);
         }
-
+        $models = "export const models : any = { \n";
+        $countObj = 0;
         foreach(self::Objects as $object){
+            $countObj++;
             $class = 'export class '. $object .' {';
             $class .= "\n";
             $reflection = (new ReflectionClass("Objects\\" . $object));
@@ -110,11 +112,11 @@ class Models
                 $class .= "\n";
                 $name = $property->getName();
                 $dataType = str_replace("?", "", $property->getType());
+                $isArray = str_ends_with($dataType, "sArray");
+                $dataType = str_replace("sArray", "", $dataType);
                 $dataType = str_replace("Objects\\", "", $dataType);
                 $isEnumerator = str_starts_with($dataType, "Enumerators\\");
                 $dataType = str_replace("Enumerators\\", "", $dataType);
-                $isArray = str_ends_with($dataType, "sArray");
-                $dataType = str_replace("sArray", "", $dataType);
 
                 if($isEnumerator){
                     $dataType = "number";
@@ -125,13 +127,17 @@ class Models
                     $dataType = str_replace($dataType, self::REPLACE_TO[$dataType]["value"], $dataType);
                 }
 
-                $assignments .= "        this." . $name . " = (obj_.".$name." !== undefined) ? obj_.". $name ." : ". ($isArray ? "{}" : "null") .";";
-                if(count($reflection->getProperties()) < $count) $assignments .= "\n";
-                $class .= "    " . $name . ": " . $dataType . ";";
+                $assignments .= "        this." . $name . " = (obj_.".$name." !== undefined) ? obj_.". $name ." : ". ($isArray ? "[]" : "null") .";";
+                if(count($reflection->getProperties()) > $count) $assignments .= "\n";
+                $class .= "    " . $name . ": " . $dataType . ($isArray ? "[]" : "") .";";
             }
             $assignments .= "\n    }";
             $class .= "\n\n" . $assignments;
             $class .= "\n}\n";
+            //$class .= "export const ". $object ."Teste = {" . $object . ": " . $object ."}\n";
+            $models .= '    "'.$object . '" : ' . $object;
+            if(count(self::Objects) > $countObj) $models .= ",";
+            $models .= "\n";
             fwrite($file, $class);
 
             // CONSTANT
@@ -140,12 +146,14 @@ class Models
             $const = "export const ". $object ."Flags = {\n";
             foreach($reflection->getConstants() as $constant => $value){
                 $count++;
-                $const .= '    ' . $constant. ': '. $value;
+                $const .= '    ' . $constant. ': {name: "'. $constant . '", value: ' . $value . "}";
                 if(count($reflection->getConstants()) > $count) $const .= ",\n";
             }
             $const .= "\n};\n";
             fwrite($file, $const);
         }
+        $models .= "}";
+        fwrite($file, $models);
     }
 
 }

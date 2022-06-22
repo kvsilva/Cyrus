@@ -1,0 +1,13 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p --build",
+    "clean": "tsc -p --build --clean"
+  },
+  "dependencies": {
+    "@types/bootstrap": "^5.1.12"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.14"
+  }
+}

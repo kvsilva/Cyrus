@@ -43,12 +43,16 @@ export class GlobalSetting {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.category = (obj_.category !== undefined) ? obj_.category : null;        this.value = (obj_.value !== undefined) ? obj_.value : null;        this.value_binary = (obj_.value_binary !== undefined) ? obj_.value_binary : null;        this.data_type = (obj_.data_type !== undefined) ? obj_.data_type : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.category = (obj_.category !== undefined) ? obj_.category : null;
+        this.value = (obj_.value !== undefined) ? obj_.value : null;
+        this.value_binary = (obj_.value_binary !== undefined) ? obj_.value_binary : null;
+        this.data_type = (obj_.data_type !== undefined) ? obj_.data_type : null;
     }
 }
 export const GlobalSettingFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Resource {
     id: number;
@@ -61,12 +65,16 @@ export class Resource {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.title = (obj_.title !== undefined) ? obj_.title : null;        this.description = (obj_.description !== undefined) ? obj_.description : null;        this.extension = (obj_.extension !== undefined) ? obj_.extension : null;        this.path = (obj_.path !== undefined) ? obj_.path : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.title = (obj_.title !== undefined) ? obj_.title : null;
+        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.extension = (obj_.extension !== undefined) ? obj_.extension : null;
+        this.path = (obj_.path !== undefined) ? obj_.path : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
 }
 export const ResourceFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Language {
     id: number;
@@ -77,12 +85,14 @@ export class Language {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.code = (obj_.code !== undefined) ? obj_.code : null;        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.original_name = (obj_.original_name !== undefined) ? obj_.original_name : null;
+        this.code = (obj_.code !== undefined) ? obj_.code : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.original_name = (obj_.original_name !== undefined) ? obj_.original_name : null;
     }
 }
 export const LanguageFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class User {
     id: number;
@@ -102,28 +112,49 @@ export class User {
     translation_language: Language;
     night_mode: number;
     available: number;
-    roles: Role;
-    punishments: Punishment;
-    logs: Log;
-    purchases: AccountPurchase;
-    tickets: Ticket;
-    anime_status: any;
+    roles: Role[];
+    punishments: Punishment[];
+    logs: Log[];
+    purchases: AccountPurchase[];
+    tickets: Ticket[];
+    anime_status: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.email = (obj_.email !== undefined) ? obj_.email : null;        this.username = (obj_.username !== undefined) ? obj_.username : null;        this.password = (obj_.password !== undefined) ? obj_.password : null;        this.birthdate = (obj_.birthdate !== undefined) ? obj_.birthdate : null;        this.sex = (obj_.sex !== undefined) ? obj_.sex : null;        this.creation_date = (obj_.creation_date !== undefined) ? obj_.creation_date : null;        this.status = (obj_.status !== undefined) ? obj_.status : null;        this.profile_image = (obj_.profile_image !== undefined) ? obj_.profile_image : null;        this.profile_background = (obj_.profile_background !== undefined) ? obj_.profile_background : null;        this.about_me = (obj_.about_me !== undefined) ? obj_.about_me : null;        this.verified = (obj_.verified !== undefined) ? obj_.verified : null;        this.display_language = (obj_.display_language !== undefined) ? obj_.display_language : null;        this.email_communication_language = (obj_.email_communication_language !== undefined) ? obj_.email_communication_language : null;        this.translation_language = (obj_.translation_language !== undefined) ? obj_.translation_language : null;        this.night_mode = (obj_.night_mode !== undefined) ? obj_.night_mode : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;        this.roles = (obj_.roles !== undefined) ? obj_.roles : {};        this.punishments = (obj_.punishments !== undefined) ? obj_.punishments : {};        this.logs = (obj_.logs !== undefined) ? obj_.logs : {};        this.purchases = (obj_.purchases !== undefined) ? obj_.purchases : {};        this.tickets = (obj_.tickets !== undefined) ? obj_.tickets : {};        this.anime_status = (obj_.anime_status !== undefined) ? obj_.anime_status : {};
+        this.email = (obj_.email !== undefined) ? obj_.email : null;
+        this.username = (obj_.username !== undefined) ? obj_.username : null;
+        this.password = (obj_.password !== undefined) ? obj_.password : null;
+        this.birthdate = (obj_.birthdate !== undefined) ? obj_.birthdate : null;
+        this.sex = (obj_.sex !== undefined) ? obj_.sex : null;
+        this.creation_date = (obj_.creation_date !== undefined) ? obj_.creation_date : null;
+        this.status = (obj_.status !== undefined) ? obj_.status : null;
+        this.profile_image = (obj_.profile_image !== undefined) ? obj_.profile_image : null;
+        this.profile_background = (obj_.profile_background !== undefined) ? obj_.profile_background : null;
+        this.about_me = (obj_.about_me !== undefined) ? obj_.about_me : null;
+        this.verified = (obj_.verified !== undefined) ? obj_.verified : null;
+        this.display_language = (obj_.display_language !== undefined) ? obj_.display_language : null;
+        this.email_communication_language = (obj_.email_communication_language !== undefined) ? obj_.email_communication_language : null;
+        this.translation_language = (obj_.translation_language !== undefined) ? obj_.translation_language : null;
+        this.night_mode = (obj_.night_mode !== undefined) ? obj_.night_mode : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.roles = (obj_.roles !== undefined) ? obj_.roles : [];
+        this.punishments = (obj_.punishments !== undefined) ? obj_.punishments : [];
+        this.logs = (obj_.logs !== undefined) ? obj_.logs : [];
+        this.purchases = (obj_.purchases !== undefined) ? obj_.purchases : [];
+        this.tickets = (obj_.tickets !== undefined) ? obj_.tickets : [];
+        this.anime_status = (obj_.anime_status !== undefined) ? obj_.anime_status : [];
     }
 }
 export const UserFlags = {
-    ROLES: 2,
-    PUNISHMENTS: 3,
-    LOGS: 4,
-    PURCHASES: 5,
-    TICKETS: 6,
-    ANIME_STATUS: 7,
-    NORMAL: 0,
-    ALL: 1
+    ROLES: {name: "ROLES", value: 2},
+    PUNISHMENTS: {name: "PUNISHMENTS", value: 3},
+    LOGS: {name: "LOGS", value: 4},
+    PURCHASES: {name: "PURCHASES", value: 5},
+    TICKETS: {name: "TICKETS", value: 6},
+    ANIME_STATUS: {name: "ANIME_STATUS", value: 7},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class SourceType {
     id: number;
@@ -136,8 +167,8 @@ export class SourceType {
     }
 }
 export const SourceTypeFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Audience {
     id: number;
@@ -147,18 +178,21 @@ export class Audience {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.minimum_age = (obj_.minimum_age !== undefined) ? obj_.minimum_age : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.minimum_age = (obj_.minimum_age !== undefined) ? obj_.minimum_age : null;
     }
 }
 export const AudienceFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Anime {
     id: number;
     title: string;
     original_title: string;
     synopsis: string;
+    profile: Resource;
+    cape: Resource;
     start_date: Date;
     end_date: Date;
     mature: number;
@@ -167,22 +201,37 @@ export class Anime {
     audience: Audience;
     trailer: string;
     available: number;
-    videos: Video;
-    seasons: Season;
-    genders: Gender;
+    videos: Video[];
+    seasons: Season[];
+    genders: Gender[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.title = (obj_.title !== undefined) ? obj_.title : null;        this.original_title = (obj_.original_title !== undefined) ? obj_.original_title : null;        this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;        this.start_date = (obj_.start_date !== undefined) ? obj_.start_date : null;        this.end_date = (obj_.end_date !== undefined) ? obj_.end_date : null;        this.mature = (obj_.mature !== undefined) ? obj_.mature : null;        this.launch_day = (obj_.launch_day !== undefined) ? obj_.launch_day : null;        this.source = (obj_.source !== undefined) ? obj_.source : null;        this.audience = (obj_.audience !== undefined) ? obj_.audience : null;        this.trailer = (obj_.trailer !== undefined) ? obj_.trailer : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;        this.videos = (obj_.videos !== undefined) ? obj_.videos : {};        this.seasons = (obj_.seasons !== undefined) ? obj_.seasons : {};        this.genders = (obj_.genders !== undefined) ? obj_.genders : {};
+        this.title = (obj_.title !== undefined) ? obj_.title : null;
+        this.original_title = (obj_.original_title !== undefined) ? obj_.original_title : null;
+        this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;
+        this.profile = (obj_.profile !== undefined) ? obj_.profile : null;
+        this.cape = (obj_.cape !== undefined) ? obj_.cape : null;
+        this.start_date = (obj_.start_date !== undefined) ? obj_.start_date : null;
+        this.end_date = (obj_.end_date !== undefined) ? obj_.end_date : null;
+        this.mature = (obj_.mature !== undefined) ? obj_.mature : null;
+        this.launch_day = (obj_.launch_day !== undefined) ? obj_.launch_day : null;
+        this.source = (obj_.source !== undefined) ? obj_.source : null;
+        this.audience = (obj_.audience !== undefined) ? obj_.audience : null;
+        this.trailer = (obj_.trailer !== undefined) ? obj_.trailer : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.videos = (obj_.videos !== undefined) ? obj_.videos : [];
+        this.seasons = (obj_.seasons !== undefined) ? obj_.seasons : [];
+        this.genders = (obj_.genders !== undefined) ? obj_.genders : [];
     }
 }
 export const AnimeFlags = {
-    VIDEOS: 2,
-    SEASONS: 3,
-    GENDERS: 4,
-    NORMAL: 0,
-    ALL: 1
+    VIDEOS: {name: "VIDEOS", value: 2},
+    SEASONS: {name: "SEASONS", value: 3},
+    GENDERS: {name: "GENDERS", value: 4},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Season {
     id: number;
@@ -191,18 +240,23 @@ export class Season {
     synopsis: string;
     release_date: Date;
     available: number;
-    videos: any;
+    videos: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.numeration = (obj_.numeration !== undefined) ? obj_.numeration : null;        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;        this.release_date = (obj_.release_date !== undefined) ? obj_.release_date : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;        this.videos = (obj_.videos !== undefined) ? obj_.videos : {};
+        this.numeration = (obj_.numeration !== undefined) ? obj_.numeration : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;
+        this.release_date = (obj_.release_date !== undefined) ? obj_.release_date : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.videos = (obj_.videos !== undefined) ? obj_.videos : [];
     }
 }
 export const SeasonFlags = {
-    VIDEOS: 2,
-    NORMAL: 0,
-    ALL: 1
+    VIDEOS: {name: "VIDEOS", value: 2},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class VideoType {
     id: number;
@@ -215,8 +269,8 @@ export class VideoType {
     }
 }
 export const VideoTypeFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Video {
     id: number;
@@ -224,28 +278,47 @@ export class Video {
     numeration: number;
     title: string;
     synopsis: string;
+    thumbnail: Resource;
+    release_date: Date;
     duration: number;
     opening_start: number;
     opening_end: number;
     ending_start: number;
     ending_end: number;
-    path: string;
+    path: Resource;
     available: number;
-    anime: number;
-    subtitles: any;
-    dubbing: any;
+    anime: Anime;
+    season: Season;
+    subtitles: any[];
+    dubbing: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.video_type = (obj_.video_type !== undefined) ? obj_.video_type : null;        this.numeration = (obj_.numeration !== undefined) ? obj_.numeration : null;        this.title = (obj_.title !== undefined) ? obj_.title : null;        this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;        this.duration = (obj_.duration !== undefined) ? obj_.duration : null;        this.opening_start = (obj_.opening_start !== undefined) ? obj_.opening_start : null;        this.opening_end = (obj_.opening_end !== undefined) ? obj_.opening_end : null;        this.ending_start = (obj_.ending_start !== undefined) ? obj_.ending_start : null;        this.ending_end = (obj_.ending_end !== undefined) ? obj_.ending_end : null;        this.path = (obj_.path !== undefined) ? obj_.path : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;        this.anime = (obj_.anime !== undefined) ? obj_.anime : null;        this.subtitles = (obj_.subtitles !== undefined) ? obj_.subtitles : {};        this.dubbing = (obj_.dubbing !== undefined) ? obj_.dubbing : {};
+        this.video_type = (obj_.video_type !== undefined) ? obj_.video_type : null;
+        this.numeration = (obj_.numeration !== undefined) ? obj_.numeration : null;
+        this.title = (obj_.title !== undefined) ? obj_.title : null;
+        this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;
+        this.thumbnail = (obj_.thumbnail !== undefined) ? obj_.thumbnail : null;
+        this.release_date = (obj_.release_date !== undefined) ? obj_.release_date : null;
+        this.duration = (obj_.duration !== undefined) ? obj_.duration : null;
+        this.opening_start = (obj_.opening_start !== undefined) ? obj_.opening_start : null;
+        this.opening_end = (obj_.opening_end !== undefined) ? obj_.opening_end : null;
+        this.ending_start = (obj_.ending_start !== undefined) ? obj_.ending_start : null;
+        this.ending_end = (obj_.ending_end !== undefined) ? obj_.ending_end : null;
+        this.path = (obj_.path !== undefined) ? obj_.path : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.anime = (obj_.anime !== undefined) ? obj_.anime : null;
+        this.season = (obj_.season !== undefined) ? obj_.season : null;
+        this.subtitles = (obj_.subtitles !== undefined) ? obj_.subtitles : [];
+        this.dubbing = (obj_.dubbing !== undefined) ? obj_.dubbing : [];
     }
 }
 export const VideoFlags = {
-    SUBTITLES: 2,
-    DUBBING: 3,
-    NORMAL: 0,
-    ALL: 1
+    SUBTITLES: {name: "SUBTITLES", value: 2},
+    DUBBING: {name: "DUBBING", value: 3},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Subtitle {
     id: number;
@@ -256,12 +329,14 @@ export class Subtitle {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.language = (obj_.language !== undefined) ? obj_.language : null;        this.path = (obj_.path !== undefined) ? obj_.path : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.language = (obj_.language !== undefined) ? obj_.language : null;
+        this.path = (obj_.path !== undefined) ? obj_.path : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
 }
 export const SubtitleFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Dubbing {
     id: number;
@@ -272,12 +347,14 @@ export class Dubbing {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.language = (obj_.language !== undefined) ? obj_.language : null;        this.path = (obj_.path !== undefined) ? obj_.path : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.language = (obj_.language !== undefined) ? obj_.language : null;
+        this.path = (obj_.path !== undefined) ? obj_.path : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
 }
 export const DubbingFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class PunishmentType {
     id: number;
@@ -290,8 +367,8 @@ export class PunishmentType {
     }
 }
 export const PunishmentTypeFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Punishment {
     id: number;
@@ -308,12 +385,20 @@ export class Punishment {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.punishment_type = (obj_.punishment_type !== undefined) ? obj_.punishment_type : null;        this.reason = (obj_.reason !== undefined) ? obj_.reason : null;        this.lasts_until = (obj_.lasts_until !== undefined) ? obj_.lasts_until : null;        this.performed_by = (obj_.performed_by !== undefined) ? obj_.performed_by : null;        this.performed_date = (obj_.performed_date !== undefined) ? obj_.performed_date : null;        this.revoked_by = (obj_.revoked_by !== undefined) ? obj_.revoked_by : null;        this.revoked_date = (obj_.revoked_date !== undefined) ? obj_.revoked_date : null;        this.revoked_reason = (obj_.revoked_reason !== undefined) ? obj_.revoked_reason : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.punishment_type = (obj_.punishment_type !== undefined) ? obj_.punishment_type : null;
+        this.reason = (obj_.reason !== undefined) ? obj_.reason : null;
+        this.lasts_until = (obj_.lasts_until !== undefined) ? obj_.lasts_until : null;
+        this.performed_by = (obj_.performed_by !== undefined) ? obj_.performed_by : null;
+        this.performed_date = (obj_.performed_date !== undefined) ? obj_.performed_date : null;
+        this.revoked_by = (obj_.revoked_by !== undefined) ? obj_.revoked_by : null;
+        this.revoked_date = (obj_.revoked_date !== undefined) ? obj_.revoked_date : null;
+        this.revoked_reason = (obj_.revoked_reason !== undefined) ? obj_.revoked_reason : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
 }
 export const PunishmentFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Gender {
     id: number;
@@ -326,8 +411,8 @@ export class Gender {
     }
 }
 export const GenderFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class AnimeStatus {
     id: number;
@@ -340,8 +425,8 @@ export class AnimeStatus {
     }
 }
 export const AnimeStatusFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class TicketStatus {
     id: number;
@@ -354,8 +439,8 @@ export class TicketStatus {
     }
 }
 export const TicketStatusFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Ticket {
     id: number;
@@ -366,52 +451,63 @@ export class Ticket {
     closed_at: Date;
     closed_by: User;
     evaluation: number;
-    messages: any;
+    messages: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.title = (obj_.title !== undefined) ? obj_.title : null;        this.attended_by = (obj_.attended_by !== undefined) ? obj_.attended_by : null;        this.status = (obj_.status !== undefined) ? obj_.status : null;        this.created_at = (obj_.created_at !== undefined) ? obj_.created_at : null;        this.closed_at = (obj_.closed_at !== undefined) ? obj_.closed_at : null;        this.closed_by = (obj_.closed_by !== undefined) ? obj_.closed_by : null;        this.evaluation = (obj_.evaluation !== undefined) ? obj_.evaluation : null;        this.messages = (obj_.messages !== undefined) ? obj_.messages : {};
+        this.title = (obj_.title !== undefined) ? obj_.title : null;
+        this.attended_by = (obj_.attended_by !== undefined) ? obj_.attended_by : null;
+        this.status = (obj_.status !== undefined) ? obj_.status : null;
+        this.created_at = (obj_.created_at !== undefined) ? obj_.created_at : null;
+        this.closed_at = (obj_.closed_at !== undefined) ? obj_.closed_at : null;
+        this.closed_by = (obj_.closed_by !== undefined) ? obj_.closed_by : null;
+        this.evaluation = (obj_.evaluation !== undefined) ? obj_.evaluation : null;
+        this.messages = (obj_.messages !== undefined) ? obj_.messages : [];
     }
 }
 export const TicketFlags = {
-    MESSAGES: 2,
-    NORMAL: 0,
-    ALL: 1
+    MESSAGES: {name: "MESSAGES", value: 2},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class TicketMessage {
     id: number;
     author: User;
     content: string;
     sent_at: Date;
-    attachments: any;
+    attachments: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.author = (obj_.author !== undefined) ? obj_.author : null;        this.content = (obj_.content !== undefined) ? obj_.content : null;        this.sent_at = (obj_.sent_at !== undefined) ? obj_.sent_at : null;        this.attachments = (obj_.attachments !== undefined) ? obj_.attachments : {};
+        this.author = (obj_.author !== undefined) ? obj_.author : null;
+        this.content = (obj_.content !== undefined) ? obj_.content : null;
+        this.sent_at = (obj_.sent_at !== undefined) ? obj_.sent_at : null;
+        this.attachments = (obj_.attachments !== undefined) ? obj_.attachments : [];
     }
 }
 export const TicketMessageFlags = {
-    ATTACHMENTS: 2,
-    NORMAL: 0,
-    ALL: 1
+    ATTACHMENTS: {name: "ATTACHMENTS", value: 2},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Role {
     id: number;
     name: string;
-    permissions: any;
+    permissions: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.permissions = (obj_.permissions !== undefined) ? obj_.permissions : {};
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.permissions = (obj_.permissions !== undefined) ? obj_.permissions : [];
     }
 }
 export const RoleFlags = {
-    PERMISSIONS: 2,
-    NORMAL: 0,
-    ALL: 1
+    PERMISSIONS: {name: "PERMISSIONS", value: 2},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Permission {
     id: number;
@@ -422,12 +518,14 @@ export class Permission {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.tag = (obj_.tag !== undefined) ? obj_.tag : null;        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.tag = (obj_.tag !== undefined) ? obj_.tag : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.description = (obj_.description !== undefined) ? obj_.description : null;
     }
 }
 export const PermissionFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class AccountPlan {
     id: number;
@@ -441,12 +539,17 @@ export class AccountPlan {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.duration = (obj_.duration !== undefined) ? obj_.duration : null;        this.price = (obj_.price !== undefined) ? obj_.price : null;        this.stack = (obj_.stack !== undefined) ? obj_.stack : null;        this.maximum = (obj_.maximum !== undefined) ? obj_.maximum : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.duration = (obj_.duration !== undefined) ? obj_.duration : null;
+        this.price = (obj_.price !== undefined) ? obj_.price : null;
+        this.stack = (obj_.stack !== undefined) ? obj_.stack : null;
+        this.maximum = (obj_.maximum !== undefined) ? obj_.maximum : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
 }
 export const AccountPlanFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class AccountPurchase {
     id: number;
@@ -463,12 +566,20 @@ export class AccountPurchase {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.plan = (obj_.plan !== undefined) ? obj_.plan : null;        this.price = (obj_.price !== undefined) ? obj_.price : null;        this.purchased_on = (obj_.purchased_on !== undefined) ? obj_.purchased_on : null;        this.duration = (obj_.duration !== undefined) ? obj_.duration : null;        this.revoked_by = (obj_.revoked_by !== undefined) ? obj_.revoked_by : null;        this.revoked_reason = (obj_.revoked_reason !== undefined) ? obj_.revoked_reason : null;        this.revoked_at = (obj_.revoked_at !== undefined) ? obj_.revoked_at : null;        this.rescued_at = (obj_.rescued_at !== undefined) ? obj_.rescued_at : null;        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.plan = (obj_.plan !== undefined) ? obj_.plan : null;
+        this.price = (obj_.price !== undefined) ? obj_.price : null;
+        this.purchased_on = (obj_.purchased_on !== undefined) ? obj_.purchased_on : null;
+        this.duration = (obj_.duration !== undefined) ? obj_.duration : null;
+        this.revoked_by = (obj_.revoked_by !== undefined) ? obj_.revoked_by : null;
+        this.revoked_reason = (obj_.revoked_reason !== undefined) ? obj_.revoked_reason : null;
+        this.revoked_at = (obj_.revoked_at !== undefined) ? obj_.revoked_at : null;
+        this.rescued_at = (obj_.rescued_at !== undefined) ? obj_.rescued_at : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
 }
 export const AccountPurchaseFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class LogAction {
     id: number;
@@ -478,26 +589,56 @@ export class LogAction {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.name = (obj_.name !== undefined) ? obj_.name : null;        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.description = (obj_.description !== undefined) ? obj_.description : null;
     }
 }
 export const LogActionFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
 export class Log {
     id: number;
     action_type: LogAction;
-    arguments: any;
+    arguments: any[];
     description: string;
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.action_type = (obj_.action_type !== undefined) ? obj_.action_type : null;        this.arguments = (obj_.arguments !== undefined) ? obj_.arguments : {};        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.action_type = (obj_.action_type !== undefined) ? obj_.action_type : null;
+        this.arguments = (obj_.arguments !== undefined) ? obj_.arguments : [];
+        this.description = (obj_.description !== undefined) ? obj_.description : null;
     }
 }
 export const LogFlags = {
-    NORMAL: 0,
-    ALL: 1
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
 };
+export const models : any = { 
+    "GlobalSetting" : GlobalSetting,
+    "Resource" : Resource,
+    "Language" : Language,
+    "User" : User,
+    "SourceType" : SourceType,
+    "Audience" : Audience,
+    "Anime" : Anime,
+    "Season" : Season,
+    "VideoType" : VideoType,
+    "Video" : Video,
+    "Subtitle" : Subtitle,
+    "Dubbing" : Dubbing,
+    "PunishmentType" : PunishmentType,
+    "Punishment" : Punishment,
+    "Gender" : Gender,
+    "AnimeStatus" : AnimeStatus,
+    "TicketStatus" : TicketStatus,
+    "Ticket" : Ticket,
+    "TicketMessage" : TicketMessage,
+    "Role" : Role,
+    "Permission" : Permission,
+    "AccountPlan" : AccountPlan,
+    "AccountPurchase" : AccountPurchase,
+    "LogAction" : LogAction,
+    "Log" : Log
+}

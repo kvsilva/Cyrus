@@ -32,6 +32,8 @@ class Anime extends Entity
     protected ?String $title = null;
     protected ?String $original_title = null;
     protected ?String $synopsis = null;
+    protected ?Resource $profile = null;
+    protected ?Resource $cape = null;
     protected ?DateTime $start_date = null;
     protected ?DateTime $end_date = null;
     protected ?Maturity $mature = null;
@@ -182,14 +184,14 @@ class Anime extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $operator = "=", string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "title" => $title,
             "launch_day" => $launch_day?->value,
             "available" => $available?->value
-        ), table: 'anime', class: 'Objects\Anime', sql: $sql, flags: $flags);
+        ), table: 'anime', class: 'Objects\Anime', sql: $sql, operator: $operator, flags: $flags);
     }
 
     /**
@@ -208,6 +210,8 @@ class Anime extends Entity
             "title" => $this->title,
             "original_title" => $this->original_title,
             "synopsis" => $this->synopsis,
+            "cape" => $this->cape?->getId(),
+            "profile" => $this->profile?->getId(),
             "start_date" => $this->start_date?->format(Database::DateFormat),
             "end_date" => $this->end_date?->format(Database::DateFormat),
             "mature" => $this->mature?->value,
@@ -220,15 +224,18 @@ class Anime extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         $array = array(
             "id" => $this->getId(),
             "title" => $this->title,
             "original_title" => $this->original_title,
             "synopsis" => $this->synopsis,
+            "cape" => $this->cape?->toArray(),
+            "profile" => $this->profile?->toArray(),
             "start_date" => $this->start_date?->format(Database::DateFormat),
             "end_date" => $this->end_date?->format(Database::DateFormat),
             "mature" => $this->mature?->toArray(),
@@ -684,5 +691,44 @@ class Anime extends Entity
         $this->available = $available;
         return $this;
     }
+
+    /**
+     * @return Resource|null
+     */
+    public function getProfile(): ?Resource
+    {
+        return $this->profile;
+    }
+
+    /**
+     * @param Resource|null $profile
+     * @return Anime
+     */
+    public function setProfile(?Resource $profile): Anime
+    {
+        $this->profile = $profile;
+        return $this;
+    }
+
+    /**
+     * @return Resource|null
+     */
+    public function getCape(): ?Resource
+    {
+        return $this->cape;
+    }
+
+    /**
+     * @param Resource|null $cape
+     * @return Anime
+     */
+    public function setCape(?Resource $cape): Anime
+    {
+        $this->cape = $cape;
+        return $this;
+    }
+
+
+
 
 }

@@ -17,8 +17,10 @@ function getHead($pageTitle): string
     <!-- Font Awesome -->
     <link href="' . Utils::getDependencies("FontAwesome", "css") . '" rel="stylesheet">
     <!-- Cyrus -->
-    <script src="' . Utils::getDependencies("Cyrus") . '"></script>
+    <script type = "module" src="' . Utils::getDependencies("Cyrus") . '"></script>
     <script type = "module" src="' . Utils::getDependencies("Cyrus", "models") . '"></script>
+    <script type = "module" src="' . Utils::getDependencies("Cyrus", "routing") . '"></script>
+    <script type = "module" src="' . Utils::getDependencies("Cyrus", "request") . '"></script>
     <link href="' . Utils::getDependencies("Cyrus", "css") . '" rel = "stylesheet">
     <!-- Title -->
     <title>Cyrus' . $pageTitle . '</title>

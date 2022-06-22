@@ -111,7 +111,7 @@ class Punishment extends Entity
     /**
      * @return array
      */
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

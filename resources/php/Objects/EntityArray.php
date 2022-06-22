@@ -11,23 +11,23 @@ use ReturnTypeWillChange;
 class EntityArray extends ArrayObject
 {
     private ?Entity $object = null;
-    private String $entity;
+    private ?String $entity;
 
     /**
      * @throws ReflectionException
-     * @noinspection PhpFieldAssignmentTypeMismatchInspection
      */
-    public function __construct(String $entity = "Objects\Entity", $array = [], $flags = 0, $iteratorClass = "ArrayIterator")
+    public function __construct(?String $entity = "Objects\Entity", $array = [], $flags = 0, $iteratorClass = "ArrayIterator")
     {
         parent::__construct($array, $flags, $iteratorClass);
-        $this->entity = $entity;
-        $obj = (new ReflectionClass($this->entity))->newInstanceWithoutConstructor();
-        if($this->object == null) $this->object = $obj;
+        $this->entity = $entity === null ? "Objects\Entity" : $entity;
+        $obj = null;
+        if($entity !== null) $obj = (new ReflectionClass($this->entity))->newInstanceWithoutConstructor();
+        if($this->object === null) $this->object = $obj;
     }
 
     #[ReturnTypeWillChange]
     public function offsetSet($key, $value) {
-        if ($value instanceof $this->object || is_subclass_of(get_class($value), "Entity")) {
+        if (is_subclass_of(get_class($value), "Objects\Entity") || ($this->object !== null && $value instanceof $this->object)) {
             parent::offsetSet($key, $value);
             return;
         }
@@ -42,4 +42,13 @@ class EntityArray extends ArrayObject
         return sizeof($this);
     }
 
+    public function addAll(EntityArray $entities){
+        foreach($entities as $entity){
+            $this[] = $entity;
+        }
+    }
+
+    public function sort($callback){
+        $this->uasort($callback);
+    }
 }

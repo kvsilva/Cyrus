@@ -88,7 +88,7 @@ class Permission extends Entity
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "tag" => "null|String", "name" => "null|String", "description" => "null|String"])]
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

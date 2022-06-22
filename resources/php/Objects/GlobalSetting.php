@@ -93,7 +93,7 @@ class GlobalSetting extends Entity
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "group" => "null|String", "value_binary" => "\Cassandra\Blob|null", "data_type" => "null|String"])]
-    public function toArray(): array
+    public function toArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),
