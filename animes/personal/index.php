@@ -1,12 +1,35 @@
 <?php
 require_once(dirname(__DIR__) . '\\..\\resources\\php\\settings.php');
+
+use Functions\Routing;
 use Functions\Utils;
+use Objects\Anime;
+use Objects\Entity;
+use Objects\EntityArray;
+use Objects\Season;
+use Objects\SeasonsArray;
+use Objects\Video;
+
+try {
+    $animes = isset($_GET["anime"]) ? Anime::find(id: intval($_GET["anime"]), flags: [Entity::ALL]) : null;
+} catch (ReflectionException $e) {
+    Utils::goTo("animes");
+}
+if ($animes == null || $animes?->size() == 0) {
+    Utils::goTo("animes");
+}
+$anime = $animes[0];
+$videos = Video::find(anime: $anime->getId());
+$seasons = Season::find(anime: $anime->getId());
+$genders = $anime->getGenders() === null ? new EntityArray(null) : $anime->getGenders();
+
+
 ?>
 <html lang="pt_PT">
 <head>
     <?php
     include Utils::getDependencies("Cyrus", "head", true);
-    echo getHead(" - Attack on Titan");
+    echo getHead(" - " . $anime->getTitle());
     ?>
     <link href="<?php echo Utils::getDependencies("Personal", "css")?>" rel="stylesheet">
     <script src="<?php echo Utils::getDependencies("Personal")?>"></script>
@@ -18,103 +41,109 @@ include(Utils::getDependencies("Cyrus", "header", true));
 <div id="content">
     <div id="series_art">
         <div id="background">
-            <img src="https://i.pinimg.com/originals/13/a1/01/13a10172127bbf9da50b8ce6db35eeaa.png" alt="Attack on Titan">
+            <img src="<?php echo $anime->getCape()?->getPath(); ?>" alt="<?php echo $anime->getTitle() . " Capa" ?>">
         </div>
         <div id="profile">
-            <img src="https://i1.wp.com/animesonlinegames.com/wp-content/uploads/2021/12/shingeki-no-kyojin-4-part-2-todos-os-episodios.jpg" alt="Attack on Titan">
+            <img src="<?php echo $anime->getProfile()?->getPath(); ?>" alt="<?php echo $anime->getTitle() . " Perfil" ?>">
         </div>
     </div>
     <div class="content-wrapper">
         <div class="row" id="information">
             <div class="col-6">
                 <div id="title">
-                    <h2>Attack on Titan</h2>
+                    <h2><?php echo $anime->getTitle()?></h2>
                 </div>
                 <div id = "details">
-                    <span>70 vídeos</span>
-                    <span>70 algo</span>
+                    <?php if($seasons->size() > 0){
+                        echo '<span>' . $videos->size() . ($videos->size() == 1 ? ' Temporada' : ' Temporadas') . '<span>';
+                    } ?>
+                    <span><?php echo $videos->size() . ($videos->size() == 1 ? " Video" : " Videos")?></span>
                 </div>
-                <div class="rating" id = "rating-average">
+                <!--<div class="rating" id = "rating-average">
                     <i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i>
-                </div>
+                </div>-->
                 <div id="synopsis">
-                    <p class="text">Eren Jaeger jurou eliminar todos os Titãs, mas em uma batalha desesperada ele se
-                        torna aquilo que mais odeia. Com seus novos poderes, ele luta pela liberdade da humanidade,
-                        combatendo os monstros que ameaçam seu lar. Mesmo depois de derrotar a Titã Fêmea, Eren não
-                        consegue descansar - uma horda de Titãs se aproximam da Muralha Rose e a batalha em nome da
-                        humanidade continua!</p>
+                    <p class="text"><?php echo $anime->getSynopsis(); ?></p>
                 </div>
 
                 <div id="gender">
-                    <span>ACTION</span>
-                    <span>ADVENTURE</span>
-                    <span>DRAMA</span>
-                    <span>FANTASY</span>
-                    <span>THRILLER</span>
+                    <?php
+                        foreach($genders as $gender){ ?>
+                        <span><?php echo mb_strtoupper($gender->getName()); ?></span>
+                    <?php }?>
                 </div>
             </div>
             <div class="col-3">
-                <div id="trailer">
-                    <iframe width="420" height="315"
-                            src="https://www.youtube.com/embed/MWSR17vEVBw">
-                    </iframe>
-                </div>
+                <?php if($anime->getTrailer() !== null) {?>
+                    <div id="trailer">
+                        <iframe width="420" height="315" src="<?php echo $anime->getTrailer() ?>">
+                        </iframe>
+                    </div>
+                <?php }?>
             </div>
         </div>
-
-        <!-- https://localhost/Cyrus/animes/?anime=Shingeki+no+Kyojin&ep=26 -->
         <div class="row" id="episodes">
             <div class = "controls row no-select">
                 <div class = "col">
-                    <div class="dropdown">
-                        <div class="dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Temporada 3
+                    <?php
+                    //TO DELETE
+                    $seasons = new SeasonsArray();
+                    $seasons[] = (new Season())->setName("Name 1")->setNumeration("1");
+                    $seasons[] = (new Season())->setName("Name 2")->setNumeration("2");
+                    $seasons[] = (new Season())->setName("Name 3")->setNumeration("3");
+                    $seasons[] = (new Season())->setName("Name 4")->setNumeration("4");
+                    ?>
+                    <?php if($seasons->size() > 0){?>
+                        <div class="dropdown">
+                            <div class="dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id = "currentSeason" data-season="<?php echo $seasons[0]->getId(); ?>"><?php echo "Temporada " . $seasons[0]->getNumeration() . " - " . $seasons[0]->getName();?></span>
+                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id = "availableSeasons">
+                                <?php
+                                $isFirst = true;
+                                foreach($seasons as $season){
+                                    echo '<li'. ($isFirst ? ' class = "selected"' : ''). 'data-id="'. $season->getId() .'"> Temporada ' . $season->getNumeration() . " - " . $season->getName() . '</li>';
+                                    $isFirst = false;
+                                }?>
+                            </ul>
                         </div>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li>Temporada 1 - Season 1</li>
-                            <li>Temporada 2 - Season 2</li>
-                            <li class = "selected">Temporada 3 - Season 3</li>
-                            <li>Temporada 4 - Final Season</li>
-                        </ul>
-                    </div>
+                    <?php }?>
                 </div>
                 <div class = "col">
                     <div class = "order">
                         <i class="fa-solid fa-arrow-down-short-wide"></i>
-                        <span>MAIS RECENTE</span>
+                        <span id = "currentOrder" data-order = "recent">MAIS RECENTE</span>
                     </div>
                 </div>
-                <!--<div class = "dropdown">
-                    <i class="fa-solid fa-sort-down"></i>
-                    <span class = "selected-item">Temporada 4 - Final Season</span>
-                </div>-->
             </div>
             <div class = "row episodes-list">
                 <?php
-                for($i = 0; $i < 15; $i++){
+                if($videos->size() > 0){
+                    foreach($videos as $video){
                 ?>
-                <div class="episode">
-                    <a class = "episode_link" href = "?anime=Shingeki+no+Kyojin&season=1&ep=26" title = "Shingeki no Kyojin - Temporada 3 - Episódio 25"></a>
-                    <div class = "thumbnail">
-                        <img src = "https://sm.ign.com/t/ign_me/review/a/attack-on-/attack-on-titan-season-3-episode-1-smoke-signal-review_zghr.1024.jpg">
-                        <div class = "duration"><span>24m</span></div>
-                        <i class="fa-solid fa-play play"></i>
+                    <div class="episode">
+                        <a class = "episode_link" href = "<?php echo Routing::getRouting("episode") . '?episode=' . $video->getId();?>" title = "<?php echo $anime->getTitle() . ' - ' . ($video->getSeason() !== null ? 'Temporada ' . $video->getSeason()?->getNumeration() . ' ': '') . $video->getTitle(); ?>"></a>
+                        <div class = "thumbnail">
+                            <img src = "<?php echo $video->getThumbnail()?->getPath()?>">
+                            <div class = "duration"><span><?php echo round(($video->getDuration())/60)?>m</span></div>
+                            <i class="fa-solid fa-play play"></i>
+                        </div>
+                        <div class = "series"><a href="?anime=Shingeki+no+Kyojin"><?php echo $anime->getTitle() . ($video->getSeason() !== null ? " - Temporada " . $video->getSeason?->getNumeration() : "");?></a></div>
+                        <div class = "title">Episódio <?php echo $video->getNumeration()?> - <?php echo $video->getTitle();?></div>
+                        <div class = "reviews-count">
+                            15k <i class="fa-solid fa-comments"></i>
+                        </div>
                     </div>
-                    <div class = "series"><a href="?anime=Shingeki+no+Kyojin">Shingeki no Kyojin - Temporada 3</a></div>
-                    <div class = "title">Episódio <?php echo $i+10;?> - O titã Bestial</div>
-                    <div class = "reviews-count">
-                        15k <i class="fa-solid fa-comments"></i>
-                    </div>
-                </div>
                 <?php
+                    }
                 }
                 ?>
             </div>
         </div>
         <hr>
         <div class = "seasons-switch no-select">
-            <div class = "previous-season"><i class="fa-solid fa-angle-left"></i> <span>TEMPORADA ANTERIOR</span></div>
-            <div class = "next-season disable"><span>PRÓXIMA TEMPORADA</span> <i class="fa-solid fa-angle-right"></i></div>
+            <div class = "previous-season" id = "previousSeason"><i class="fa-solid fa-angle-left"></i> <span>TEMPORADA ANTERIOR</span></div>
+            <div class = "next-season disable" id = "nextSeason"><span>PRÓXIMA TEMPORADA</span> <i class="fa-solid fa-angle-right"></i></div>
         </div>
         <div class="row" id="reviews">
             <div class = "controller">
@@ -128,12 +157,12 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     <div class="dropdown">
                         <div class="dropdown-toggle" type="button" id="dropdown-sort" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-arrow-down-short-wide"></i>
-                            <span class = "reviews-filters-filter-title">Mais Antigo</span>
+                            <span class = "reviews-filters-filter-title" id = "currentReviewOrder" data-order = "older">Mais Antigo</span>
                         </div>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-sort">
-                            <li class = "selected">Mais Antigo</li>
-                            <li>Mais Recente</li>
-                            <li>Mais Útil</li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdown-sort" id = "review-order">
+                            <li class = "selected" data-order = "older">Mais Antigo</li>
+                            <li data-order = "recent">Mais Recente</li>
+                            <li data-order = "useful">Mais Útil</li>
                         </ul>
                     </div>
                     <div class="dropdown">
@@ -141,13 +170,13 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             <i class="fa-solid fa-sliders"></i>
                             <span class = "reviews-filters-filter-title">Filtro</span>
                         </div>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-filter">
-                            <li class = "selected">Todos</li>
-                            <li>1 Estrela</li>
-                            <li>2 Estrelas</li>
-                            <li>3 Estrelas</li>
-                            <li>4 Estrelas</li>
-                            <li>5 Estrelas</li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdown-filter" id = "review-filters">
+                            <li data-filter = "all" class = "selected">Todos</li>
+                            <li data-filter = "1">1 Estrela</li>
+                            <li data-filter = "2">2 Estrelas</li>
+                            <li data-filter = "3">3 Estrelas</li>
+                            <li data-filter = "4">4 Estrelas</li>
+                            <li data-filter = "5">5 Estrelas</li>
                         </ul>
                     </div>
                 </div>
@@ -162,7 +191,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                         <div class = "col-9">
                             <div class = "review-post-rating">
                                 <div class = "rating" style = "position: relative;" >
-                                    <span class = "reviews-classified-as">Classificaste como 5 Estrelas</span><?php
+                                    <span class = "reviews-classified-as">Classificaste como 0 Estrelas</span><?php
                                     for($i = 5; $i > 0; $i--){
                                         $text = "Classificar com " . $i . ($i == 1 ? " estrela" : " estrelas");
                                         ?>
@@ -172,19 +201,19 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                     ?>
                                 </div>
                             </div>
-                            <form class = "cyrus-form">
+                            <form class = "cyrus-form" id = "form0">
                                 <div class = "cyrus-form-inputs">
                                     <label class = "cyrus-label">
-                                        <input class = "cyrus-input" type ="text" placeholder="Título">
+                                        <input class = "cyrus-input" id = "form0-title" type ="text" placeholder="Título">
                                     </label>
                                     <div class = "reviews-self-char-notification"><span>Mínimo de 8 caracteres</span></div>
                                     <label class = "cyrus-label">
-                                        <textarea class = "cyrus-input reviews-self-textarea" placeholder="Descrição"></textarea>
+                                        <textarea class = "cyrus-input reviews-self-textarea" id = "form0-description"  placeholder="Descrição"></textarea>
                                     </label>
                                     <div class = "reviews-self-char-notification"><span>0/200 caracteres</span></div>
                                     <label class = "cyrus-label-checkbox mt-2">
                                         <span class = "cyrus-hover-pointer">
-                                            <input class = "cyrus-input-checkbox-null" type = "checkbox">
+                                            <input class = "cyrus-input-checkbox-null" type = "checkbox" id = "form0-spoiler" >
                                             <span class="cyrus-input-checkbox-checkmark"></span>
                                             <span>Marcar como Spoiler</span>
                                         </span>

@@ -27,10 +27,11 @@ export class Request {
             request.onload = function () {
                 if (request.status >= 200 && request.status < 300) {
                     let _ret = [];
-                    if (request.response.dataTypes !== undefined) {
+                    if ("dataTypes" in request.response && request.response.dataTypes !== null) {
                         for (let i = 0; i < request.response.dataTypes.length; i++) {
                             let _class = request.response.dataTypes[i];
                             let _obj;
+                            console.log(request.response.data[i]);
                             if (_class !== "Unknown") {
                                 _obj = new models[_class](request.response.data[i]);
                             }

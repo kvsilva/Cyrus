@@ -3,7 +3,7 @@
 namespace Functions;
 
 use AutoLoader;
-use Others\Routing;
+use Functions\Routing;
 
 class Utils
 {

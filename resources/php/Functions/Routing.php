@@ -1,5 +1,5 @@
 <?php
-namespace Others;
+namespace Functions;
 
 use Functions\Utils;
 
@@ -12,12 +12,6 @@ class Routing
         "news" => (Utils::BASE_URL . "news/"),
         "episode" => (Utils::BASE_URL . "episode/"),
         "search" => (Utils::BASE_URL . "search/"),
-    );
-
-    public const social = array(
-        "twitter" => "https://www.twitter.com",
-        "facebook" => "https://www.facebook.com",
-        "instagram" => "https://www.instagram.com"
     );
 
     public const resources = array(

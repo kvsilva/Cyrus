@@ -32,7 +32,9 @@ class Anime extends Entity
     protected ?String $title = null;
     protected ?String $original_title = null;
     protected ?String $synopsis = null;
+    // Imagem Catálogo
     protected ?Resource $profile = null;
+    // Imagem de Fundo
     protected ?Resource $cape = null;
     protected ?DateTime $start_date = null;
     protected ?DateTime $end_date = null;
@@ -163,12 +165,12 @@ class Anime extends Entity
                     }
                 }
                 if ($remove) {
-                    $database->query("DELETE FROM anime_gender where anime = $id AND gender = $row[id]");
+                    $database->query("DELETE FROM ANIME_GENDER where anime = $id AND gender = $row[id]");
                 }
             }
             foreach ($this->genders as $gender) {
                 $gender->store();
-                $database->query("INSERT IGNORE INTO USER_ROLE (user, role) VALUES ($id, " . $gender->getId() . ")");
+                $database->query("INSERT IGNORE INTO ANIME_GENDER (anime, gender) VALUES ($id, " . $gender->getId() . ")");
             }
         }
     }
@@ -210,8 +212,8 @@ class Anime extends Entity
             "title" => $this->title,
             "original_title" => $this->original_title,
             "synopsis" => $this->synopsis,
-            "cape" => $this->cape?->getId(),
-            "profile" => $this->profile?->getId(),
+            "cape" => $this->cape?->store()->getId(),
+            "profile" => $this->profile?->store()->getId(),
             "start_date" => $this->start_date?->format(Database::DateFormat),
             "end_date" => $this->end_date?->format(Database::DateFormat),
             "mature" => $this->mature?->value,
@@ -250,6 +252,11 @@ class Anime extends Entity
         if($this->videos != null) {
             $array["videos"] = array();
             foreach($this->videos as $value) $array["videos"][] = $value->toArray();
+        }
+        $array["genders"] = null;
+        if($this->genders != null) {
+            $array["genders"] = array();
+            foreach($this->genders as $value) $array["genders"][] = $value->toArray();
         }
         return $array;
     }
@@ -433,7 +440,7 @@ class Anime extends Entity
     /**
      * @return VideosArray|null
      */
-    protected function getVideos(): ?VideosArray
+    public function getVideos(): ?VideosArray
     {
         return $this->videos;
     }
@@ -442,7 +449,7 @@ class Anime extends Entity
      * @param VideosArray|null $videos
      * @return Anime
      */
-    protected function setVideos(?VideosArray $videos): Anime
+    public function setVideos(?VideosArray $videos): Anime
     {
         $this->videos = $videos;
         return $this;
@@ -451,7 +458,7 @@ class Anime extends Entity
     /**
      * @return SeasonsArray|null
      */
-    protected function getSeasons(): ?SeasonsArray
+    public function getSeasons(): ?SeasonsArray
     {
         return $this->seasons;
     }
@@ -460,7 +467,7 @@ class Anime extends Entity
      * @param SeasonsArray|null $seasons
      * @return Anime
      */
-    protected function setSeasons(?SeasonsArray $seasons): Anime
+    public function setSeasons(?SeasonsArray $seasons): Anime
     {
         $this->seasons = $seasons;
         return $this;
@@ -469,7 +476,7 @@ class Anime extends Entity
     /**
      * @return GendersArray|null
      */
-    protected function getGenders(): ?GendersArray
+    public function getGenders(): ?GendersArray
     {
         return $this->genders;
     }
@@ -478,7 +485,7 @@ class Anime extends Entity
      * @param GendersArray|null $genders
      * @return Anime
      */
-    protected function setGenders(?GendersArray $genders): Anime
+    public function setGenders(?GendersArray $genders): Anime
     {
         $this->genders = $genders;
         return $this;

@@ -170,6 +170,12 @@ class Video extends Entity
 
     /**
      * @return array
+     * @throws ColumnNotFound
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
      */
     protected function valuesArray(): array
     {
@@ -179,13 +185,14 @@ class Video extends Entity
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
+            "thumbnail"=> $this->thumbnail?->store()->getId(),
             "release_date"=> $this->release_date?->format(Database::DateFormat),
             "duration"=> $this->duration,
             "opening_start"=> $this->opening_start,
             "opening_end"=> $this->opening_end,
             "ending_start" => $this->ending_start,
             "ending_end" => $this->ending_end,
-            "path" => $this->path,
+            "path" => $this->path?->store()->getId(),
             "available" => $this->available?->value
         );
     }
@@ -202,6 +209,7 @@ class Video extends Entity
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
+            "thumbnail"=> $this->thumbnail?->toArray(),
             "release_date"=> $this->release_date?->format(Database::DateFormat),
             "duration"=> $this->duration,
             "opening_start"=> $this->opening_start,
@@ -405,20 +413,19 @@ class Video extends Entity
     }
 
 
-
     /**
-     * @return String|null
+     * @return Resource|null
      */
-    public function getPath(): ?string
+    public function getPath(): ?Resource
     {
         return $this->path;
     }
 
     /**
-     * @param mixed|String|null $path
+     * @param Resource|null $path
      * @return Video
      */
-    public function setPath(mixed $path): Video
+    public function setPath(?Resource $path): Video
     {
         $this->path = $path;
         return $this;

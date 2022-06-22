@@ -19,21 +19,21 @@ use ReflectionException;
 class Request
 {
 
-    private ?String $type;
+    private ?String $type = null;
     private ?ReflectionClass $object = null;
 
-    private ?String $action;
-    private ?String $service;
+    private ?String $action = null;
+    private ?String $service = null;
 
-    private ?array $data;
-    private ?User $user;
-    private ?array $flags;
+    private ?array $data = null;
+    private ?User $user = null;
+    private ?array $flags = null;
 
-    private ?DateTime $time;
+    private ?DateTime $time = null;
 
-    private ?array $raw;
+    private ?array $raw = null;
 
-    private ?array $dataTypes;
+    private ?array $dataTypes = null;
 
     /**
      * @param array $array
@@ -81,7 +81,6 @@ class Request
                     if(isset($this->data[$key]["relations"])){
                         foreach($this->data[$key]["relations"] as $flag => $relation){
                             if($this->object->hasConstant(strtoupper($flag))){
-                                //$flags[] = $this->object->getConstant(strtoupper($flag));
                                 $relations[$flag] = $relation;
                             }
                         }
@@ -107,7 +106,13 @@ class Request
                 (new Response(status: true, data: $success, dataTypes: $this->dataTypes))->encode(print: true);
             }
         } else if($this->service !== null) {
-            $this->handleService(data: $this->data);
+            if(isset($this->raw["flags"])) {
+                $this->flags = array();
+                foreach ($this->raw["flags"] as $flag) {
+                    $this->flags[] = $flag;
+                }
+            }
+            $this->handleService(data: $this->data, flags: $this->flags);
         } else {
             (new Response(status: true))->encode(print: true);
         }
@@ -149,8 +154,6 @@ class Request
                     $object->store();
                     $object = Entity::__find(fields: array("id" => $object->getId()), table: $obj->getTable(), class: $object_name, flags: $flags)[0];
                     $objects[] = $object;
-                } else {
-                    echo "2";
                 }
                 break;
             case "insert":
@@ -177,8 +180,9 @@ class Request
     /**
      * @throws ReflectionException
      */
-    private function handleService(array $data = array()){
+    private function handleService(array $data = array(), ?array $flags = null){
         $serviceName = "Services\\" . $this->service;
+        if($flags === null) $flags = array(Entity::NORMAL);
         if(!class_exists($serviceName)){
             (new Response(status: false, description: API_MESSAGES::SERVICE_UNKNOWN))->encode(print: true);
             return;
@@ -199,6 +203,8 @@ class Request
         foreach ($method->getParameters() as $param){
             if(isset($data[0][$param->getName()])){
                 $parameters[$param->getName()] = $data[0][$param->getName()];
+            } else if ($param->getName() == "flags"){
+                $parameters[$param->getName()] = $flags;
             }
         }
 
@@ -217,8 +223,16 @@ class Request
         foreach($items as $element){
             if(is_object($element)) {
                 $ret[] = str_replace("Objects\\" , "", get_class($element));
+            /*} else if (is_array($element)){
+                $ret[] = "array";
+            } else if (is_bool($element)){
+                $ret[] = "bool";
+            } else if (is_string($element)){
+                $ret[] = "string";
+            } else if (is_double($element) || is_int($element) || is_numeric($element) || is_float($element)){
+                $ret[] = "number";*/
             } else {
-                $ret = "Unknown";
+                $ret[] = "Unknown";
             }
         }
         return $ret;

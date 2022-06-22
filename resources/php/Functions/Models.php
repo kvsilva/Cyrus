@@ -62,7 +62,7 @@ class Models
 
     private const GENERATE_LOCATION = "\\resources\\js\\models.ts";
 
-    private const REPLACE_TO = array(
+    public const REPLACE_TO = array(
         "Cassandra\Blob" => array("value" => "string", "isArray" => false),
         "array" => array("value" => "any", "isArray" => true),
         "int" => array("value" => "number", "isArray" => false),

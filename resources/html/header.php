@@ -1,6 +1,6 @@
 <?php
 use Functions\Utils;
-use Others\Routing;
+use Functions\Routing;
 
 ?>
 <div class = "page-overlay"></div>

@@ -66,7 +66,8 @@ class Resource extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "available" => $available?->value

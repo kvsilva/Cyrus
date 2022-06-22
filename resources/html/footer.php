@@ -1,6 +1,6 @@
 <?php
 use Objects\GlobalSetting;
-use Others\Routing;
+use Functions\Routing;
 ?>
 <div id = "footer">
     <div class = "content-wrapper sections">

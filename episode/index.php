@@ -2,22 +2,19 @@
 require_once(dirname(__DIR__) . '\\resources\\php\\settings.php');
 
 use Enumerators\Month;
+use Functions\Routing;
 use Functions\Utils;
-use Objects\Anime;
 use Objects\Video;
-use Others\Routing;
 
-$animes = isset($_GET["anime"]) ? Anime::find(id: $_GET["anime"]) : null;
-$episodes =  isset($_GET["episode"]) && isset($_GET["anime"]) ? Video::find(anime: $_GET["anime"], numeration: $_GET["episode"]) : null;
 try {
-    if ($animes == null || $episodes == null || $animes?->size() == 0 || $episodes?->size() == 0) {
-        Utils::goTo("animes");
-    }
+    $episodes = isset($_GET["episode"]) ? Video::find(id: $_GET["episode"]) : null;
 } catch (ReflectionException $e) {
     Utils::goTo("animes");
 }
+if ($episodes == null || $episodes?->size() == 0) {
+    Utils::goTo("animes");
+}
 
-$anime = $animes[0];
 $episode = $episodes[0];
 
 
@@ -27,7 +24,7 @@ $episode = $episodes[0];
     <?php
     include Utils::getDependencies("Cyrus", "head", true);
 
-    echo getHead(" - Attack on Titan Episódio " . $episode->getNumeration());
+    echo getHead(" - " . $episode->getTitle() . " Episódio " . $episode->getNumeration());
     ?>
     <link href = "<?php echo Utils::getDependencies("Episode", "css", false) ?>" rel = "stylesheet">
 </head>
@@ -41,7 +38,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
     <div class = "video-player">
 
         <video id="player0" playsinline="" controls>
-            <source src="<?php echo $episode->getPath() ?>" type="video/mp4">
+            <source src="<?php echo $episode->getPath()?->getPath() ?>" type="video/mp4">
 
         </video>
     </div>
@@ -49,7 +46,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
     <div class = "content-wrapper">
         <div class = "information">
            <div class = "anime-information">
-               <span><a href = "<?php echo Routing::getRouting("animes") . "?anime=" . $anime->getId() ?>"><?php echo $anime->getTitle() ?></a></span>
+               <span><a href = "<?php echo Routing::getRouting("animes") . "?anime=" . $episode->getAnime()?->getId() ?>"><?php echo $episode->getAnime()?->getTitle() ?></a></span>
                <span>4.8 <i class="fa-solid fa-star"></i> (54.3k) </span>
            </div>
         </div>

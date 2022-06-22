@@ -127,7 +127,7 @@ abstract class Entity
                                 if (is_array($value)) {
                                     $class = (new ReflectionClass($name));
                                     $class->newInstanceArgs(array("id" => null));
-                                    $this->{$key} = $class->getMethod("arrayToObject")->invokeArgs(object: null, args: array($value));
+                                    $this->{$key} = $class->getMethod("arrayToObject")->invokeArgs(object: null, args: array(str_replace("?", "", $type), $value));
                                 } else {
                                     $this->{$key} = (new ReflectionClass($name))->newInstanceArgs(array($value));
                                 }
@@ -355,6 +355,21 @@ abstract class Entity
             $result[] = (new ReflectionClass($class))->newInstanceArgs(array($row["id"], $flags));
         }
         return $result;
+    }
+
+    public static function getFlagsByName(Entity $entity, array $flags){
+        $ret = array();
+        $object = new ReflectionClass($entity);
+        foreach($flags as $flag){
+            foreach($object->getConstants() as $constant => $value){
+                if(strtoupper($flag) == $constant) {
+                    if (!in_array($value, $ret)) {
+                        $ret[] = $value;
+                    }
+                }
+            }
+        }
+        return $ret;
     }
 
     /**
