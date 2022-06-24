@@ -1,0 +1,219 @@
+@import url('../../../resources/css/cyrus.css');
+
+
+.calendar{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 50px;
+    margin-bottom: 100px;
+}
+.calendar .calendar-day:not(:first-child){
+    padding-left: 50px;
+}
+.calendar-day{
+    min-width: 180px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    flex-direction: column;
+}
+.calendar-day-header{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+.calendar-day-date{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: var(--color3);
+    font-size: 14px;
+}
+
+.calendar-day-text{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+.calendar-day-body{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.calendar-item{
+    position: relative;
+}
+
+.calendar-item > div{
+    margin-bottom: 4px;
+}
+
+.calendar-day-body .calendar-item:not(:first-child){
+    margin-top: 25px;
+}
+.calendar-day-body .calendar-item:first-child{
+    margin-top: 15px;
+}
+
+.calendar-item-hour, .calendar-item-episode-info{
+    color: var(--color3);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.calendar-item-title{
+    font-weight: 600;
+}
+
+.calendar-item-anime-cape{
+    margin-top: 16px;
+    width: 130px;
+    height: 200px;
+}
+
+.calendar-item-anime-cape img{
+    width: 100%;
+    height: 100%;
+}
+
+.calendar-item:after{
+    display: block;
+    content: "";
+    position: absolute;
+    left: -15px;
+    top: 7px;
+    width: 9px;
+    height: 9px;
+    border-radius: 5px;
+    background: #cecaca;
+}
+
+.calendar-item:before{
+    display: block;
+    content: "";
+    position: absolute;
+    left: -11.2px;
+    top: 6px;
+    bottom: -30px;
+    width: 1px;
+    background: rgba(206,202,202,.5);
+}
+
+.calendar-day-body .calendar-item:last-child:before{
+    bottom: -10px;
+}
+
+.calendar-item a{
+    color: inherit;
+}
+.calendar-item a:hover{
+    text-decoration: none;
+    color: var(--color0);
+}
+
+.calendar-day-body-empty{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.calendar-day-body-empty > *{
+    margin-top: 15px;
+    text-align: center;
+}
+
+
+
+@media only screen and (max-width: 1400px) {
+    .calendar {
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+    .calendar .calendar-day{
+        width: 100%;
+        justify-content: flex-start;
+        padding-left: 0 !important;
+    }
+    .calendar-day-date{
+        justify-content: flex-start;
+    }
+    .calendar-item-hour{
+        margin-top: -12px;
+        margin-bottom: 12px;
+        margin-left: -28px;
+    }
+
+    .calendar-day{
+        width: initial;
+        min-height: 150px;
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .calendar-item:before{
+        bottom: -2px;
+        width: 160px;
+        top: 12px;
+        height: 1px;
+    }
+
+    .calendar-day-text{
+        justify-content: flex-start;
+    }
+    .calendar .calendar-day > div{
+        width: auto;
+    }
+    .calendar-day-body .calendar-item {
+        margin-top: 0 !important;
+    }
+    .calendar-day-body{
+        display: grid;
+        gap: 30px;
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+        margin-left: 35px;
+    }
+    .calendar-day .calendar-item:not(:first-child){
+        margin-left: 0;
+    }
+    .calendar {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+@media only screen and (max-width: 1250px) {
+    .calendar-day-body{
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+    }
+}
+
+@media only screen and (max-width: 1110px) {
+    .calendar-day-body{
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    .calendar-day-body{
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+    }
+}
+
+@media only screen and (max-width: 790px) {
+    .calendar-day-body{
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+    }
+}
+@media only screen and (max-width: 625px) {
+    .calendar-day-body{
+        grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    }
+}
+

@@ -12,6 +12,7 @@ class Database
 {
     public const DateFormat = "Y-m-d H:i:s";
     public const DateFormatSimplified = "Y-m-d";
+    public const TimeFormat = "H:i:s";
 
     private static array $database_settings = array(
         "address" => "localhost",

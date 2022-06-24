@@ -1,25 +1,7 @@
 <?php
 require_once(dirname(__DIR__) . '\\resources\\php\\settings.php');
 
-use Enumerators\Month;
-use Functions\Routing;
 use Functions\Utils;
-use Objects\Anime;
-use Objects\EntityArray;
-use Objects\Video;
-use Objects\VideoType;
-
-//Sort Array by a property: https://stackoverflow.com/questions/4282413/sort-array-of-objects-by-object-fields
-
-$entities = null;
-
-if (isset($_GET["query"])) {
-    $animes = Anime::find(title: $_GET["query"]);
-    $videos = Video::find(title: $_GET["query"]);
-    $entities = $animes;
-    $entities->addAll($videos);
-    $entities->sort(fn($a, $b) => strcmp($a->getTitle(), $b->getTitle()));
-}
 
 ?>
 <html lang="pt_PT">

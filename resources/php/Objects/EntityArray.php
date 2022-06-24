@@ -51,4 +51,14 @@ class EntityArray extends ArrayObject
     public function sort($callback){
         $this->uasort($callback);
     }
+
+    public function toArray(){
+        $array = array();
+
+        foreach($this as $item){
+            $array[] = $item?->toArray();
+        }
+        return $array;
+
+    }
 }

@@ -120,7 +120,13 @@ abstract class Entity
                             } else if (str_contains(strtolower($type), "datetime")) {
                                 $value = str_replace("/","-", $value);
                                 $date = DateTime::createFromFormat(Database::DateFormat, $value);
-                                if (is_bool($date)) $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
+                                if (is_bool($date)){
+                                    $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
+                                    if(is_bool($date)){
+                                        $date = DateTime::createFromFormat(Database::TimeFormat, $value);
+                                        if(is_bool($date)) $date = null;
+                                    }
+                                }
                                 $this->{$key} = $date;
                             } else if (str_contains(strtolower($type), "objects\\")) {
                                 $name = substr(strtolower($type), 1);
@@ -326,7 +332,7 @@ abstract class Entity
      * @return EntityArray
      * @throws ReflectionException
      */
-    public static function __find(array $fields, String $table, String $class, string $sql = null, string $operator = "=", array $flags = [self::NORMAL]): EntityArray
+    public static function __find(array $fields, String $table, String $class, string $sql = null, string $operator = "=", string $orderBy = "id", array $flags = [self::NORMAL]): EntityArray
     {
         if(class_exists($class . "sArray")){
             $result = (new ReflectionClass($class . "sArray"))->newInstanceArgs(array());
@@ -350,6 +356,7 @@ abstract class Entity
             if($clause) $sql_command = substr($sql_command,0,-4);
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
+        $sql_command.= " order by " . $orderBy;
         $query = $database->query($sql_command);
         while($row = $query->fetch_array(MYSQLI_ASSOC)){
             $result[] = (new ReflectionClass($class))->newInstanceArgs(array($row["id"], $flags));

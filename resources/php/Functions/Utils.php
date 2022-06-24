@@ -4,10 +4,11 @@ namespace Functions;
 
 use AutoLoader;
 use Functions\Routing;
+use JetBrains\PhpStorm\Pure;
 
 class Utils
 {
-    public const BASE_URL = "https://localhost/Cyrus/";
+    public const BASE_URL = "http://localhost/Cyrus/";
 
     private static String $BASE_PATH;
 
@@ -37,9 +38,29 @@ class Utils
 
     private static bool $initialized = false;
 
+    private static function url_origin( $s, $use_forwarded_host = false ): string
+    {
+        $ssl      = ( ! empty( $s['HTTPS'] ) && $s['HTTPS'] == 'on' );
+        $sp       = strtolower( $s['SERVER_PROTOCOL'] );
+        $protocol = substr( $sp, 0, strpos( $sp, '/' ) ) . ( ( $ssl ) ? 's' : '' );
+        $port     = $s['SERVER_PORT'];
+        $port     = ( ( ! $ssl && $port=='80' ) || ( $ssl && $port=='443' ) ) ? '' : ':'.$port;
+        $host     = ( $use_forwarded_host && isset( $s['HTTP_X_FORWARDED_HOST'] ) ) ? $s['HTTP_X_FORWARDED_HOST'] : ($s['HTTP_HOST'] ?? null);
+        $host     = $host ?? $s['SERVER_NAME'] . $port;
+        return $protocol . '://' . $host;
+    }
+
+    #[Pure]
+    private static function full_url($s, $use_forwarded_host = false ): string
+    {
+        return self::url_origin($s, $use_forwarded_host) . $s['REQUEST_URI'];
+    }
+
     private static function initialize() : void{
         if(!self::$initialized){
+            echo "URL: " . static::url_origin( $_SERVER );
             self::$BASE_PATH = dirname(__DIR__,3);
+            echo self::$BASE_PATH;
             self::$initialized = true;
             self::$dependencies = array(
                 "JQuery" => (new Dependency("JQuery", Routing::resources["dependencies"], "3.6.0"))->addImport(path: "jquery-3.6.0.min.js"),
@@ -49,6 +70,7 @@ class Utils
                 "Personal" => (new Dependency("Personal", self::BASE_URL . "animes/"))->addImport(path: "assets/js/personal.js")->addImport(path: "assets/css/personal.css", extension: "css"),
                 "Episode" => (new Dependency("Episode", self::BASE_URL))->addImport(path: "assets/js/episode.js")->addImport(path: "assets/css/episode.css", extension: "css"),
                 "Search" => (new Dependency("Search", self::BASE_URL))->addImport(path: "assets/js/search.js")->addImport(path: "assets/css/search.css", extension: "css"),
+                "Calendar" => (new Dependency("Calendar", self::BASE_URL))->addImport(path: "assets/js/calendar.js")->addImport(path: "assets/css/calendar.css", extension: "css"),
                 "Cyrus" => (new Dependency("resources", self::BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
             );
         }

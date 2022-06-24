@@ -11,6 +11,7 @@
     --color2: dimgrey;
     --color3: #c5c3c3;
     --color4: #6cdcdc;
+    --color6: black;
 
     --backgroundColor: black;
 
@@ -177,6 +178,10 @@ a:hover{
 }
 
 /* Others */
+
+.not-available{
+    cursor: not-allowed;
+}
 
 .no-select{
     user-select: none; /* supported by Chrome and Opera */

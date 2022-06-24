@@ -40,6 +40,7 @@ class Anime extends Entity
     protected ?DateTime $end_date = null;
     protected ?Maturity $mature = null;
     protected ?DayOfWeek $launch_day = null;
+    protected ?DateTime $launch_time = null;
     protected ?SourceType $source = null;
     protected ?Audience $audience = null;
     protected ?String $trailer = null;
@@ -186,14 +187,14 @@ class Anime extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $operator = "=", string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $operator = "=", string $orderBy = "id", string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "title" => $title,
             "launch_day" => $launch_day?->value,
             "available" => $available?->value
-        ), table: 'anime', class: 'Objects\Anime', sql: $sql, operator: $operator, flags: $flags);
+        ), table: 'anime', class: 'Objects\Anime', sql: $sql, operator: $operator, orderBy: $orderBy, flags: $flags);
     }
 
     /**
@@ -218,6 +219,7 @@ class Anime extends Entity
             "end_date" => $this->end_date?->format(Database::DateFormat),
             "mature" => $this->mature?->value,
             "launch_day" =>  $this->launch_day?->value,
+            "launch_time" => $this->launch_time?->format(Database::TimeFormat),
             "source" => $this->source?->store()->getId(),
             "audience" => $this->audience?->store()->getId(),
             "trailer" => $this->trailer,
@@ -242,6 +244,7 @@ class Anime extends Entity
             "end_date" => $this->end_date?->format(Database::DateFormat),
             "mature" => $this->mature?->toArray(),
             "launch_day" =>  $this->launch_day?->toArray(),
+            "launch_time" => $this->launch_time?->format(Database::TimeFormat),
             "source" => $this->source?->toArray(),
             "audience" => $this->audience?->toArray(),
             "trailer" => $this->trailer,
@@ -735,7 +738,21 @@ class Anime extends Entity
         return $this;
     }
 
+    /**
+     * @return DateTime|null
+     */
+    public function getLaunchTime(): ?DateTime
+    {
+        return $this->launch_time;
+    }
 
-
-
+    /**
+     * @param DateTime|null $launch_time
+     * @return Anime
+     */
+    public function setLaunchTime(?DateTime $launch_time): Anime
+    {
+        $this->launch_time = $launch_time;
+        return $this;
+    }
 }
