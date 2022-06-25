@@ -10,292 +10,109 @@ use Objects\Season;
 use Objects\SeasonsArray;
 use Objects\Video;
 
-try {
-    $animes = isset($_GET["anime"]) ? Anime::find(id: intval($_GET["anime"]), flags: [Entity::ALL]) : null;
-} catch (ReflectionException $e) {
-    Utils::goTo("animes");
-}
-if ($animes == null || $animes?->size() == 0) {
-    Utils::goTo("animes");
-}
-$anime = $animes[0];
-$videos = Video::find(anime: $anime->getId());
-$seasons = Season::find(anime: $anime->getId());
-$genders = $anime->getGenders() === null ? new EntityArray(null) : $anime->getGenders();
 
+$letters_list = array(
+    "#",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+);
 
 ?>
 <html lang="pt_PT">
 <head>
     <?php
     include Utils::getDependencies("Cyrus", "head", true);
-    echo getHead(" - " . $anime->getTitle());
+    echo getHead(" - Lista de Animes");
     ?>
-    <link href="<?php echo Utils::getDependencies("Personal", "css")?>" rel="stylesheet">
-    <script src="<?php echo Utils::getDependencies("Personal")?>"></script>
+    <link href="<?php echo Utils::getDependencies("List", "css") ?>" rel="stylesheet">
+    <script type = "module" src="<?php echo Utils::getDependencies("List") ?>"></script>
 </head>
 <body>
 <?php
 include(Utils::getDependencies("Cyrus", "header", true));
 ?>
 <div id="content">
-    <div id="series_art">
-        <div id="background">
-            <img src="<?php echo $anime->getCape()?->getPath(); ?>" alt="<?php echo $anime->getTitle() . " Capa" ?>">
-        </div>
-        <div id="profile">
-            <img src="<?php echo $anime->getProfile()?->getPath(); ?>" alt="<?php echo $anime->getTitle() . " Perfil" ?>">
-        </div>
-    </div>
     <div class="content-wrapper">
-        <div class="row" id="information">
-            <div class="col-6">
-                <div id="title">
-                    <h2><?php echo $anime->getTitle()?></h2>
-                </div>
-                <div id = "details">
-                    <?php if($seasons->size() > 0){
-                        echo '<span>' . $videos->size() . ($videos->size() == 1 ? ' Temporada' : ' Temporadas') . '<span>';
-                    } ?>
-                    <span><?php echo $videos->size() . ($videos->size() == 1 ? " Video" : " Videos")?></span>
-                </div>
-                <!--<div class="rating" id = "rating-average">
-                    <i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i><i class="fa-solid fa-star star"></i>
-                </div>-->
-                <div id="synopsis">
-                    <p class="text"><?php echo $anime->getSynopsis(); ?></p>
-                </div>
-
-                <div id="gender">
+        <div class="cyrus-page-title">
+            <h1>Procurar Animes</h1>
+        </div>
+        <div class="letters-list" id = "letters-list">
+                <ul class="letter-full-list content-wrapper">
                     <?php
-                        foreach($genders as $gender){ ?>
-                        <span><?php echo mb_strtoupper($gender->getName()); ?></span>
-                    <?php }?>
-                </div>
-            </div>
-            <div class="col-3">
-                <?php if($anime->getTrailer() !== null) {?>
-                    <div id="trailer">
-                        <iframe width="420" height="315" src="<?php echo $anime->getTrailer() ?>">
-                        </iframe>
-                    </div>
-                <?php }?>
-            </div>
-        </div>
-        <div class="row" id="episodes">
-            <div class = "controls row no-select">
-                <div class = "col">
+                    $isFirst = true;
+                    foreach($letters_list as $letter){?>
+                        <li class="letter-item  <?php echo $isFirst ? 'letter-item-selected' : '';?>" data-key = "<?php echo $letter?>"><?php echo $letter?></li>
                     <?php
-                    //TO DELETE
-                    $seasons = new SeasonsArray();
-                    $seasons[] = (new Season())->setName("Name 1")->setNumeration("1");
-                    $seasons[] = (new Season())->setName("Name 2")->setNumeration("2");
-                    $seasons[] = (new Season())->setName("Name 3")->setNumeration("3");
-                    $seasons[] = (new Season())->setName("Name 4")->setNumeration("4");
-                    ?>
-                    <?php if($seasons->size() > 0){?>
-                        <div class="dropdown">
-                            <div class="dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span id = "currentSeason" data-season="<?php echo $seasons[0]->getId(); ?>"><?php echo "Temporada " . $seasons[0]->getNumeration() . " - " . $seasons[0]->getName();?></span>
-                            </div>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id = "availableSeasons">
-                                <?php
-                                $isFirst = true;
-                                foreach($seasons as $season){
-                                    echo '<li'. ($isFirst ? ' class = "selected"' : ''). 'data-id="'. $season->getId() .'"> Temporada ' . $season->getNumeration() . " - " . $season->getName() . '</li>';
-                                    $isFirst = false;
-                                }?>
-                            </ul>
-                        </div>
-                    <?php }?>
-                </div>
-                <div class = "col">
-                    <div class = "order">
-                        <i class="fa-solid fa-arrow-down-short-wide"></i>
-                        <span id = "currentOrder" data-order = "recent">MAIS RECENTE</span>
-                    </div>
-                </div>
-            </div>
-            <div class = "row episodes-list">
-                <?php
-                if($videos->size() > 0){
-                    foreach($videos as $video){
-                ?>
-                    <div class="episode">
-                        <a class = "episode_link" href = "<?php echo Routing::getRouting("episode") . '?episode=' . $video->getId();?>" title = "<?php echo $anime->getTitle() . ' - ' . ($video->getSeason() !== null ? 'Temporada ' . $video->getSeason()?->getNumeration() . ' ': '') . $video->getTitle(); ?>"></a>
-                        <div class = "thumbnail">
-                            <img src = "<?php echo $video->getThumbnail()?->getPath()?>">
-                            <div class = "duration"><span><?php echo round(($video->getDuration())/60)?>m</span></div>
-                            <i class="fa-solid fa-play play"></i>
-                        </div>
-                        <div class = "series"><a href="?anime=Shingeki+no+Kyojin"><?php echo $anime->getTitle() . ($video->getSeason() !== null ? " - Temporada " . $video->getSeason?->getNumeration() : "");?></a></div>
-                        <div class = "title">Episódio <?php echo $video->getNumeration()?> - <?php echo $video->getTitle();?></div>
-                        <div class = "reviews-count">
-                            15k <i class="fa-solid fa-comments"></i>
-                        </div>
-                    </div>
-                <?php
-                    }
-                }
-                ?>
-            </div>
+                        $isFirst = false;
+                    }?>
+                </ul>
         </div>
-        <hr>
-        <div class = "seasons-switch no-select">
-            <div class = "previous-season" id = "previousSeason"><i class="fa-solid fa-angle-left"></i> <span>TEMPORADA ANTERIOR</span></div>
-            <div class = "next-season disable" id = "nextSeason"><span>PRÓXIMA TEMPORADA</span> <i class="fa-solid fa-angle-right"></i></div>
-        </div>
-        <div class="row" id="reviews">
-            <div class = "controller">
-                <div class = "reviews-average-rating">
-                    <span id="reviews-average-rating_value">12 Críticas </span>
+        <div class="anime-full-list" id = "anime-full-list">
+            <?php
+            for($x = 0; $x < 5; $x++){
+            ?>
+            <div class="anime-list">
+                <div class="anime-letter">
+                    <span>#</span>
                 </div>
-                <div class = "reviews-count">
-                    <span id="reviews-average-count_value">4.9 <i class="fa-solid fa-star"></i> (45.2k)</span>
-                </div>
-                <div class = "reviews-filters">
-                    <div class="dropdown">
-                        <div class="dropdown-toggle" type="button" id="dropdown-sort" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-arrow-down-short-wide"></i>
-                            <span class = "reviews-filters-filter-title" id = "currentReviewOrder" data-order = "older">Mais Antigo</span>
+                <div class = "anime-letter-separator"></div>
+                <div class="animes">
+                    <?php
+                    for($i = 0; $i < 15; $i++){?>
+                    <div class="cyrus-card cyrus-card-flex">
+                        <a class="cyrus-card-link"
+                           href="http://localhost/Cyrus/animes/?anime=1"
+                           title="Attack on Titan"></a>
+                        <div class="cyrus-card-image-cape">
+                            <img src="https://i.pinimg.com/originals/13/a1/01/13a10172127bbf9da50b8ce6db35eeaa.png">
                         </div>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-sort" id = "review-order">
-                            <li class = "selected" data-order = "older">Mais Antigo</li>
-                            <li data-order = "recent">Mais Recente</li>
-                            <li data-order = "useful">Mais Útil</li>
-                        </ul>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-toggle" id="dropdown-filter" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-sliders"></i>
-                            <span class = "reviews-filters-filter-title">Filtro</span>
-                        </div>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-filter" id = "review-filters">
-                            <li data-filter = "all" class = "selected">Todos</li>
-                            <li data-filter = "1">1 Estrela</li>
-                            <li data-filter = "2">2 Estrelas</li>
-                            <li data-filter = "3">3 Estrelas</li>
-                            <li data-filter = "4">4 Estrelas</li>
-                            <li data-filter = "5">5 Estrelas</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class = "reviews-section">
-                <div class = "review-post mt-3">
-                    <div class = "row">
-                        <div class = "col-2 review-post-user no select">
-                            <img draggable="false" class = "img-fluid mx-auto" src = "https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
-                            <div class = "review-post-username">Kurookami</div>
-                        </div>
-                        <div class = "col-9">
-                            <div class = "review-post-rating">
-                                <div class = "rating" style = "position: relative;" >
-                                    <span class = "reviews-classified-as">Classificaste como 0 Estrelas</span><?php
-                                    for($i = 5; $i > 0; $i--){
-                                        $text = "Classificar com " . $i . ($i == 1 ? " estrela" : " estrelas");
-                                        ?>
-                                        <i data-bs-toggle="tooltip" data-bs-placement="bottom" title="<?php echo $text?>" class="fa-solid fa-star star"></i>
-                                    <?php
-                                    }
-                                    ?>
-                                </div>
-                            </div>
-                            <form class = "cyrus-form" id = "form0">
-                                <div class = "cyrus-form-inputs">
-                                    <label class = "cyrus-label">
-                                        <input class = "cyrus-input" id = "form0-title" type ="text" placeholder="Título">
-                                    </label>
-                                    <div class = "reviews-self-char-notification"><span>Mínimo de 8 caracteres</span></div>
-                                    <label class = "cyrus-label">
-                                        <textarea class = "cyrus-input reviews-self-textarea" id = "form0-description"  placeholder="Descrição"></textarea>
-                                    </label>
-                                    <div class = "reviews-self-char-notification"><span>0/200 caracteres</span></div>
-                                    <label class = "cyrus-label-checkbox mt-2">
-                                        <span class = "cyrus-hover-pointer">
-                                            <input class = "cyrus-input-checkbox-null" type = "checkbox" id = "form0-spoiler" >
-                                            <span class="cyrus-input-checkbox-checkmark"></span>
-                                            <span>Marcar como Spoiler</span>
+                        <div class="cyrus-card-body">
+                            <div class="cyrus-card-title"><h4 class="cyrus-card-title">Attack on Titan</h4></div>
+                            <div class="cyrus-card-description">
+                                <div class="cyrus-card-description-info">
+                                    <div class = "cyrus-card-description-text">
+                                        <span>
+                                            Eren Jaeger jurou eliminar todos os Titãs, mas em uma batalha desesperada ele se torna aquilo que mais odeia. Com seus novos poderes, ele luta pela liberdade da humanidade, combatendo os monstros que ameaçam seu lar. Mesmo depois de derrotar a Titã Fêmea, Eren não consegue descansar - uma horda de Titãs se aproximam da Muralha Rose e a batalha em nome da humanidade continua!
                                         </span>
-                                    </label>
-                                </div>
-                                <div class = "cyrus-form-buttons">
-                                    <input data-toggle="tooltip" data-placement="top" title="Tooltip on top" class = "cyrus-input" type = "reset" value="CANCELAR">
-                                    <input class = "cyrus-input" type = "submit" value = "PUBLICAR">
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div id = "reviews-list" class = "mt-3">
-                    <?php
-                    for($x = 0; $x < 5; $x++){
-
-                    ?>
-                    <div class = "review">
-                        <div class = "row">
-                            <div class = "col-2 review-post-user no-select">
-                                <img draggable="false" class = "mx-auto" src = "https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
-                            </div>
-                            <div class = "col-9">
-                                <span>
-                                    <span class = "review-username">Kurookami</span>
-                                    <span class = "review-date float-right">10 de Janeiro de 2021</span>
-                                </span>
-                                <span class = "review-options">
-                                    <button class = "cyrus-btn cyrus-btn-simple"><i class="fa-solid fa-flag"></i></button>
-                                    <button class = "cyrus-btn cyrus-btn-simple"><i class="fa-solid fa-share-nodes"></i></button>
-                                </span>
-                                <div class = "review-star mt-3">
-                                    <?php
-                                    for($i = 0; $i < 5; $i++){ ?>
-                                        <i class="fa-solid fa-star star static filled"></i>
-                                    <?php
-                                    }
-                                    ?>
-                                </div>
-                                <div class = "mt-3">
-                                    <h3 class = "review-title">Lorem ipsum dolor sit amet</h3>
-                                    <div class = "review-description ">
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris fringilla nunc at arcu rhoncus facilisis. Donec at justo eget eros auctor porttitor ut in magna. Etiam porta commodo dolor. Sed a enim dapibus, placerat erat sit amet, rhoncus ipsum. Fusce ut lobortis turpis, a hendrerit leo. Vivamus dui ipsum, tristique vulputate vulputate nec, cursus non enim. Proin molestie ante a lorem congue, quis tincidunt ligula consectetur. Sed id tempus mi, sed finibus nulla.
-                                            Curabitur sodales viverra dapibus. Aenean fermentum dui turpis, non consectetur sapien posuere in. Duis gravida vitae arcu sed rhoncus. Integer vel ex dapibus, dapibus dolor vel, tincidunt mi. Nullam eget suscipit lorem. Integer a nibh non purus aliquam efficitur. Nullam consequat condimentum nulla, vitae mollis ipsum dignissim sit amet. Suspendisse potenti. Praesent tristique dolor mauris, a suscipit sem ultricies ut.
-                                            Suspendisse fermentum erat nunc, consequat mattis dolor posuere nec. Vivamus pretium in ligula in dapibus. Nulla facilisi. Donec lectus ligula, sagittis eu tincidunt eget, aliquam a mauris. Maecenas et purus luctus, pretium tellus ac, aliquet augue. Phasellus sollicitudin justo sit amet ligula vulputate, eget vehicula orci rutrum. Phasellus placerat rhoncus convallis. Curabitur eleifend, justo sed tempus finibus, neque nulla varius urna, sit amet ultrices urna metus in nibh. Sed sed sodales urna, nec pretium orci. Phasellus rhoncus ac nisl id lobortis. Morbi sit amet elit laoreet, viverra dui sit amet, efficitur nunc. Nulla cursus ante id tempor sodales.
-                                            Fusce luctus lacus libero. Integer bibendum lacinia urna, id faucibus ipsum hendrerit ut. Fusce bibendum tellus sit amet accumsan malesuada. Nam facilisis nibh vestibulum ex condimentum, ut lobortis ex pharetra. Mauris porta tristique cursus. Duis cursus magna id iaculis ornare. Duis ultrices nunc nisl, nec porttitor est volutpat ut. Vestibulum non congue metus, tempor consequat tellus. Proin vitae ex a nisi volutpat fringilla. Vivamus sit amet consequat ante, in dignissim magna. Nullam vitae lobortis ligula, a sodales tellus. Sed luctus risus id interdum efficitur.
-                                            Vivamus euismod ipsum quis facilisis congue. Proin et tincidunt velit. Quisque sit amet porta metus. Sed non eros ut diam consectetur rhoncus. Nam at dui lacus. Quisque nibh mi, bibendum sit amet nunc nec, imperdiet euismod leo. Mauris blandit odio eleifend nisi aliquet maximus laoreet non arcu.
-                                        </p>
                                     </div>
                                 </div>
-                                <div>
-                                    <button class = "cyrus-btn cyrus-btn-simple">MOSTRAR MAIS</button>
-                                </div>
-                                <div class ="evaluate-review mt-2">
-                                    <span data-positive="86">86</span> de <span data-total = "100">100</span> pessoas consideraram esta crítica útil. É útil para si? <button class = "cyrus-btn cyrus-btn-simple evaluate-review-button">SIM</button> | <button class = "cyrus-btn cyrus-btn-simple">NÃO</button>
-                                </div>
+                                <div class="cyrus-card-description-type"><span>Série</span></div>
                             </div>
                         </div>
-                        <!--<hr class = "w-25 mx-auto">-->
                     </div>
-                    <?php
-                    }
-                    ?>
-
+                    <?php }?>
                 </div>
             </div>
+            <?php }?>
         </div>
-
     </div>
-</div>
 
-<?php
-include(Utils::getDependencies("Cyrus", "footer", true));
-?>
-
-<script>
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
-</script>
+    <?php
+    include(Utils::getDependencies("Cyrus", "footer", true));
+    ?>
 </body>
 </html>

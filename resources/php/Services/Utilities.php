@@ -9,7 +9,7 @@ use Functions\Routing;
 class Utilities
 {
     #[Pure] public static function getRouting() : Status{
-        return new Status(isError: false, return: array(Routing::routing), bareReturn: Routing::routing);
+        return new Status(isError: false, return: Routing::routing, bareReturn: Routing::routing);
 
     }
 

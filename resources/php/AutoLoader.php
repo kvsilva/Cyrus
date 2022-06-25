@@ -1,4 +1,5 @@
 <?php
+
 class AutoLoader
 {
     private static bool $registered = false;

@@ -9,6 +9,7 @@ use Exception;
 use Functions\Database;
 use Functions\Utils;
 use Objects\Anime;
+use Objects\AnimesArray;
 
 class Animes
 {
@@ -38,22 +39,22 @@ class Animes
                 );
 
                 $calendar = array(
-                    DayOfWeek::MONDAY->name() => array("day" => $days[DayOfWeek::MONDAY->value]->format(Database::TimeFormat),"animes" => $MONDAY->toArray()),
-                    DayOfWeek::TUESDAY->name() => array("day" => $days[DayOfWeek::TUESDAY->value]->format(Database::TimeFormat),"animes" => $TUESDAY->toArray()),
-                    DayOfWeek::WEDNESDAY->name() => array("day" => $days[DayOfWeek::WEDNESDAY->value]->format(Database::TimeFormat),"animes" => $WEDNESDAY->toArray()),
-                    DayOfWeek::THURSDAY->name() => array("day" => $days[DayOfWeek::THURSDAY->value]->format(Database::TimeFormat),"animes" => $THURSDAY->toArray()),
-                    DayOfWeek::FRIDAY->name() => array("day" => $days[DayOfWeek::FRIDAY->value]->format(Database::TimeFormat),"animes" => $FRIDAY->toArray()),
-                    DayOfWeek::SATURDAY->name() => array("day" => $days[DayOfWeek::SATURDAY->value]->format(Database::TimeFormat),"animes" => $SATURDAY->toArray()),
-                    DayOfWeek::SUNDAY->name() => array("day" => $days[DayOfWeek::SUNDAY->value]->format(Database::TimeFormat),"animes" => $SUNDAY->toArray()),
+                    DayOfWeek::MONDAY->name() => array("day" => $days[DayOfWeek::MONDAY->value]->format(Database::DateFormatSimplified),"animes" => $MONDAY->toArray()),
+                    DayOfWeek::TUESDAY->name() => array("day" => $days[DayOfWeek::TUESDAY->value]->format(Database::DateFormatSimplified),"animes" => $TUESDAY->toArray()),
+                    DayOfWeek::WEDNESDAY->name() => array("day" => $days[DayOfWeek::WEDNESDAY->value]->format(Database::DateFormatSimplified),"animes" => $WEDNESDAY->toArray()),
+                    DayOfWeek::THURSDAY->name() => array("day" => $days[DayOfWeek::THURSDAY->value]->format(Database::DateFormatSimplified),"animes" => $THURSDAY->toArray()),
+                    DayOfWeek::FRIDAY->name() => array("day" => $days[DayOfWeek::FRIDAY->value]->format(Database::DateFormatSimplified),"animes" => $FRIDAY->toArray()),
+                    DayOfWeek::SATURDAY->name() => array("day" => $days[DayOfWeek::SATURDAY->value]->format(Database::DateFormatSimplified),"animes" => $SATURDAY->toArray()),
+                    DayOfWeek::SUNDAY->name() => array("day" => $days[DayOfWeek::SUNDAY->value]->format(Database::DateFormatSimplified),"animes" => $SUNDAY->toArray()),
                 );
                 $bareCalendar = array(
-                    DayOfWeek::MONDAY->value => array("day" => $days[DayOfWeek::MONDAY->value],"animes" => $MONDAY),
-                    DayOfWeek::TUESDAY->value => array("day" => $days[DayOfWeek::TUESDAY->value],"animes" => $TUESDAY),
-                    DayOfWeek::WEDNESDAY->value => array("day" => $days[DayOfWeek::WEDNESDAY->value],"animes" => $WEDNESDAY),
-                    DayOfWeek::THURSDAY->value => array("day" => $days[DayOfWeek::THURSDAY->value],"animes" => $THURSDAY),
-                    DayOfWeek::FRIDAY->value => array("day" => $days[DayOfWeek::FRIDAY->value],"animes" => $FRIDAY),
-                    DayOfWeek::SATURDAY->value => array("day" => $days[DayOfWeek::SATURDAY->value],"animes" => $SATURDAY),
-                    DayOfWeek::SUNDAY->value => array("day" => $days[DayOfWeek::SUNDAY->value],"animes" => $SUNDAY),
+                    DayOfWeek::MONDAY->name() => array("day" => $days[DayOfWeek::MONDAY->value],"animes" => $MONDAY),
+                    DayOfWeek::TUESDAY->name() => array("day" => $days[DayOfWeek::TUESDAY->value],"animes" => $TUESDAY),
+                    DayOfWeek::WEDNESDAY->name() => array("day" => $days[DayOfWeek::WEDNESDAY->value],"animes" => $WEDNESDAY),
+                    DayOfWeek::THURSDAY->name() => array("day" => $days[DayOfWeek::THURSDAY->value],"animes" => $THURSDAY),
+                    DayOfWeek::FRIDAY->name() => array("day" => $days[DayOfWeek::FRIDAY->value],"animes" => $FRIDAY),
+                    DayOfWeek::SATURDAY->name() => array("day" => $days[DayOfWeek::SATURDAY->value],"animes" => $SATURDAY),
+                    DayOfWeek::SUNDAY->name() => array("day" => $days[DayOfWeek::SUNDAY->value],"animes" => $SUNDAY),
                 );
             } catch (Exception $e) {
                 return new Status(isError: true, message: $e->getMessage());

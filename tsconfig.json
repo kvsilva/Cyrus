@@ -32,6 +32,7 @@
   "include": [
     "resources/js/*",
     "search/assets/js/*",
+    "animes/list/assets/js/*",
   ],
   "exclude": [
     "node_modules",

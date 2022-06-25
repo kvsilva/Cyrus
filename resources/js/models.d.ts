@@ -189,6 +189,7 @@ export declare class Anime {
     end_date: Date;
     mature: number;
     launch_day: number;
+    launch_time: Date;
     source: SourceType;
     audience: Audience;
     trailer: string;
@@ -576,4 +577,12 @@ export declare const LogFlags: {
         value: number;
     };
 };
+export declare class Paginator {
+    id: number;
+    page: number;
+    items: number;
+    totalItems: number;
+    totalPages: number;
+    constructor(obj?: any);
+}
 export declare const models: any;

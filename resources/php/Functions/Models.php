@@ -32,31 +32,32 @@ class Models
      * Name of Objects
      * */
     private const Objects = array(
-        "GlobalSetting",
-        "Resource",
-        "Language",
-        "User",
-        "SourceType",
-        "Audience",
-        "Anime",
-        "Season",
-        "VideoType",
-        "Video",
-        "Subtitle",
-        "Dubbing",
-        "PunishmentType",
-        "Punishment",
-        "Gender",
-        "AnimeStatus",
-        "TicketStatus",
-        "Ticket",
-        "TicketMessage",
-        "Role",
-        "Permission",
-        "AccountPlan",
-        "AccountPurchase",
-        "LogAction",
-        "Log"
+        "Objects\\GlobalSetting",
+        "Objects\\Resource",
+        "Objects\\Language",
+        "Objects\\User",
+        "Objects\\SourceType",
+        "Objects\\Audience",
+        "Objects\\Anime",
+        "Objects\\Season",
+        "Objects\\VideoType",
+        "Objects\\Video",
+        "Objects\\Subtitle",
+        "Objects\\Dubbing",
+        "Objects\\PunishmentType",
+        "Objects\\Punishment",
+        "Objects\\Gender",
+        "Objects\\AnimeStatus",
+        "Objects\\TicketStatus",
+        "Objects\\Ticket",
+        "Objects\\TicketMessage",
+        "Objects\\Role",
+        "Objects\\Permission",
+        "Objects\\AccountPlan",
+        "Objects\\AccountPurchase",
+        "Objects\\LogAction",
+        "Objects\\Log",
+        "Objects\\Paginator",
     );
 
 
@@ -98,9 +99,10 @@ class Models
         $countObj = 0;
         foreach(self::Objects as $object){
             $countObj++;
-            $class = 'export class '. $object .' {';
+            $objectName = str_replace("Objects\\", "", $object);
+            $class = 'export class '. $objectName .' {';
             $class .= "\n";
-            $reflection = (new ReflectionClass("Objects\\" . $object));
+            $reflection = (new ReflectionClass($object));
             $assignments = "    public constructor(obj?: any){ \n        const obj_: any = obj || {};\n";
 
             $assignments .= "        this.id = (obj_.id !== undefined) ? obj_.id : null;\n";
@@ -135,22 +137,23 @@ class Models
             $class .= "\n\n" . $assignments;
             $class .= "\n}\n";
             //$class .= "export const ". $object ."Teste = {" . $object . ": " . $object ."}\n";
-            $models .= '    "'.$object . '" : ' . $object;
+            $models .= '    "'.$objectName . '" : ' . $objectName;
             if(count(self::Objects) > $countObj) $models .= ",";
             $models .= "\n";
             fwrite($file, $class);
 
             // CONSTANT
-
-            $count = 0;
-            $const = "export const ". $object ."Flags = {\n";
-            foreach($reflection->getConstants() as $constant => $value){
-                $count++;
-                $const .= '    ' . $constant. ': {name: "'. $constant . '", value: ' . $value . "}";
-                if(count($reflection->getConstants()) > $count) $const .= ",\n";
+            if(count($reflection->getConstants()) > 0) {
+                $count = 0;
+                $const = "export const " . $objectName . "Flags = {\n";
+                foreach ($reflection->getConstants() as $constant => $value) {
+                    $count++;
+                    $const .= '    ' . $constant . ': {name: "' . $constant . '", value: ' . $value . "}";
+                    if (count($reflection->getConstants()) > $count) $const .= ",\n";
+                }
+                $const .= "\n};\n";
+                fwrite($file, $const);
             }
-            $const .= "\n};\n";
-            fwrite($file, $const);
         }
         $models .= "}";
         fwrite($file, $models);

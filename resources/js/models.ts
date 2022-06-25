@@ -197,6 +197,7 @@ export class Anime {
     end_date: Date;
     mature: number;
     launch_day: number;
+    launch_time: Date;
     source: SourceType;
     audience: Audience;
     trailer: string;
@@ -217,6 +218,7 @@ export class Anime {
         this.end_date = (obj_.end_date !== undefined) ? obj_.end_date : null;
         this.mature = (obj_.mature !== undefined) ? obj_.mature : null;
         this.launch_day = (obj_.launch_day !== undefined) ? obj_.launch_day : null;
+        this.launch_time = (obj_.launch_time !== undefined) ? obj_.launch_time : null;
         this.source = (obj_.source !== undefined) ? obj_.source : null;
         this.audience = (obj_.audience !== undefined) ? obj_.audience : null;
         this.trailer = (obj_.trailer !== undefined) ? obj_.trailer : null;
@@ -615,6 +617,22 @@ export const LogFlags = {
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
+export class Paginator {
+    id: number;
+    page: number;
+    items: number;
+    totalItems: number;
+    totalPages: number;
+
+    public constructor(obj?: any){ 
+        const obj_: any = obj || {};
+        this.id = (obj_.id !== undefined) ? obj_.id : null;
+        this.page = (obj_.page !== undefined) ? obj_.page : null;
+        this.items = (obj_.items !== undefined) ? obj_.items : null;
+        this.totalItems = (obj_.totalItems !== undefined) ? obj_.totalItems : null;
+        this.totalPages = (obj_.totalPages !== undefined) ? obj_.totalPages : null;
+    }
+}
 export const models : any = { 
     "GlobalSetting" : GlobalSetting,
     "Resource" : Resource,
@@ -640,5 +658,6 @@ export const models : any = {
     "AccountPlan" : AccountPlan,
     "AccountPurchase" : AccountPurchase,
     "LogAction" : LogAction,
-    "Log" : Log
+    "Log" : Log,
+    "Paginator" : Paginator
 }

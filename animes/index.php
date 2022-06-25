@@ -1,7 +1,12 @@
 <?php
-require_once (dirname(__DIR__).'\\resources\\php\\AutoLoader.php');
+require_once (dirname(__DIR__, 1)).'\\resources\\php\\settings.php';
 AutoLoader::register();
-require("personal/index.php");
+
+if(isset($_GET["anime"])){
+    require_once("personal/index.php");
+} else {
+    require_once("list/index.php");
+}
 
 
 

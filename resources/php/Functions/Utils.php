@@ -58,9 +58,9 @@ class Utils
 
     private static function initialize() : void{
         if(!self::$initialized){
-            echo "URL: " . static::url_origin( $_SERVER );
+            //echo "URL: " . static::url_origin( $_SERVER );
             self::$BASE_PATH = dirname(__DIR__,3);
-            echo self::$BASE_PATH;
+            //echo self::$BASE_PATH;
             self::$initialized = true;
             self::$dependencies = array(
                 "JQuery" => (new Dependency("JQuery", Routing::resources["dependencies"], "3.6.0"))->addImport(path: "jquery-3.6.0.min.js"),
@@ -71,6 +71,7 @@ class Utils
                 "Episode" => (new Dependency("Episode", self::BASE_URL))->addImport(path: "assets/js/episode.js")->addImport(path: "assets/css/episode.css", extension: "css"),
                 "Search" => (new Dependency("Search", self::BASE_URL))->addImport(path: "assets/js/search.js")->addImport(path: "assets/css/search.css", extension: "css"),
                 "Calendar" => (new Dependency("Calendar", self::BASE_URL))->addImport(path: "assets/js/calendar.js")->addImport(path: "assets/css/calendar.css", extension: "css"),
+                "List" => (new Dependency("List", self::BASE_URL . "animes/"))->addImport(path: "assets/js/list.js")->addImport(path: "assets/css/list.css", extension: "css"),
                 "Cyrus" => (new Dependency("resources", self::BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
             );
         }

@@ -48,5 +48,18 @@ enum DayOfWeek: int
             default => null,
         };
     }
+
+    public static function getItemByName(?String $str) : ?DayOfWeek {
+        return match ($str) {
+            self::MONDAY->name() => self::MONDAY,
+            self::TUESDAY->name() => self::TUESDAY,
+            self::WEDNESDAY->name() => self::WEDNESDAY,
+            self::THURSDAY->name() => self::THURSDAY,
+            self::FRIDAY->name() => self::FRIDAY,
+            self::SATURDAY->name() => self::SATURDAY,
+            self::SUNDAY->name() => self::SUNDAY,
+            default => null,
+        };
+    }
 }
 ?>

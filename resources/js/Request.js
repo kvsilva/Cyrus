@@ -26,20 +26,9 @@ export class Request {
             request.responseType = 'json';
             request.onload = function () {
                 if (request.status >= 200 && request.status < 300) {
-                    let _ret = [];
+                    let _ret;
                     if ("dataTypes" in request.response && request.response.dataTypes !== null) {
-                        for (let i = 0; i < request.response.dataTypes.length; i++) {
-                            let _class = request.response.dataTypes[i];
-                            let _obj;
-                            console.log(request.response.data[i]);
-                            if (_class !== "Unknown") {
-                                _obj = new models[_class](request.response.data[i]);
-                            }
-                            else {
-                                _obj = request.response.data[i];
-                            }
-                            _ret.push(_obj);
-                        }
+                        _ret = Request.buildElement(request.response.dataTypes, request.response.data);
                     }
                     else {
                         _ret = request.response.data;
@@ -64,6 +53,68 @@ export class Request {
             };
             request.send(JSON.stringify(array));
         });
+    }
+    static buildElement(dataType, data) {
+        let _objs = [];
+        if (Array.isArray(dataType)) {
+            for (let i = 0; i < dataType.length; i++) {
+                if (typeof data === 'object') {
+                    let x = 0;
+                    for (const item in data) {
+                        if (x == i) {
+                            let _class = dataType[i];
+                            let _obj;
+                            if (_class !== "Unknown" && models[_class] !== undefined) {
+                                // @ts-ignore
+                                _obj = new models[_class](data[item]);
+                                _objs.push(_obj);
+                            }
+                            else {
+                                // @ts-ignore
+                                _objs[i] = data[item];
+                            }
+                        }
+                        x++;
+                    }
+                }
+                else {
+                    let _class = dataType[i];
+                    let _obj;
+                    if (_class !== "Unknown" && models[_class] !== undefined) {
+                        // @ts-ignore
+                        _obj = new models[_class](data[i]);
+                        _objs.push(_obj);
+                    }
+                    else {
+                        // @ts-ignore
+                        _objs[i] = data[i];
+                    }
+                }
+            }
+        }
+        else if (typeof dataType === 'object') {
+            // @ts-ignore
+            for (const item in dataType) {
+                if (typeof dataType[item] === 'object') {
+                    // @ts-ignore
+                    _objs[item] = this.buildElement(dataType[item], data[item]);
+                }
+                else {
+                    let _class = dataType[item];
+                    let _obj;
+                    if (_class !== "Unknown" && models[_class] !== undefined) {
+                        // @ts-ignore
+                        _obj = new models[_class](data[item]);
+                        _objs.push(_obj);
+                    }
+                    else {
+                        // @ts-ignore
+                        _objs[item] = data[item];
+                    }
+                }
+            }
+        }
+        return _objs;
     }
 }
 Request.URL = "../API/v1/";

@@ -42,10 +42,11 @@ class EntityArray extends ArrayObject
         return sizeof($this);
     }
 
-    public function addAll(EntityArray $entities){
+    public function addAll(EntityArray $entities) : EntityArray{
         foreach($entities as $entity){
             $this[] = $entity;
         }
+        return $this;
     }
 
     public function sort($callback){

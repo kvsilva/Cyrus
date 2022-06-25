@@ -3,4 +3,5 @@ export declare class Request {
     static requestService(service: string, action: any, data: {}, flags: string[]): Promise<unknown>;
     static requestType(target: string, action: any, data: {}, flags: string[]): Promise<unknown>;
     private static sendRequest;
+    private static buildElement;
 }

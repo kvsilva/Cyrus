@@ -9,6 +9,7 @@ use Exceptions\InvalidDataType;
 use Exceptions\IOException;
 use Exceptions\NotNullable;
 use Functions\Database;
+use Functions\Models;
 use Functions\Utils;
 use Objects\Entity;
 use Objects\EntityArray;
@@ -220,19 +221,33 @@ class Request
         }
         $ret = array();
 
-        foreach($items as $element){
+        foreach($items as $key => $element){
             if(is_object($element)) {
-                $ret[] = str_replace("Objects\\" , "", get_class($element));
-            /*} else if (is_array($element)){
-                $ret[] = "array";
+                if (str_ends_with(get_class($element), "sArray") || str_ends_with(get_class($element), "EntityArray")) {
+                    $type = self::getDataTypes($element);
+                    $name = str_replace("Objects\\" , "", get_class($element));
+                    $name = str_replace("EntityArray" , "", $name);
+                    $name = str_replace("sArray" , "", $name);
+                    $ret[$key] = $type;
+                } else {
+                    $type = str_replace("Objects\\" , "", get_class($element));
+                    foreach(Models::REPLACE_TO as $itemKey => $itemValue){
+                        $type = str_replace($itemKey, $itemValue["value"], $type);
+                    }
+                    $ret[$key] = $type;
+                }
+            } else if (is_array($element)) {
+                $type = self::getDataTypes($element);
+                $ret[$key] = $type;
+                //$ret[] = str_replace("Objects\\" , "", get_class($element));
             } else if (is_bool($element)){
-                $ret[] = "bool";
+                $ret[$key] = "bool";
             } else if (is_string($element)){
                 $ret[] = "string";
             } else if (is_double($element) || is_int($element) || is_numeric($element) || is_float($element)){
-                $ret[] = "number";*/
+                $ret[$key] = "number";
             } else {
-                $ret[] = "Unknown";
+                $ret[$key] = "Unknown";
             }
         }
         return $ret;

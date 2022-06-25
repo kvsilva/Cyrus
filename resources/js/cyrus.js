@@ -10,4 +10,17 @@ $(document).ready(function () {
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    /*setTimeout(function()
+    {
+        var max = 360;
+        var tot, str;
+        $('.text span').each(function() {
+            str = String($(this).html());
+            tot = str.length;
+            str = (tot <= max)
+                ? str
+                : str.substring(0,(max - 3))+"...";
+            $(this).html(str);
+        });
+    },500);*/
 });
