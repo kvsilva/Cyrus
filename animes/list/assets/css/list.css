@@ -1,0 +1,559 @@
+@import url('https://fonts.googleapis.com/css?family=Lato&display=swap');
+@import url('../../../../resources/css/cyrus.css');
+
+:root{
+
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    /*background-color: var(--backgroundColor);*/
+    font-family: var(--font);
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Personal */
+
+#content{
+    color: var(--color1);
+}
+
+.content-wrapper{
+    max-width: calc(var(--content-wrapper-width) + var(--content-wrapper-padding-inline)*2);
+    padding-left: var(--content-wrapper-padding-inline);
+    padding-right: var(--content-wrapper-padding-inline);
+    margin: 0 auto;
+}
+
+#series_art{
+    width: 100%;
+    height: 350px;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+
+}
+
+#series_art #background{
+    width: 100%;
+    max-width: 100%;
+    height: inherit;
+    overflow:hidden;
+    position:absolute;
+    z-index: 1;
+}
+#series_art #background img{
+    /*filter: blur(8px);
+    -webkit-filter: blur(8px);*/
+    opacity: 0.5;
+    object-fit: cover;
+    object-position: 0 10%;
+
+    width: 100%;
+    height: inherit;
+}
+
+#series_art #profile{
+    position: absolute;
+    z-index: 2;
+    margin-top: 126px;
+    width: calc(var(--content-wrapper-width));
+}
+#series_art #profile img{
+    width: 220px;
+    height: 280px;
+}
+#information{
+    margin-top: 35px;
+}
+
+#information div > div{
+    margin-top: 18px;
+}
+#details{
+    font-size: 16px;
+    color: var(--color2);
+}
+
+#details > :not(:first-child):before{
+    background-color: #a0a0a0;
+    content: "";
+    display: inline-block;
+    height: 0.25rem;
+    line-height: 1;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 0.25rem;
+}
+
+.rating{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    font-size: 15px;
+}
+
+.star{
+    color: white;
+    font-size: 22px;
+    padding-right: 2px;
+}
+
+.star-selected, .star:hover:not(.static), .star:hover:not(.static)~.star{
+    color: #4831af;
+    cursor: pointer;
+}
+
+.star.filled{
+    color: #4831af;
+}
+
+#title h2{
+    padding: 18px 0 0;
+    font-size: 50px !important;
+}
+
+#gender span{
+    background-color: #1e956e;
+    font-size: 12px;
+    padding: 8px;
+    font-weight: 500;
+}
+
+#gender span:hover{
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#description p{
+    font-size: 16px;
+    font-weight: 500;
+}
+
+
+
+.text{
+    line-height: 24px;
+}
+
+#episodes{
+    margin-top: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.episode{
+    width: 25%;
+    height: 250px;
+    position: relative;
+    overflow: hidden;
+}
+
+.episode > div{
+    padding-top: 4px;
+}
+
+.episode:hover{
+    background: #141519;
+    box-shadow: 0 0 0 #141519;
+}
+
+.episode .thumbnail{
+    width: 100%;
+    height: 65%;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.episode .thumbnail img{
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+}
+
+.episode .play{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 25px;
+}
+
+.episode_link{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.episode .series{
+    color: var(--color2);
+    font-weight: 600;
+    font-size: 12px;
+    overflow: hidden;
+    text-transform: uppercase;
+}
+
+.episode .title{
+    color: var(--color1);
+    font-size: 18px;
+    overflow: hidden;
+}
+
+.episode .reviews-count{
+    float: right;
+}
+
+.episode .thumbnail .duration{
+    top: 75%;
+    left: 80%;
+    padding: 2px 6px;
+    font-size: 16px;
+    font-weight: lighter;
+    background: rgba(0, 0, 0, .5);
+}
+
+.episode .thumbnail .duration{
+    position: absolute;
+}
+
+.episodes-list{
+    display: flex;
+    overflow: hidden;
+
+}
+.review-title{
+    font-weight: 900;
+}
+
+.review-description{
+    font-size: 18px;
+    margin-top: 20px;
+
+}
+
+.review-description:not(.expanded){
+    max-height: 100px;
+    -webkit-mask-image: linear-gradient(to bottom,#000 calc(100% - 30px),#0000);
+}
+
+.review-username{
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.review-date{
+    color: var(--color3);
+}
+
+.evaluate-review{
+    font-size: 16px !important;
+}
+
+.evaluate-review button:not(:disabled){
+    color: var(--color4) !important;
+}
+
+.review-options{
+    font-size: 20px !important;
+    float: right;
+    margin-top: 15px;
+
+}
+.review-options .cyrus-btn{
+    color: var(--color3) !important;
+}
+
+.review-options .cyrus-btn:hover {
+    color: var(--color1) !important;
+}
+
+
+.review-options > *:not(:last-child){
+    margin-right: 15px;
+}
+
+#reviews-list > *:not(:first-child){
+    margin-top: 70px;
+}
+
+/* Override Properties */
+
+.evaluate-review .cyrus-btn-simple{
+    color: var(--color3) !important;
+    font-size: 14px;
+}
+
+.evaluate-review .cyrus-btn-simple:hover {
+    color: var(--color1) !important;
+}
+
+/* -------------------*/
+
+
+.order{
+    float: right;
+    color: var(--color3);
+    font-size: 15px;
+    padding: 8px 15px;
+}
+
+.order span{
+    font-weight: 800;
+}
+
+.order:hover{
+    background-color: var(--hoverBackground);
+    color: var(--color1);
+    cursor: pointer;
+}
+
+.seasons-switch{
+    display: flex;
+    flex-wrap: nowrap;
+    flex: 1;
+}
+
+.previous-season, .next-season{
+    color: var(--color3);
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.previous-season:not(.disable):hover, .next-season:not(.disable):hover{
+    color: var(--color1);
+    cursor: pointer;
+}
+
+.previous-season.disable:hover, .next-season.disable:hover{
+    cursor: context-menu;
+}
+
+.previous-season.disable, .next-season.disable{
+    color: var(--color2);
+}
+
+a{
+    text-decoration: none;
+    color: var(--color2);
+    z-index: 2;
+    transition: color .2s ease;
+
+}
+a:hover{
+    text-decoration: underline;
+    color: var(--color1);
+}
+
+.separator{
+    border-left: 1px solid green;
+
+}
+
+.series a{
+    z-index: 2;
+}
+
+.episode a{
+    z-index: 2;
+}
+
+
+.previous-season{
+    float: left;
+    margin-right: auto;
+}
+
+.next-season{
+    float: right;
+    margin-left: auto;
+}
+
+#reviews {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+#reviews .controller{
+    display: grid;
+    grid-template: "reviews-average-rating reviews-count reviews-filters" auto/ max-content;
+    font-size: 20px;
+}
+
+.reviews-average-rating{
+    grid-area: reviews-average-rating;
+}
+.reviews-count{
+    grid-area: reviews-count;
+
+}
+
+
+.reviews-average-rating{
+    z-index: 1;
+
+}
+
+
+.reviews-average-rating{
+    padding-right: 15px;
+}
+
+.reviews-average-rating, .reviews-count{
+    margin-right: auto;
+}
+.reviews-filters{
+    display: inline-flex;
+    flex-wrap: wrap;
+    margin-left: auto;
+    grid-area: reviews-filters;
+    color: var(--color3);
+}
+
+.reviews-filters .dropdown{
+    min-width: 25%;
+}
+
+.reviews-filters .dropdown:hover{
+    color: var(--color1);
+    background-color: var(--hoverBackground);
+}
+
+.reviews-filters .dropdown-toggle{
+    padding: 8px;
+}
+
+.reviews-filters > *:not(:first-child) {
+    margin-left: 15px;
+}
+
+.review-post{
+    background-color: var(--hoverBackground);
+    width: 100%;
+}
+.review-post-user{
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.review-post-username{
+    font-weight: 900;
+}
+
+.review-post-user *{
+    margin-top: 15px;
+}
+
+.review-post-user img{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+.reviewAs{
+    color: var(--color3);
+}
+
+.reviews-classified-as{
+    font-size: 12px;
+    color: var(--color3);
+    margin-left: 10px;
+}
+
+.review-post-rating{
+    margin: 25px 0;
+}
+
+.reviews-self-char-notification{
+    display: flex;
+    justify-content: flex-end;
+    float: right;
+    width: 50%;
+    margin-top: 10px;
+    margin-bottom: 18px;
+}
+
+.reviews-self-textarea{
+    height: 162px;
+}
+
+@media only screen and (max-width: 1570px) {
+    .content-wrapper{
+
+    }
+    .review-post-user img{
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media only screen and (max-width: 1400px) {
+    .content-wrapper{
+        --content-wrapper-padding-inline: 20px;
+    }
+
+    #series_art #profile{
+        width: initial;
+    }
+
+}
+
+@media only screen and (max-width: 1140px) {
+    .review-post-user{
+        visibility: hidden;
+        width: 0;
+        height: 0;
+    }
+    .review-post .col-9{
+        width: 95%;
+        margin: 0 auto;
+    }
+    .episode{
+        width: 33%;
+    }
+}
+
+@media only screen and (max-width: 950px) {
+    .reviews-filters-filter-title{
+        visibility: hidden;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+    #information{
+        flex-direction: column;
+    }
+    #information div{
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 850px) {
+    .episode{
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 580px) {
+    .episode{
+        width: 100%;
+    }
+}
