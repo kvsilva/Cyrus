@@ -6,31 +6,56 @@ use Functions\Utils;
 class Routing
 {
 
-    public const routing = array(
-        "animes" => (Utils::BASE_URL . "animes/"),
-        "calendar" => (Utils::BASE_URL . "calendar/"),
-        "news" => (Utils::BASE_URL . "news/"),
-        "episode" => (Utils::BASE_URL . "episode/"),
-        "search" => (Utils::BASE_URL . "search/"),
-    );
+    private static bool $initialized = false;
 
-    public const resources = array(
-          "css" => (Utils::BASE_URL . "resources/css/"),
-          "dependencies" => (Utils::BASE_URL . "resources/dependencies/"),
-          "images" => (Utils::BASE_URL . "resources/images/"),
-          "js" => (Utils::BASE_URL . "resources/js/"),
-          "pages" => (Utils::BASE_URL . "resources/pages/"),
-          "php" => (Utils::BASE_URL . "resources/php/"),
-    );
+    private static ?array $routing = null;
+
+    private static ?array $resources = null;
+
+    private static function initialize(){
+        if(!self::$initialized){
+
+            self::$routing = array(
+                "animes" => (Utils::getURL() . "animes/"),
+                "calendar" => (Utils::getURL() . "calendar/"),
+                "news" => (Utils::getURL() . "news/"),
+                "episode" => (Utils::getURL() . "episode/"),
+                "search" => (Utils::getURL() . "search/"),
+            );
+
+           self::$resources = array(
+                "css" => (Utils::getURL() . "resources/css/"),
+                "dependencies" => (Utils::getURL() . "resources/dependencies/"),
+                "images" => (Utils::getURL() . "resources/images/"),
+                "js" => (Utils::getURL() . "resources/js/"),
+                "pages" => (Utils::getURL() . "resources/pages/"),
+                "php" => (Utils::getURL() . "resources/php/"),
+            );
+
+            self::$initialized = true;
+        }
+    }
 
 
 
     public static function getRouting(String $name) : ?String{
-        return self::routing[$name] ?? null;
+        self::initialize();
+        return self::$routing[$name] ?? null;
+    }
+
+    public static function getRoutingInfo() : array{
+        self::initialize();
+        return self::$routing;
     }
 
     public static function getResource(String $name) : ?String{
-        return self::resources[$name] ?? null;
+        self::initialize();
+        return self::$resources[$name] ?? null;
+    }
+
+    public static function getResourceInfo() : array{
+        self::initialize();
+        return self::$resources;
     }
 
 }

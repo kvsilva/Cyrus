@@ -8,7 +8,7 @@ use JetBrains\PhpStorm\Pure;
 
 class Utils
 {
-    public const BASE_URL = "http://localhost/Cyrus/";
+    private static String $BASE_URL = "localhost/Cyrus/";   // Não incluir o protocolo
 
     private static String $BASE_PATH;
 
@@ -33,7 +33,7 @@ class Utils
     public static function getURL() : String
     {
         self::initialize();
-        return static::BASE_URL;
+        return static::$BASE_URL;
     }
 
     private static bool $initialized = false;
@@ -58,21 +58,20 @@ class Utils
 
     private static function initialize() : void{
         if(!self::$initialized){
-            //echo "URL: " . static::url_origin( $_SERVER );
+            static::$BASE_URL = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https://' . static::$BASE_URL : 'http://' . static::$BASE_URL;
             self::$BASE_PATH = dirname(__DIR__,3);
-            //echo self::$BASE_PATH;
             self::$initialized = true;
             self::$dependencies = array(
-                "JQuery" => (new Dependency("JQuery", Routing::resources["dependencies"], "3.6.0"))->addImport(path: "jquery-3.6.0.min.js"),
-                "Popper" => (new Dependency("Popper", Routing::resources["dependencies"], "2.9.2"))->addImport(path: "popper.min.js"),
-                "FontAwesome" => (new Dependency("FontAwesome", Routing::resources["dependencies"], "6.1.1"))->addImport(path: "css/all.css", extension: "css"),
-                "Bootstrap" => (new Dependency("Bootstrap", Routing::resources["dependencies"], "5.0.2"))->addImport(path: "js/bootstrap.bundle.min.js")->addImport(path: "css/bootstrap.css", extension: "css"),
-                "Personal" => (new Dependency("Personal", self::BASE_URL . "animes/"))->addImport(path: "assets/js/personal.js")->addImport(path: "assets/css/personal.css", extension: "css"),
-                "Episode" => (new Dependency("Episode", self::BASE_URL))->addImport(path: "assets/js/episode.js")->addImport(path: "assets/css/episode.css", extension: "css"),
-                "Search" => (new Dependency("Search", self::BASE_URL))->addImport(path: "assets/js/search.js")->addImport(path: "assets/css/search.css", extension: "css"),
-                "Calendar" => (new Dependency("Calendar", self::BASE_URL))->addImport(path: "assets/js/calendar.js")->addImport(path: "assets/css/calendar.css", extension: "css"),
-                "List" => (new Dependency("List", self::BASE_URL . "animes/"))->addImport(path: "assets/js/list.js")->addImport(path: "assets/css/list.css", extension: "css"),
-                "Cyrus" => (new Dependency("resources", self::BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
+                "JQuery" => (new Dependency("JQuery", Routing::getResource("dependencies"), "3.6.0"))->addImport(path: "jquery-3.6.0.min.js"),
+                "Popper" => (new Dependency("Popper", Routing::getResource("dependencies"), "2.9.2"))->addImport(path: "popper.min.js"),
+                "FontAwesome" => (new Dependency("FontAwesome", Routing::getResource("dependencies"), "6.1.1"))->addImport(path: "css/all.css", extension: "css"),
+                "Bootstrap" => (new Dependency("Bootstrap", Routing::getResource("dependencies"), "5.0.2"))->addImport(path: "js/bootstrap.bundle.min.js")->addImport(path: "css/bootstrap.css", extension: "css"),
+                "Personal" => (new Dependency("Personal", self::$BASE_URL . "animes/"))->addImport(path: "assets/js/personal.js")->addImport(path: "assets/css/personal.css", extension: "css"),
+                "Episode" => (new Dependency("Episode", self::$BASE_URL))->addImport(path: "assets/js/episode.js")->addImport(path: "assets/css/episode.css", extension: "css"),
+                "Search" => (new Dependency("Search", self::$BASE_URL))->addImport(path: "assets/js/search.js")->addImport(path: "assets/css/search.css", extension: "css"),
+                "Calendar" => (new Dependency("Calendar", self::$BASE_URL))->addImport(path: "assets/js/calendar.js")->addImport(path: "assets/css/calendar.css", extension: "css"),
+                "List" => (new Dependency("List", self::$BASE_URL . "animes/"))->addImport(path: "assets/js/list.js")->addImport(path: "assets/css/list.css", extension: "css"),
+                "Cyrus" => (new Dependency("resources", self::$BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
             );
         }
     }

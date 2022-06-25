@@ -5,8 +5,8 @@ $(document).ready(function () {
     //$("html").css({visibility: "hidden"});
     API.requestService("utilities", "getRouting", {}, []).then((result) => {
         if (result.status) {
-            if ("data" in result && result.data.length > 0) {
-                Routing = result.data[0];
+            if ("data" in result) {
+                Routing = result.data;
             }
         }
         $("#reset-query-form").click(function () {

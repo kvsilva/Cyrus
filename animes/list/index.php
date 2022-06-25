@@ -65,7 +65,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     <?php
                     $isFirst = true;
                     foreach($letters_list as $letter){?>
-                        <li class="letter-item  <?php echo $isFirst ? 'letter-item-selected' : '';?>" data-key = "<?php echo $letter?>"><?php echo $letter?></li>
+                        <li class="letter-item" data-key = "<?php echo $letter?>"><?php echo $letter?></li>
                     <?php
                         $isFirst = false;
                     }?>

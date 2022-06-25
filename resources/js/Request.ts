@@ -77,7 +77,7 @@ export class Request {
                                 _objs.push(_obj);
                             } else {
                                 // @ts-ignore
-                                _objs[i] = data[item];
+                                _objs[item] = data[item];
                             }
                         }
                         x++;
