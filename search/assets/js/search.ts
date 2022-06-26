@@ -28,14 +28,14 @@ $(document).ready(function(){
                     title: title
                 }, [AnimeFlags.ALL.name]).then((result: any) => {
                     if(result.status) {
+                        $("#main").remove()
+                        $("#series").remove();
+                        $("#videos").remove();
                         if (result.data) {
                             let main_results = $("<div>").attr("class", "results-wrapper");
                             let main_wrapper = $("<div>").attr("class", "results").attr("id", "main").append(
                                 $("<h4>").html("Principais Resultados")
                             );
-                            $("#main").remove()
-                            $("#series").remove();
-                            $("#videos").remove();
                             for (let i = 0; i < 3; i++) {
                                 let card = $("<div>").attr("class", "cyrus-card");
                                 if (result.data.length - 1 >= i) {
