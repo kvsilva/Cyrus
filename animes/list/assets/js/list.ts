@@ -15,7 +15,7 @@ $(document).ready(function() {
             if (result2.status) {
                 if ("data" in result2) {
                     $("#anime-full-list").html("");
-                    let isFirstSelected : boolean = true;
+                    let isFirstSelected: boolean = true;
                     for (const letter in result2.data) {
                         let items = result2.data[letter];
                         if (result2.data[letter].length == 0) {
@@ -23,14 +23,14 @@ $(document).ready(function() {
                             continue;
                         }
 
-                        $('.letter-item[data-key="' + letter + '"]').click(function(){
+                        $('.letter-item[data-key="' + letter + '"]').click(function () {
                             $('html, body').animate({
                                 // @ts-ignore
                                 scrollTop: $(document.getElementById("list-" + letter)).offset().top - 100
                             }, 500);
                         });
 
-                        if(isFirstSelected) {
+                        if (isFirstSelected) {
                             $('.letter-item[data-key="' + letter + '"]').addClass("letter-item-selected");
                             isFirstSelected = false;
                         }
@@ -38,34 +38,32 @@ $(document).ready(function() {
                         let cards = $("<div>").attr("class", "animes");
 
                         for (let i = 0; i < items.length; i++) {
-                            for(let x = 0; x < 15; x++) {
-                                let card = $("<div>").attr("class", "cyrus-card cyrus-card-flex");
-                                let item: Anime = items[i];
-                                card.append(
-                                    $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.animes + "?anime=" + item.id).attr("title", item.title)
-                                ).append(
-                                    $("<div>").attr("class", "cyrus-card-image-cape").append(
-                                        $("<img>").attr("src", item.cape?.path)
+                            let card = $("<div>").attr("class", "cyrus-card cyrus-card-flex");
+                            let item: Anime = items[i];
+                            card.append(
+                                $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.animes + "?anime=" + item.id).attr("title", item.title)
+                            ).append(
+                                $("<div>").attr("class", "cyrus-card-image-cape").append(
+                                    $("<img>").attr("src", item.cape?.path)
+                                )
+                            ).append(
+                                $("<div>").attr("class", "cyrus-card-body").append(
+                                    $("<div>").attr("class", "cyrus-card-title").append(
+                                        $("<h4>").attr("class", "cyrus-card-title").html(item.title)
                                     )
                                 ).append(
-                                    $("<div>").attr("class", "cyrus-card-body").append(
-                                        $("<div>").attr("class", "cyrus-card-title").append(
-                                            $("<h4>").attr("class", "cyrus-card-title").html(item.title)
+                                    $("<div>").attr("class", "cyrus-card-description").append(
+                                        $("<div>").attr("class", "cyrus-card-description-text").append(
+                                            $("<span>").html(item.synopsis)
                                         )
                                     ).append(
-                                        $("<div>").attr("class", "cyrus-card-description").append(
-                                            $("<div>").attr("class", "cyrus-card-description-text").append(
-                                                $("<span>").html(item.synopsis)
-                                            )
-                                        ).append(
-                                            $("<div>").attr("class", "cyrus-card-description-type").append(
-                                                $("<span>").html("Série")
-                                            )
+                                        $("<div>").attr("class", "cyrus-card-description-type").append(
+                                            $("<span>").html("Série")
                                         )
                                     )
-                                );
-                                cards.append(card);
-                            }
+                                )
+                            );
+                            cards.append(card);
                         }
 
 

@@ -1,0 +1,10 @@
+@import url('../../../resources/css/cyrus.css');
+
+.section-list-items{
+    display: flex;
+    flex-direction: row;
+}
+
+.section-list-items > .cyrus-card:not(:first-child){
+    margin-leftcom: 30px;
+}

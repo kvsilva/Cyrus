@@ -2,7 +2,7 @@ import {models} from "./models";
 
 export class Request {
 
-    private static URL: string = "../API/v1/";
+    private static URL: string = new URL("../../API/v1/", import.meta.url).href;
 
     public static requestService(service: string, action: any, data: {}, flags: string[]) {
         return this.sendRequest({

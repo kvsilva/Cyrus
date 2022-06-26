@@ -16,13 +16,13 @@ enum DayOfWeek: int
     public function name(): string
     {
         return match ($this) {
-            self::MONDAY => 'Monday',
-            self::TUESDAY => 'Tuesday',
-            self::WEDNESDAY => 'Wednesday',
-            self::THURSDAY => 'Thursday',
-            self::FRIDAY => 'Friday',
-            self::SATURDAY => 'Saturday',
-            self::SUNDAY => 'Sunday'
+            self::MONDAY => 'Segunda',
+            self::TUESDAY => 'Terça',
+            self::WEDNESDAY => 'Quarta',
+            self::THURSDAY => 'Quinta',
+            self::FRIDAY => 'Sexta',
+            self::SATURDAY => 'Sábado',
+            self::SUNDAY => 'Domingo'
         };
     }
 

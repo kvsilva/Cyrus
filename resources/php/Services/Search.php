@@ -39,7 +39,10 @@ class Search
 
         if($anime) $entities->addAll(Anime::find(title: "%" . $title . "%", operator: "like", flags: $animeFlags));
         if($video) $entities->addAll(Video::find(title: "%" . $title . "%", operator: "like", flags: $videoFlags));
+
+
         $entities->sort(fn($a, $b) => strcmp($a->getTitle(), $b->getTitle()));
+
         $ret = array();
         foreach($entities as $entity){
             if(get_class($entity) == "Objects\Anime"){

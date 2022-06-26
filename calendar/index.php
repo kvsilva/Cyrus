@@ -31,6 +31,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
 <div id="content">
     <!-- CONTENT HERE -->
     <div class = "content-wrapper">
+        <h1>Meter o número do Episódio Dinâmico</h1>
         <div class = "calendar">
         <?php
         foreach($calendar as $day => $dayInfo){?>
@@ -40,16 +41,12 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     <span><?php echo $dayInfo["day"]->format("d/m");?></span>
                 </div>
                 <div class = "calendar-day-text">
-                    <span><?php echo DayOfWeek::getItem($day)->name();?></span>
+                    <span><?php echo DayOfWeek::getItemByName($day)->name();?></span>
                 </div>
             </div>
             <div class = "calendar-day-body">
                 <?php
                 if($dayInfo["animes"]?->size() == 0){?>
-                    <!--<div class = "calendar-day-body-empty">
-                        <span>Nada encontrado</span>
-                        <span>￣へ￣</span>
-                    </div>-->
                 <?php
                 } else
                 for($m = 0; $m < 12; $m++)
@@ -65,10 +62,10 @@ include(Utils::getDependencies("Cyrus", "header", true));
                         <?php
                             $today = date('w', (new DateTime())->getTimestamp());
                             $isAvailable = false;
-                            if ($day < $today){
+                            if (DayOfWeek::getItemByName($day)->value < $today){
                                 $isAvailable = true;
                                 echo '<a href = "#">';
-                            } else if ($day == $today){
+                            } else if (DayOfWeek::getItemByName($day)->value == $today){
                                 if($anime?->getLaunchTime()?->getTimestamp() <= (new DateTime())->getTimestamp()) {
                                     $isAvailable = true;
                                     echo '<a href = "#">';

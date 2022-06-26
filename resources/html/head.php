@@ -1,7 +1,7 @@
 <?php
 use Functions\Utils;
 
-function getHead($pageTitle): string
+function getHead($pageTitle = ""): string
 {
     return '
     <!-- Required meta tags -->

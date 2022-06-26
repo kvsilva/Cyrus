@@ -117,4 +117,4 @@ export class Request {
         return _objs;
     }
 }
-Request.URL = "../API/v1/";
+Request.URL = new URL("../../API/v1/", import.meta.url).href;

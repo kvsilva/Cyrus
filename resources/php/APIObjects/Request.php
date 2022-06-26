@@ -220,7 +220,6 @@ class Request
             return array();
         }
         $ret = array();
-
         foreach($items as $key => $element){
             if(is_object($element)) {
                 if (str_ends_with(get_class($element), "sArray") || str_ends_with(get_class($element), "EntityArray")) {
@@ -228,14 +227,13 @@ class Request
                     $name = str_replace("Objects\\" , "", get_class($element));
                     $name = str_replace("EntityArray" , "", $name);
                     $name = str_replace("sArray" , "", $name);
-                    $ret[$key] = $type;
                 } else {
                     $type = str_replace("Objects\\" , "", get_class($element));
                     foreach(Models::REPLACE_TO as $itemKey => $itemValue){
                         $type = str_replace($itemKey, $itemValue["value"], $type);
                     }
-                    $ret[$key] = $type;
                 }
+                $ret[$key] = $type;
             } else if (is_array($element)) {
                 $type = self::getDataTypes($element);
                 $ret[$key] = $type;

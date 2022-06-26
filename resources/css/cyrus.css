@@ -11,7 +11,10 @@
     --color2: dimgrey;
     --color3: #c5c3c3;
     --color4: #6cdcdc;
+    --color5: #213944;
     --color6: black;
+    --color7: #fab818;
+    --color8: #ef4323;
 
     --backgroundColor: black;
 
@@ -23,6 +26,10 @@
 
     --content-wrapper-width: 1300px;
     --content-wrapper-padding-inline: 40px;
+
+    /* Feed */
+    --cyrus-start-direction: left;
+    --cyrus-end-direction: right;
 }
 
 body {
@@ -619,6 +626,8 @@ input[type=submit].cyrus-input:hover{
 /* Card */
 
 .cyrus-card-duration{
+    display: flex;
+    justify-content: center;
     position: absolute;
     bottom: 5%;
     right: 2%;
@@ -634,7 +643,7 @@ input[type=submit].cyrus-input:hover{
 }
 
 .cyrus-card{
-    width: 100%;
+    width: fit-content;
     height: fit-content;
     position: relative;
     overflow: hidden;
@@ -646,10 +655,12 @@ input[type=submit].cyrus-input:hover{
     z-index: 50;
 }
 
+
 .cyrus-card-flex{
     display: flex !important;
     align-items: center;
     flex-direction: row;
+    width: 100%;
 }
 
 .cyrus-card-flex .cyrus-card-body{
@@ -700,7 +711,18 @@ input[type=submit].cyrus-input:hover{
     flex-wrap: wrap;
 }
 
-.cyrus-card-image img, .cyrus-card-image-flex img, .cyrus-card-image-catalog img, .cyrus-card-image-cape img{
+.cyrus-card-image-profile{
+    width: 150px;
+    height: 225px;
+    min-width: 150px;
+    min-height: 225px;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+.cyrus-card-image img, .cyrus-card-image-flex img, .cyrus-card-image-catalog img, .cyrus-card-image-cape img, .cyrus-card-image-profile img{
     width: 100%;
     height: 100%;
 }
@@ -817,4 +839,116 @@ input[type=submit].cyrus-input:hover{
     position: absolute;
     right: -10px;
     bottom: -4px;
+}
+
+/* Carousel */
+
+.cyrus-carousel{
+    position: relative;
+    left: 0;
+    right: 0;
+    max-height: var(--arrow-wrapper-max-height);
+    min-height: var(--arrow-wrapper-height);
+    z-index: 1;
+}
+
+.cyrus-carousel-cards{
+    grid-area: viewbox;
+}
+
+.cyrus-carousel-cards-arrow-wrapper{
+
+}
+
+.cyrus-carousel-items{
+    z-index: 1;
+}
+
+.cyrus-carousel-items-wrapper{
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc(100%/var(--carousel-cols-count));
+    overflow: hidden;
+    overscroll-behavior-x: none;
+
+}
+
+.cyrus-carousel-items-card{
+    margin-left: calc(var(--carousel-cols-gap)/2);
+    margin-right: calc(var(--carousel-cols-gap)/2);
+}
+
+
+:root{
+    --carousel-arrow-dimension: 40px;
+    --carousel-rows-count: 1;
+    --carousel-cols-count: 7;
+    --carousel-cols-gap: 10px;
+    --arrow-wrapper-max-height: 100%;
+    --arrow-wrapper-height: 225px;
+}
+
+.cyrus-carousel-wrapper{
+    bottom: 0;
+    display: grid;
+    height: calc((var(--carousel-rows-count) - 1)*500vh);
+    left: 0;
+    max-height: var(--arrow-wrapper-max-height);
+    min-height: var(--arrow-wrapper-height);
+    position: relative;
+    right: 0;
+    top: 0;
+    width: 100%;
+
+}
+
+.cyrus-carousel-arrow{
+    align-self: center;
+    transition: background-color .15s ease,color .15s ease;
+    z-index: 5;
+    width: var(--carousel-arrow-dimension);
+    height: var(--carousel-arrow-dimension);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cyrus-carousel-arrow:hover{
+    background-color: var(--color0);
+}
+
+.cyrus-carousel-arrow-wrapper{
+    bottom: 0;
+    display: grid;
+    height: calc((var(--carousel-rows-count) - 1)*500vh);
+    left: 0;
+    max-height: var(--arrow-wrapper-max-height);
+    min-height: var(--arrow-wrapper-height);
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-top: 8px;
+}
+
+.cyrus-carousel-next{
+    justify-self: end;
+    --translateX: calc(var(--content-wrapper-padding-inline));
+}
+
+.cyrus-carousel-previous{
+    justify-self: start;
+    --translateX: calc(var(--content-wrapper-padding-inline)*-1);
+
+}
+
+.cyrus-feed-divider{
+    height: 4px;
+    width: 100%;
+}
+
+.cyrus-feed-divider-1{
+    background-image: linear-gradient(to var(--cyrus-start-direction),var(--color0),var(--color0_light));
+}
+.cyrus-feed-divider-2{
+    background-image: linear-gradient(to var(--cyrus-start-direction),var(--color5),var(--color4));
 }

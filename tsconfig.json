@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "es2016",
-    "module": "es6",
+    //"target": "es2020",
+    //"module": "es6",
+    "module": "es2020",
     "esModuleInterop": true,
     "declaration": true,
     "rootDir": ".",
@@ -33,6 +35,7 @@
     "resources/js/*",
     "search/assets/js/*",
     "animes/list/assets/js/*",
+    "home/assets/js/*",
   ],
   "exclude": [
     "node_modules",
