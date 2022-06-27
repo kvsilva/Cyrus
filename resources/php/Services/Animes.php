@@ -10,9 +10,13 @@ use Functions\Database;
 use Functions\Utils;
 use Objects\Anime;
 use Objects\AnimesArray;
+use Objects\Video;
+use ReflectionException;
 
 class Animes
 {
+
+    private const recentReleasedItems = 12;
 
     public static function getAnimeList() : Status{
         try {
@@ -62,22 +66,10 @@ class Animes
         return new Status(isError: false, return: $result, bareReturn: $bareResult);
     }
 
-    public static function getCalendar() : Status
+    public static function getCalendar(string|null $day = null) : Status
     {
         try {
-
-            $MONDAY = Anime::find(launch_day: DayOfWeek::MONDAY, orderBy: "launch_time");
-            $TUESDAY = Anime::find(launch_day: DayOfWeek::TUESDAY, orderBy: "launch_time");
-            $WEDNESDAY = Anime::find(launch_day: DayOfWeek::WEDNESDAY, orderBy: "launch_time");
-            $THURSDAY = Anime::find(launch_day: DayOfWeek::THURSDAY, orderBy: "launch_time");
-            $FRIDAY = Anime::find(launch_day: DayOfWeek::FRIDAY, orderBy: "launch_time");
-            $SATURDAY = Anime::find(launch_day: DayOfWeek::SATURDAY, orderBy: "launch_time");
-            $SUNDAY = Anime::find(launch_day: DayOfWeek::SUNDAY, orderBy: "launch_time");
-
-
             $today = new DateTime();
-
-
             $days = array(
                 DayOfWeek::MONDAY->value => (new DateTime())->modify(DayOfWeek::MONDAY->value - date('w', $today->getTimestamp()) . " days"),
                 DayOfWeek::TUESDAY->value => (new DateTime())->modify(DayOfWeek::TUESDAY->value - date('w', $today->getTimestamp()) . " days"),
@@ -88,27 +80,53 @@ class Animes
                 DayOfWeek::SUNDAY->value => (new DateTime())->modify(DayOfWeek::SUNDAY->value - date('w', $today->getTimestamp()) . " days"),
             );
 
-            $calendar = array(
-                DayOfWeek::MONDAY->name() => array("day" => $days[DayOfWeek::MONDAY->value]->format(Database::DateFormatSimplified), "animes" => $MONDAY->toArray()),
-                DayOfWeek::TUESDAY->name() => array("day" => $days[DayOfWeek::TUESDAY->value]->format(Database::DateFormatSimplified), "animes" => $TUESDAY->toArray()),
-                DayOfWeek::WEDNESDAY->name() => array("day" => $days[DayOfWeek::WEDNESDAY->value]->format(Database::DateFormatSimplified), "animes" => $WEDNESDAY->toArray()),
-                DayOfWeek::THURSDAY->name() => array("day" => $days[DayOfWeek::THURSDAY->value]->format(Database::DateFormatSimplified), "animes" => $THURSDAY->toArray()),
-                DayOfWeek::FRIDAY->name() => array("day" => $days[DayOfWeek::FRIDAY->value]->format(Database::DateFormatSimplified), "animes" => $FRIDAY->toArray()),
-                DayOfWeek::SATURDAY->name() => array("day" => $days[DayOfWeek::SATURDAY->value]->format(Database::DateFormatSimplified), "animes" => $SATURDAY->toArray()),
-                DayOfWeek::SUNDAY->name() => array("day" => $days[DayOfWeek::SUNDAY->value]->format(Database::DateFormatSimplified), "animes" => $SUNDAY->toArray()),
-            );
-            $bareCalendar = array(
-                DayOfWeek::MONDAY->name() => array("day" => $days[DayOfWeek::MONDAY->value], "animes" => $MONDAY),
-                DayOfWeek::TUESDAY->name() => array("day" => $days[DayOfWeek::TUESDAY->value], "animes" => $TUESDAY),
-                DayOfWeek::WEDNESDAY->name() => array("day" => $days[DayOfWeek::WEDNESDAY->value], "animes" => $WEDNESDAY),
-                DayOfWeek::THURSDAY->name() => array("day" => $days[DayOfWeek::THURSDAY->value], "animes" => $THURSDAY),
-                DayOfWeek::FRIDAY->name() => array("day" => $days[DayOfWeek::FRIDAY->value], "animes" => $FRIDAY),
-                DayOfWeek::SATURDAY->name() => array("day" => $days[DayOfWeek::SATURDAY->value], "animes" => $SATURDAY),
-                DayOfWeek::SUNDAY->name() => array("day" => $days[DayOfWeek::SUNDAY->value], "animes" => $SUNDAY),
-            );
+            $calendar = array();
+            $bareCalendar = array();
+            if($day === null) {
+                $MONDAY = Anime::find(launch_day: DayOfWeek::MONDAY, orderBy: "launch_time");
+                $TUESDAY = Anime::find(launch_day: DayOfWeek::TUESDAY, orderBy: "launch_time");
+                $WEDNESDAY = Anime::find(launch_day: DayOfWeek::WEDNESDAY, orderBy: "launch_time");
+                $THURSDAY = Anime::find(launch_day: DayOfWeek::THURSDAY, orderBy: "launch_time");
+                $FRIDAY = Anime::find(launch_day: DayOfWeek::FRIDAY, orderBy: "launch_time");
+                $SATURDAY = Anime::find(launch_day: DayOfWeek::SATURDAY, orderBy: "launch_time");
+                $SUNDAY = Anime::find(launch_day: DayOfWeek::SUNDAY, orderBy: "launch_time");
+
+                $calendar[DayOfWeek::MONDAY->name()] = array("day" => $days[DayOfWeek::MONDAY->value]->format(Database::DateFormatSimplified), "animes" => $MONDAY->toArray());
+                $calendar[DayOfWeek::TUESDAY->name()] = array("day" => $days[DayOfWeek::TUESDAY->value]->format(Database::DateFormatSimplified), "animes" => $TUESDAY->toArray());
+                $calendar[DayOfWeek::WEDNESDAY->name()] = array("day" => $days[DayOfWeek::WEDNESDAY->value]->format(Database::DateFormatSimplified), "animes" => $WEDNESDAY->toArray());
+                $calendar[DayOfWeek::THURSDAY->name()] = array("day" => $days[DayOfWeek::THURSDAY->value]->format(Database::DateFormatSimplified), "animes" => $THURSDAY->toArray());
+                $calendar[DayOfWeek::FRIDAY->name()] = array("day" => $days[DayOfWeek::FRIDAY->value]->format(Database::DateFormatSimplified), "animes" => $FRIDAY->toArray());
+                $calendar[DayOfWeek::SATURDAY->name()] = array("day" => $days[DayOfWeek::SATURDAY->value]->format(Database::DateFormatSimplified), "animes" => $SATURDAY->toArray());
+                $calendar[DayOfWeek::SUNDAY->name()] = array("day" => $days[DayOfWeek::SUNDAY->value]->format(Database::DateFormatSimplified), "animes" => $SUNDAY->toArray());
+
+                $bareCalendar[DayOfWeek::MONDAY->name()] = array("day" => $days[DayOfWeek::MONDAY->value], "animes" => $MONDAY);
+                $bareCalendar[DayOfWeek::TUESDAY->name()] = array("day" => $days[DayOfWeek::TUESDAY->value], "animes" => $TUESDAY);
+                $bareCalendar[DayOfWeek::WEDNESDAY->name()] = array("day" => $days[DayOfWeek::WEDNESDAY->value], "animes" => $WEDNESDAY);
+                $bareCalendar[DayOfWeek::THURSDAY->name()] = array("day" => $days[DayOfWeek::THURSDAY->value], "animes" => $THURSDAY);
+                $bareCalendar[DayOfWeek::FRIDAY->name()] = array("day" => $days[DayOfWeek::FRIDAY->value], "animes" => $FRIDAY);
+                $bareCalendar[DayOfWeek::SATURDAY->name()] = array("day" => $days[DayOfWeek::SATURDAY->value], "animes" => $SATURDAY);
+                $bareCalendar[DayOfWeek::SUNDAY->name()] = array("day" => $days[DayOfWeek::SUNDAY->value], "animes" => $SUNDAY);
+            } else {
+                if($day === "today") $day = date('w', $today->getTimestamp());
+                $dayItem = Anime::find(launch_day: DayOfWeek::getItem($day), orderBy: "launch_time");
+                $calendar[DayOfWeek::getItem($day)->name()] = array("day" => $days[DayOfWeek::getItem($day)->value]->format(Database::DateFormatSimplified), "animes" => $dayItem->toArray());
+                $bareCalendar[DayOfWeek::getItem($day)->name()] = array("day" => $days[DayOfWeek::getItem($day)->value], "animes" => $dayItem);
+            }
+
         } catch (Exception $e) {
             return new Status(isError: true, message: $e->getMessage());
         }
         return new Status(isError: false, return: $calendar, bareReturn: $bareCalendar);
     }
+
+    /**
+     * @throws ReflectionException
+     */
+    public static function getLastReleasedVideos() : Status{
+
+        $videos = Video::find(limit: self::recentReleasedItems, order: "release_date");
+
+        return new Status(isError: false, return: array($videos->toArray()), bareReturn: array($videos));
+    }
+
 }

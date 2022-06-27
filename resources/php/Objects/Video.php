@@ -157,7 +157,7 @@ class Video extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $anime = null, int $numeration = null, String $title = null, Availability $available = Availability::AVAILABLE, string $sql = null, string $operator = "=", array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, int $anime = null, int $numeration = null, String $title = null, Availability $available = Availability::AVAILABLE, string $sql = null, ?int $limit = null, string $order = "id", string $operator = "=", array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
@@ -165,7 +165,7 @@ class Video extends Entity
             "anime" => $anime,
             "title" => $title,
             "available" => $available?->value
-        ), table: 'video', class: 'Objects\Video', sql: $sql, operator: $operator, flags: $flags);
+        ), table: 'video', class: 'Objects\Video', sql: $sql, operator: $operator, limit: $limit, flags: $flags);
     }
 
     /**

@@ -27,6 +27,7 @@ $episode = $episodes[0];
     echo getHead(" - " . $episode->getTitle() . " Episódio " . $episode->getNumeration());
     ?>
     <link href = "<?php echo Utils::getDependencies("Episode", "css", false) ?>" rel = "stylesheet">
+    <script type = "module" src = "<?php echo Utils::getDependencies("Episode", relative: false) ?>"></script>
 </head>
 <body>
 <?php

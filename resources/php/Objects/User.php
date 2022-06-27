@@ -7,13 +7,12 @@ use Enumerators\Availability;
 use Enumerators\NightMode;
 use Enumerators\Removal;
 use Enumerators\Sex;
+use Enumerators\AnimeStatus;
 use Enumerators\Verification;
 use Exception;
 use Exceptions\ColumnNotFound;
-use Exceptions\InvalidDataType;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
-use Exceptions\MalformedJSON;
 use Exceptions\NotInitialized;
 use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
@@ -31,7 +30,8 @@ class User extends Entity
     public const LOGS = 4;
     public const PURCHASES = 5;
     public const TICKETS = 6;
-    public const ANIME_STATUS = 7;
+    public const ANIMEHISTORY = 7;
+    public const VIDEOHISTORY = 8;
 
     // DEFAULT STRUCTURE
 
@@ -69,23 +69,11 @@ class User extends Entity
     // User::Tickets
     private ?TicketsArray $tickets = null;
 
-    // User::AnimeStatus
-    /**
-     * @var array|null
-     * array(
-     *      array(
-     *          "status" => (new AnimeStatus()),
-     *          "list" => array(
-     *          )
-     *       ),
-     *      array(
-     *          "status" => (new AnimeStatus()),
-     *          "list" => array(
-     *          )
-     *       )
-     *   );
-     */
-    private ?array $anime_status = null;
+    // User::ANIMEHISTORY
+    private ?array $anime_history = null;
+
+    // User::VIDEOHISTORY
+    private ?array $video_history = null;
 
 
     /**
@@ -143,16 +131,44 @@ class User extends Entity
                 $this->tickets[] = new Ticket($row["id"]);
             }
         }
-        if($this->hasFlag(self::ANIME_STATUS)){
-            $this->anime_status = array();
-            $query = $database->query("SELECT DISTINCT status as 'id' FROM user_anime_status WHERE user = $id;");
+        if($this->hasFlag(self::ANIMEHISTORY)){
+            $this->anime_history = array();
+            $query = $database->query("SELECT * FROM user_anime WHERE user = $id;");
             while($row = $query->fetch_array()){
-                $status = new AnimeStatus($row["id"]);
-                $this->anime_status[] = array("status" => $status, "list" => array());
-                $animes = $database->query("SELECT anime as 'id' FROM user_anime_status WHERE user = $id and status = $row[id] ORDER BY date;");
-                while($anime = $animes->fetch_array()){
-                    $this->anime_status[sizeof($this->anime_status)]["list"] = new Anime($anime["id"]);
-                }
+
+                /*
+                 * $array = array(
+                 * "anime" => new Anime(),
+                 * "status" => AnimeStatus::DONT_LIKE,
+                 * "date" => new DateTime()
+                 * );
+                 * */
+
+                $this->anime_history[] = array(
+                    "anime" => new Anime(id: $row["anime"]),
+                    "status"=> AnimeStatus::getItem($row["status"]),
+                    "date"=> $row["date"] !== null ? DateTime::createFromFormat(Database::DateFormat, $row["date"]) : null
+                );
+            }
+        }
+        if($this->hasFlag(self::VIDEOHISTORY)){
+            $this->video_history = array();
+            $query = $database->query("SELECT * FROM history WHERE user = $id order by date;");
+            while($row = $query->fetch_array()){
+
+                /*
+                 * $array = array(
+                 * "video" => new Anime(),
+                 * "date" => new DateTime(),
+                 * "watch_until" => seconds
+                 * );
+                 * */
+
+                $this->video_history[] = array(
+                    "video" => new Video(id: $row["video"]),
+                    "date"=> $row["date"] !== null ? DateTime::createFromFormat(Database::DateFormat, $row["date"]) : null,
+                    "watched_until"=> $row["watched_until"]
+                );
             }
         }
     }
@@ -269,39 +285,54 @@ class User extends Entity
                 $ticket->store($this);
             }
         }
-        if ($this->hasFlag(self::ANIME_STATUS)) {
-            $query = $database->query("SELECT DISTINCT status as 'id' FROM user_anime_status WHERE user = $id;");
-            while ($row = $query->fetch_array()) {
-                $status = new AnimeStatus($row["id"]);
-                $status_list_loc = null;
-                foreach($this->anime_status as $k => $v){
-                    if($v["status"]->getId() == $status->getId()){
-                        $status_list_loc = $k;
+
+        if ($this->hasFlag(self::ANIMEHISTORY)) {
+            $animes = $database->query("SELECT anime as 'id', status FROM user_anime WHERE user = $id ORDER BY date;");
+            while ($record = $animes->fetch_array()) {
+                $remove = true;
+                foreach ($this->anime_history as $item) {
+                    if ($item["anime"]?->getId() == $record["id"] && $item["status"]?->value == $record["status"]) {
+                        $remove = false;
                         break;
                     }
                 }
-                $animes = $database->query("SELECT anime as 'id' FROM user_anime_status WHERE user = $id and status = $row[id] ORDER BY date;");
-                while ($anime = $animes->fetch_array()) {
-                    $remove = true;
-                    foreach ($this->anime_status[$status_list_loc]["list"] as $anime_status) {
-                        if ($anime_status->getId() == $anime["id"]) {
-                            $remove = false;
-                            break;
-                        }
-                    }
-                    if ($remove) {
-                        $database->query("DELETE FROM user_anime_status WHERE user = $id AND anime = $anime[id] AND status = $row[id]");
-                    }
+                if ($remove) {
+                    $database->query("DELETE FROM user_anime WHERE user = $id AND anime = $record[id] AND status = $record[status]");
                 }
             }
-            foreach ($this->anime_status as $status_arr) {
-                foreach ($status_arr["list"] as $key => $anime){
-                    $anime->store();
-                    $status = AnimeStatus::find(name: $key)[0];
-                    $database->query("INSERT IGNORE INTO user_anime_status (user, anime, status) VALUES ($id, ". $anime->getId() .", ". $status->getId() .")");
-                }
+            foreach ($this->anime_history as $item) {
+                $item["anime"]?->store();
+                $anime = $item["anime"]?->getId();
+                $status = $item["status"]?->value;
+                $date = $item["date"]?->format(Database::DateFormat);
+                $database->query("INSERT IGNORE INTO USER_ANIME (user, anime, status, date) VALUES ($id, $anime, $status, '$date')");
             }
         }
+        if ($this->hasFlag(self::VIDEOHISTORY)) {
+
+            $animes = $database->query("SELECT video as 'id' FROM history WHERE user = $id ORDER BY date;");
+            while ($record = $animes->fetch_array()) {
+                $remove = true;
+                foreach ($this->video_history as $item) {
+                    if ($item["video"]?->getId() == $record["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    $database->query("DELETE FROM history WHERE user = $id AND video = $record[id]");
+                }
+            }
+            foreach ($this->video_history as $item) {
+                $item["video"]?->store($item["video"]?->getAnime());
+                $video = $item["video"]?->getId();
+                $date = $item["date"]?->format(Database::DateFormat);
+                $watched_until = $item["watched_until"];
+                $database->query("DELETE FROM HISTORY where user = $id AND video = $video");
+                $database->query("INSERT IGNORE INTO HISTORY (user, video, date, watched_until) VALUES ($id, $video, '$date', '$watched_until')");
+            }
+        }
+
     }
 
     /**
@@ -428,10 +459,27 @@ class User extends Entity
             $array["tickets"] = array();
             foreach($this->tickets as $value) $array["tickets"][] = $value->toArray();
         }
-        $array["anime_status"] = null;
-        if($this->anime_status != null) {
-            $array["anime_status"] = array();
-            foreach($this->anime_status as $value) $array["anime_status"][] = $value->toArray();
+        $array["anime_history"] = null;
+        if($this->anime_history != null) {
+            $array["anime_history"] = array();
+            foreach($this->anime_history as $value) {
+                $array["anime_history"][] = array(
+                    "anime" => $value["anime"]?->toArray(),
+                    "status" => $value["status"]?->toArray(),
+                    "date" => $value["date"]?->format(Database::DateFormat)
+                );
+            }
+        }
+        $array["video_history"] = null;
+        if($this->video_history != null) {
+            $array["video_history"] = array();
+            foreach($this->video_history as $value) {
+                $array["video_history"][] = array(
+                    "video" => $value["video"]?->toArray(),
+                    "date" => $value["date"]?->format(Database::DateFormat),
+                    "watched_until" => $value["watched_until"]
+                );
+            }
         }
         return $array;
     }
@@ -783,7 +831,7 @@ class User extends Entity
      */
     public function addRole(Role $role): User
     {
-        if($this->roles == null) throw new NotInitialized("roles");
+        if($this->roles === null) throw new NotInitialized("roles");
         $this->roles[] = $role;
         return $this;
     }
@@ -796,7 +844,7 @@ class User extends Entity
      */
     public function removeRole(Role $role = null, int $id = null): User
     {
-        if($this->roles == null) throw new NotInitialized("roles");
+        if($this->roles === null) throw new NotInitialized("roles");
         $remove = array();
         if($role != null){
             for ($i = 0; $i < count($this->roles); $i++) {
@@ -838,7 +886,7 @@ class User extends Entity
     }
 
     /**
-     * @param array $punishments
+     * @param PunishmentsArray $punishments
      * @return User
      */
     public function setPunishments(PunishmentsArray $punishments): User
@@ -911,7 +959,7 @@ class User extends Entity
      */
     public function addLog(Log $entity): User
     {
-        if($this->logs == null) throw new NotInitialized("logs");
+        if($this->logs === null) throw new NotInitialized("logs");
         $this->logs[] = $entity;
         return $this;
     }
@@ -968,7 +1016,7 @@ class User extends Entity
      */
     public function addPurchase(AccountPurchase $entity): User
     {
-        if($this->purchases == null) throw new NotInitialized("purchases");
+        if($this->purchases === null) throw new NotInitialized("purchases");
         $this->purchases[] = $entity;
         return $this;
     }
@@ -1025,7 +1073,7 @@ class User extends Entity
      */
     public function addTicket(Ticket $entity): User
     {
-        if($this->tickets == null) throw new NotInitialized("tickets");
+        if($this->tickets === null) throw new NotInitialized("tickets");
         $this->tickets[] = $entity;
         return $this;
     }
@@ -1060,65 +1108,155 @@ class User extends Entity
     /**
      * @return array|null
      */
-    public function getAnimestatus(): ?array
+    public function getAnimeHistory(): ?array
     {
-        return $this->anime_status;
+        return $this->anime_history;
     }
 
     /**
-     * @param array|null $anime_status
+     * @param array|null $anime_history
      * @return User
      */
-    public function setAnimestatus(?array $anime_status): User
+    public function setAnimeHistory(?array $anime_history): User
     {
-        $this->anime_status = $anime_status;
+        $this->anime_history = $anime_history;
         return $this;
     }
 
     /**
-     * @param AnimeStatus $entity
-     * @param Anime $anime
+     * @param int $status
+     * @param int $anime
+     * @param DateTime $time
      * @return User
      * @throws NotInitialized
+     * @throws RecordNotFound
+     * @throws ReflectionException
      */
-    public function addAnimeStatus(AnimeStatus $entity, Anime $anime): User
+    public function addAnimeHistory(int $status, int $anime, DateTime $time): User
     {
-        if($this->anime_status == null) throw new NotInitialized("anime_status");
-        foreach($this->anime_status as $key => $value){
-            if($this->anime_status[$key]["status"]?->getId() == $entity->getId()){
-                $this->anime_status[$key]["list"][] = $anime;
+        if($this->anime_history === null) throw new NotInitialized("anime_history");
+        $add = true;
+        foreach ($this->anime_history as $item) {
+            if (($item["anime"]->getId() == $anime && $item["status"]?->value == $status)) {
+                $add = false;
+                break;
             }
+        }
+        if($add){
+            $this->anime_history[] = array(
+                "anime" => new Anime(id: $anime),
+                "status"=> AnimeStatus::getItem($status),
+                "date"=> $time
+            );
         }
         return $this;
     }
 
     /**
-     * @param AnimeStatus $entity
-     * @param Anime|null $anime
-     * @param int|null $id
+     * @param int $status
+     * @param Anime $anime
      * @return $this
      * @throws NotInitialized
      */
-    public function removeAnimeStatus(AnimeStatus $entity, Anime $anime = null, int $id = null): User
+    public function removeAnimeHistory(int $status, Anime $anime): User
     {
-        if($this->anime_status == null) throw new NotInitialized("anime_status");
-        $remove = array();
-        $status_loc = null;
-        for ($i = 0; $i < count($this->anime_status); $i++) {
-            if ($this->anime_status[$i]["status"]->getId() == $entity->getId()) {
-                $status_loc = $i;
-                foreach($this->anime_status[$i]["list"] as $key => $value){
-                    if(($entity != null && $value->getId() == $anime->getId()) || ($id != null && $value->getId() == $id))
-                    $remove[] = $key;
-                }
+        if($this->anime_history == null) throw new NotInitialized("anime_history");
+        $i = -1;
+        $toRemove = array();
+        foreach ($this->anime_history as $item) {
+            $i++;
+            if (($item["anime"]->getId() == $anime->getId() && $item["status"]?->value == $status)) {
+                $toRemove[] = $i;
+                break;
             }
         }
-        if($status_loc != null) foreach($remove as $item) unset($this->anime_status[$status_loc]["list"][$item]);
+        foreach($toRemove as $item) unset($this->anime_history[$i]);
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getVideoHistory(): ?array
+    {
+        return $this->video_history;
+    }
+
+
+    /**
+     * @param array|null $video_history
+     * @return User
+     */
+    public function setVideoHistory(?array $video_history): User
+    {
+        $this->video_history = $video_history;
+        return $this;
+    }
+
+    /**
+     * @param int $video
+     * @param DateTime|null $date
+     * @param int|null $watched_until
+     * @return User
+     * @throws NotInitialized
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     */
+    public function addVideoHistory(int $video, ?DateTime $date, ?int $watched_until): User
+    {
+        if($this->video_history === null) throw new NotInitialized("video_history");
+        $i = -1;
+        $founded = false;
+        foreach ($this->video_history as $item) {
+            $i++;
+            if (($item["video"]->getId() == $video)) {
+                $founded = true;
+                break;
+            }
+        }
+        if($founded){
+            if($watched_until === null){
+                $query = $this->getDatabase()->query("SELECT watched_until FROM history where user = " . $this->getId());
+                if($query->num_rows > 0){
+                    $watched_until = $query->fetch_array()["watched_until"];
+                } else $watched_until = 0;
+            }
+            if($date === null){
+                $date = new DateTime();
+            }
+            unset($this->video_history[$i]);
+            $this->video_history[] = array(
+                "video" => new Video(id: $video),
+                "date"=> $date,
+                "watched_until"=> $watched_until
+            );
+        }
+        return $this;
+    }
+
+    /**
+     * @param Video $video
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeVideoHistory(Video $video): User
+    {
+        if($this->video_history == null) throw new NotInitialized("video_history");
+        $i = -1;
+        $toRemove = array();
+        foreach ($this->video_history as $item) {
+            $i++;
+            if (($item["video"]->getId() == $video->getId())) {
+                $toRemove[] = $i;
+                break;
+            }
+        }
+        foreach($toRemove as $item) unset($this->video_history[$i]);
         return $this;
     }
 
     /** @noinspection PhpParamsInspection */
-    public function setRelation(int $relation, EntityArray $value) : User
+    public function setRelation(int $relation, array|EntityArray $value) : User
     {
         switch ($relation) {
             case self::ROLES:
@@ -1133,18 +1271,26 @@ class User extends Entity
             case self::TICKETS:
                 $this->setTickets($value);
                 break;
-            case self::ANIME_STATUS:
-                //$this->setAnimestatus($value);
+            case self::ANIMEHISTORY:
+                $this->setAnimeHistory($value);
+                break;
+            case self::VIDEOHISTORY:
+                $this->setVideoHistory($value);
                 break;
         }
         return $this;
     }
 
     /**
+     * @param int $relation
+     * @param mixed $value
+     * @return User
      * @throws NotInitialized
+     * @throws RecordNotFound
+     * @throws ReflectionException
      * @noinspection PhpParamsInspection
      */
-    public function addRelation(int $relation, Entity $value) : User
+    public function addRelation(int $relation, mixed $value) : User
     {
         switch ($relation) {
             case self::ROLES:
@@ -1159,8 +1305,15 @@ class User extends Entity
             case self::TICKETS:
                 $this->addTicket($value);
                 break;
-            case self::ANIME_STATUS:
-                //$this->addAnimeStatus($value);
+            case self::ANIMEHISTORY:
+                if(is_array($value)) {
+                    $this->addAnimeHistory($value["status"],$value["anime"],DateTime::createFromFormat(Database::DateFormat, $value["date"]));
+                }
+                break;
+            case self::VIDEOHISTORY:
+                if(is_array($value)) {
+                    $this->addVideoHistory($value["video"],$value["date"] !== null ? DateTime::createFromFormat(Database::DateFormat, $value["date"]) : null, $value["watched_until"]);
+                }
                 break;
         }
         return $this;
@@ -1170,7 +1323,7 @@ class User extends Entity
      * @throws NotInitialized
      * @noinspection PhpParamsInspection
      */
-    public function removeRelation(int $relation, Entity $value = null, int $id = null) : User
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : User
     {
         switch ($relation) {
             case self::ROLES:
@@ -1185,10 +1338,19 @@ class User extends Entity
             case self::TICKETS:
                 $this->removeTicket($value, $id);
                 break;
-            case self::ANIME_STATUS:
-                //$this->removeAnimeStatus($value, $id);
+            case self::ANIMEHISTORY:
+                if(is_array($value)) {
+                    $this->removeAnimeHistory($value["status"],$value["anime"]);
+                }
+                break;
+            case self::VIDEOHISTORY:
+                if(is_array($value)) {
+                    $this->removeVideoHistory($value["status"]);
+                }
                 break;
         }
         return $this;
     }
+
+
 }

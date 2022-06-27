@@ -14,21 +14,15 @@ use Functions\Routing;
         </div>
         <div class = "header-center">
             <div class = "header-btn">
-                <span>Animes</span>
+                <a class = "link-nodecoration header-link" href = "<?php echo Routing::getRouting("animes"); ?>">Animes</a>
             </div> <!-- Depois mostrar Popular, Lançamentos quando passar por cima, se pressionar vai pra o /animes-->
             <div class = "header-btn">
-                <span>Calendário</span>
-            </div>
-            <div class = "header-btn">
-                <span>Géneros</span>
-            </div>
-            <div class = "header-btn">
-                <span>Novidades</span>
+                <a class = "link-nodecoration header-link" href = "<?php echo Routing::getRouting("calendar"); ?>">Calendário</a>
             </div>
         </div>
         <div class = "header-right">
             <div class = "header-btn">
-                <a class = "link-nodecoration" href = "<?php echo Routing::getRouting("search"); ?>"> <i class="fa-solid fa-magnifying-glass"></i>
+                <a class = "link-nodecoration header-link" href = "<?php echo Routing::getRouting("search"); ?>"> <i class="fa-solid fa-magnifying-glass"></i>
                 </a>
             </div>
             <div class = "header-btn">

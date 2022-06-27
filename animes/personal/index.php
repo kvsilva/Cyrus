@@ -23,7 +23,6 @@ $videos = Video::find(anime: $anime->getId());
 $seasons = Season::find(anime: $anime->getId());
 $genders = $anime->getGenders() === null ? new EntityArray(null) : $anime->getGenders();
 
-
 ?>
 <html lang="pt_PT">
 <head>
@@ -32,12 +31,13 @@ $genders = $anime->getGenders() === null ? new EntityArray(null) : $anime->getGe
     echo getHead(" - " . $anime->getTitle());
     ?>
     <link href="<?php echo Utils::getDependencies("Personal", "css")?>" rel="stylesheet">
-    <script src="<?php echo Utils::getDependencies("Personal")?>"></script>
+    <script type = "module" src="<?php echo Utils::getDependencies("Personal")?>"></script>
 </head>
 <body>
 <?php
 include(Utils::getDependencies("Cyrus", "header", true));
 ?>
+
 <div id="content">
     <div id="series_art">
         <div id="background">

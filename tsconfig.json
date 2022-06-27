@@ -34,7 +34,9 @@
   "include": [
     "resources/js/*",
     "search/assets/js/*",
+    "episode/assets/js/*",
     "animes/list/assets/js/*",
+    "animes/personal/assets/js/*",
     "home/assets/js/*",
   ],
   "exclude": [

@@ -22,6 +22,7 @@ class Models
     private const Enumerators = array(
         "Availability",
         "DayOfWeek",
+        "AnimeStatus",
         "Maturity",
         "NightMode",
         "Removal",
@@ -47,7 +48,6 @@ class Models
         "Objects\\PunishmentType",
         "Objects\\Punishment",
         "Objects\\Gender",
-        "Objects\\AnimeStatus",
         "Objects\\TicketStatus",
         "Objects\\Ticket",
         "Objects\\TicketMessage",

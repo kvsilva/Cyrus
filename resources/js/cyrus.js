@@ -33,14 +33,15 @@ $(document).ready(function () {
             let maxScrollTimes = Math.ceil(totalItems / cols);
             let scrolledTimes = parseInt($(this).data("scrolled-times"));
             if (isNaN(scrolledTimes))
-                scrolledTimes = 1;
+                scrolledTimes = 0;
             if (scrolledTimes < maxScrollTimes) {
                 scrolledTimes += 1;
+                $(this).parent().parent().parent().find('[data-arrow="next"]').removeClass("cyrus-carousel-arrow-hidden");
                 if (scrolledTimes >= maxScrollTimes) {
-                    $(this).parent().parent().parent().find('[data-arrow="next"]').css({ "visibility": "hidden" });
+                    $(this).parent().parent().parent().find('[data-arrow="next"]').addClass("cyrus-carousel-arrow-hidden"); //.css({"visibility": "hidden"});
                 }
-                else {
-                    $(this).parent().parent().parent().find('[data-arrow="previous"]').css({ "visibility": "visible" });
+                else if (scrolledTimes > 1) {
+                    $(this).parent().parent().parent().find('[data-arrow="previous"]').removeClass("cyrus-carousel-arrow-hidden"); //.css({"visibility": "visible"});
                 }
                 $(this).data("scrolled-times", scrolledTimes);
                 //let leftPos = $(this).scrollLeft();
@@ -48,7 +49,7 @@ $(document).ready(function () {
                 $(this).animate({ scrollLeft: $(this).width() * (scrolledTimes - 1) }, 500);
             }
             else if (scrolledTimes >= maxScrollTimes) {
-                $(this).parent().parent().parent().find('[data-arrow="next"]').css({ "visibility": "hidden" });
+                $(this).parent().parent().parent().find('[data-arrow="next"]').addClass("cyrus-carousel-arrow-hidden"); //.css({"visibility": "hidden"});
             }
         });
     }).trigger("click");
@@ -61,16 +62,16 @@ $(document).ready(function () {
                 scrolledTimes -= 1;
                 $(this).data("scrolled-times", scrolledTimes);
                 if (scrolledTimes == 1) {
-                    $(this).parent().parent().parent().find('[data-arrow="previous"]').css({ "visibility": "hidden" });
+                    $(this).parent().parent().parent().find('[data-arrow="previous"]').addClass("cyrus-carousel-arrow-hidden"); //.css({"visibility": "hidden"});
                 }
                 else {
-                    $(this).parent().parent().parent().find('[data-arrow="next"]').css({ "visibility": "visible" });
+                    $(this).parent().parent().parent().find('[data-arrow="next"]').removeClass("cyrus-carousel-arrow-hidden"); //({"visibility": "visible"});
                 }
                 // @ts-ignore
                 $(this).animate({ scrollLeft: $(this).width() * (scrolledTimes - 1) }, 500);
             }
             else if (scrolledTimes == 1) {
-                $(this).parent().parent().parent().find('[data-arrow="previous"]').css({ "visibility": "hidden" });
+                $(this).parent().parent().parent().find('[data-arrow="previous"]').addClass("cyrus-carousel-arrow-hidden"); //.css({"visibility": "hidden"});
             }
         });
     }).trigger("click");

@@ -265,7 +265,7 @@ class Anime extends Entity
     }
 
     /** @noinspection PhpParamsInspection */
-    public function setRelation(int $relation, EntityArray $value) : Anime
+    public function setRelation(int $relation, EntityArray|array $value) : Anime
     {
         switch ($relation) {
             case self::VIDEOS:
@@ -283,11 +283,11 @@ class Anime extends Entity
 
     /**
      * @param int $relation
-     * @param Entity $value
+     * @param mixed $value
      * @return $this
      * @throws NotInitialized
      */
-    public function addRelation(int $relation, Entity $value) : Anime
+    public function addRelation(int $relation, mixed $value) : Anime
     {
         switch ($relation) {
             case self::VIDEOS:
@@ -307,7 +307,7 @@ class Anime extends Entity
      * @throws NotInitialized
      * @noinspection PhpParamsInspection
      */
-    public function removeRelation(int $relation, Entity $value = null, int $id = null) : Anime
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : Anime
     {
         switch ($relation) {
             case self::VIDEOS:
@@ -317,7 +317,7 @@ class Anime extends Entity
                 $this->removeSeasons($value, $id);
                 break;
             case self::GENDERS:
-                $this->removeGenders($value, $id);
+                $this->removeGender($value, $id);
                 break;
         }
         return $this;

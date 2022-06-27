@@ -161,24 +161,37 @@ abstract class Entity
      */
     public function arrayRelations(?array $relations) : void
     {
-        if($relations != null) {
+        if ($relations != null) {
             foreach ($relations as $key => $value) {
-                if(sizeof($value) == 0) continue;
+                if (sizeof($value) == 0) continue;
                 $const = $this->getConstant(strtoupper($key));
                 $array_name = "Objects\\" . ucwords($key) . "Array";
                 if (class_exists($array_name)) {
                     $object_name = (new ReflectionClass($array_name))->newInstanceArgs()->isArrayOf();
-                    if(!$this->hasFlag($const)){
+                    if (!$this->hasFlag($const)) {
                         $this->flags[] = $const;
-                        if($this->getId() != null) $this->buildRelations();
+                        if ($this->getId() != null) $this->buildRelations();
                         $this->setRelation($const, (new ReflectionClass($array_name))->newInstanceArgs());
 
                     }
                     foreach ($value as $relation_array) {
-                        if(sizeof($relation_array) == 0) continue;
+                        if (sizeof($relation_array) == 0) continue;
                         // relation_array hasValidFields
                         $obj = static::arrayToObject(object: $object_name, array: $relation_array);
                         $this->addRelation($const, $obj);
+                    }
+                } else {
+                    if (!$this->hasFlag($const)) {
+                        $this->flags[] = $const;
+                        if ($this->getId() != null) $this->buildRelations();
+                        $this->setRelation($const, array());
+                    }
+                    foreach ($value as $relation_array) {
+                        if (sizeof($relation_array) == 0) continue;
+                        // relation_array hasValidFields
+                        //$obj = static::arrayToObject(object: $object_name, array: $relation_array);
+                        $this->addRelation($const, $relation_array);
+
                     }
                 }
             }
@@ -332,7 +345,7 @@ abstract class Entity
      * @return EntityArray
      * @throws ReflectionException
      */
-    public static function __find(array $fields, String $table, String $class, string $sql = null, string $operator = "=", string $orderBy = "id", array $flags = [self::NORMAL]): EntityArray
+    public static function __find(array $fields, String $table, String $class, string $sql = null, string $operator = "=", string $orderBy = "id", ?int $limit = null, array $flags = [self::NORMAL]): EntityArray
     {
         if(class_exists($class . "sArray")){
             $result = (new ReflectionClass($class . "sArray"))->newInstanceArgs(array());
@@ -357,6 +370,7 @@ abstract class Entity
             if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
         }
         $sql_command.= " order by " . $orderBy;
+        $sql_command.= ($limit !== null) ? " LIMIT " . $limit : "";
         $query = $database->query($sql_command);
         while($row = $query->fetch_array(MYSQLI_ASSOC)){
             $result[] = (new ReflectionClass($class))->newInstanceArgs(array($row["id"], $flags));
@@ -466,7 +480,7 @@ abstract class Entity
      * @param mixed $value
      * @return $this
      */
-    public function setRelation(int $relation, EntityArray $value) : Entity{
+    public function setRelation(int $relation, EntityArray|array $value) : Entity{
         return $this;
     }
 
@@ -475,7 +489,7 @@ abstract class Entity
      * @param Entity $value
      * @return $this
      */
-    public function addRelation(int $relation, Entity $value) : Entity
+    public function addRelation(int $relation, mixed $value) : Entity
     {
         return $this;
     }
@@ -486,7 +500,7 @@ abstract class Entity
      * @param int|null $id
      * @return $this
      */
-    public function removeRelation(int $relation, Entity $value = null, int $id = null) : Entity
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : Entity
     {
         return $this;
     }

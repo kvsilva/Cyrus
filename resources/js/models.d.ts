@@ -11,6 +11,12 @@ export declare const DayOfWeek: {
     SATURDAY: number;
     SUNDAY: number;
 };
+export declare const AnimeStatus: {
+    FAVOURITE: number;
+    LIKE: number;
+    DONT_LIKE: number;
+    WATCH_LATER: number;
+};
 export declare const Maturity: {
     NORMAL: number;
     MATURE: number;
@@ -110,7 +116,8 @@ export declare class User {
     logs: Log[];
     purchases: AccountPurchase[];
     tickets: Ticket[];
-    anime_status: any[];
+    anime_history: any[];
+    video_history: any[];
     constructor(obj?: any);
 }
 export declare const UserFlags: {
@@ -134,7 +141,11 @@ export declare const UserFlags: {
         name: string;
         value: number;
     };
-    ANIME_STATUS: {
+    ANIMEHISTORY: {
+        name: string;
+        value: number;
+    };
+    VIDEOHISTORY: {
         name: string;
         value: number;
     };
@@ -377,21 +388,6 @@ export declare class Gender {
     constructor(obj?: any);
 }
 export declare const GenderFlags: {
-    NORMAL: {
-        name: string;
-        value: number;
-    };
-    ALL: {
-        name: string;
-        value: number;
-    };
-};
-export declare class AnimeStatus {
-    id: number;
-    name: string;
-    constructor(obj?: any);
-}
-export declare const AnimeStatusFlags: {
     NORMAL: {
         name: string;
         value: number;

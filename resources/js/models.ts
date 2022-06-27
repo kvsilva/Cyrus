@@ -11,6 +11,12 @@ export const DayOfWeek = {
     SATURDAY: 6,
     SUNDAY: 7
 };
+export const AnimeStatus = {
+    FAVOURITE: 1,
+    LIKE: 2,
+    DONT_LIKE: 3,
+    WATCH_LATER: 4
+};
 export const Maturity = {
     NORMAL: 0,
     MATURE: 1
@@ -117,7 +123,8 @@ export class User {
     logs: Log[];
     purchases: AccountPurchase[];
     tickets: Ticket[];
-    anime_status: any[];
+    anime_history: any[];
+    video_history: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
@@ -143,7 +150,8 @@ export class User {
         this.logs = (obj_.logs !== undefined) ? obj_.logs : [];
         this.purchases = (obj_.purchases !== undefined) ? obj_.purchases : [];
         this.tickets = (obj_.tickets !== undefined) ? obj_.tickets : [];
-        this.anime_status = (obj_.anime_status !== undefined) ? obj_.anime_status : [];
+        this.anime_history = (obj_.anime_history !== undefined) ? obj_.anime_history : [];
+        this.video_history = (obj_.video_history !== undefined) ? obj_.video_history : [];
     }
 }
 export const UserFlags = {
@@ -152,7 +160,8 @@ export const UserFlags = {
     LOGS: {name: "LOGS", value: 4},
     PURCHASES: {name: "PURCHASES", value: 5},
     TICKETS: {name: "TICKETS", value: 6},
-    ANIME_STATUS: {name: "ANIME_STATUS", value: 7},
+    ANIMEHISTORY: {name: "ANIMEHISTORY", value: 7},
+    VIDEOHISTORY: {name: "VIDEOHISTORY", value: 8},
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
@@ -416,20 +425,6 @@ export const GenderFlags = {
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
-export class AnimeStatus {
-    id: number;
-    name: string;
-
-    public constructor(obj?: any){ 
-        const obj_: any = obj || {};
-        this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.name = (obj_.name !== undefined) ? obj_.name : null;
-    }
-}
-export const AnimeStatusFlags = {
-    NORMAL: {name: "NORMAL", value: 0},
-    ALL: {name: "ALL", value: 1}
-};
 export class TicketStatus {
     id: number;
     name: string;
@@ -649,7 +644,6 @@ export const models : any = {
     "PunishmentType" : PunishmentType,
     "Punishment" : Punishment,
     "Gender" : Gender,
-    "AnimeStatus" : AnimeStatus,
     "TicketStatus" : TicketStatus,
     "Ticket" : Ticket,
     "TicketMessage" : TicketMessage,

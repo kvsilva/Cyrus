@@ -46,11 +46,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
             </div>
             <div class = "calendar-day-body">
                 <?php
-                if($dayInfo["animes"]?->size() == 0){?>
-                <?php
-                } else
-                for($m = 0; $m < 12; $m++)
-                    foreach($dayInfo["animes"] as $anime){?>
+                foreach($dayInfo["animes"] as $anime){?>
                 <div class = "calendar-item">
                     <div class = "calendar-item-hour">
                         <span><?php echo $anime?->getLaunchTime()?->format("H:i");?></span>
