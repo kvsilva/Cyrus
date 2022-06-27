@@ -1,4 +1,4 @@
-"use strict";
+import { Request as API } from "./Request";
 $(document).ready(function () {
     if ($("#user-menu-btn")) {
         $("#user-menu-btn").click(function () {
@@ -8,6 +8,7 @@ $(document).ready(function () {
     }
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
+        // @ts-ignore
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     $(".cyrus-carousel-next").click(function () {
@@ -84,7 +85,13 @@ $(document).ready(function () {
     $(".dropdown").find(".dropdown-menu li").click(function () {
         $(this).parent().find(".selected").removeClass("selected");
         $(this).addClass("selected");
-        $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
-        console.log("Selected ID now:" + $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected"));
+        $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html()).trigger("change");
+    });
+    $("#cyrus-logout").click(function () {
+        API.requestService("Authentication", "logout", {}, []).then((result) => {
+            if (result.status) {
+                location.reload();
+            }
+        });
     });
 });

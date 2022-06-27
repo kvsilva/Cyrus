@@ -3,15 +3,13 @@ require_once(dirname(__DIR__) . '\\..\\resources\\php\\settings.php');
 
 use Functions\Routing;
 use Functions\Utils;
-use Objects\Anime;
-use Objects\Entity;
-use Objects\EntityArray;
-use Objects\Season;
-use Objects\SeasonsArray;
-use Objects\Video;
-use Services\Animes;
-use Services\Users;
+use Objects\Language;
 
+
+if(!isset($_SESSION["user"])){
+    header("Location: " . Routing::getRouting("home"));
+    exit;
+}
 
 ?>
 <html lang="pt_PT">
@@ -51,9 +49,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             <span>Geral</span>
                         </div>
                         <div class="user-options-section-items">
-                            <div class="user-options-section-item">
+                            <!--<div class="user-options-section-item">
                                 <span>Plano de Subscrição</span>
-                            </div>
+                            </div>-->
                             <div class="user-options-section-item user-options-section-selected" role = "button" data-option = "preferences">
                                 <span>Preferências</span>
                             </div>
@@ -94,15 +92,17 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <div class="option-cfg-item-subitem">
                                     <label class="option-cfg-item-subitem-subtitle">
                                         <span>Idioma de Apresentação</span>
-                                        <div class="dropdown">
+                                        <div class="dropdown no-select">
                                             <div class="dropdown-toggle" type="button" id="dropdownMenuButton1"
                                                  data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span id="selected-display-language" data-selected="0">Português (Portugal)</span>
                                             </div>
-                                            <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1"
-                                                id="availableSeasons">
-                                                <li data-id="1">Português (Portugal)</li>
-                                                <li data-id="2">English (US)</li>
+                                            <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1">
+                                                <?php
+                                                $languages = Language::find();
+                                                foreach($languages as $language){?>
+                                                    <li <?php echo $_SESSION["user"]->getDisplayLanguage()?->getId() === $language->getId() ? 'class = "selected"' : ''?>data-id="<?php echo $language->getId()?>"><?php echo $language->getOriginalName() . " (" . $language->getCode() . ")"?></li>
+                                                <?php }?>
                                             </ul>
                                         </div>
                                     </label>
@@ -110,15 +110,17 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <div class="option-cfg-item-subitem">
                                     <label class="option-cfg-item-subitem-subtitle">
                                         <span>Idioma de Comunicação via e-mail</span>
-                                        <div class="dropdown">
+                                        <div class="dropdown no-select">
                                             <div class="dropdown-toggle" type="button" id="dropdownMenuButton1"
                                                  data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span id="selected-email-communication-language" data-selected="0"></span>
                                             </div>
-                                            <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1"
-                                                id="availableSeasons">
-                                                <li data-id="1">Português (Portugal)</li>
-                                                <li data-id="2">English (US)</li>
+                                            <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1">
+                                                <?php
+                                                $languages = Language::find();
+                                                foreach($languages as $language){?>
+                                                    <li <?php echo $_SESSION["user"]->getEmailCommunicationLanguage()?->getId() === $language->getId() ? 'class = "selected"' : ''?>data-id="<?php echo $language->getId()?>"><?php echo $language->getOriginalName() . " (" . $language->getCode() . ")"?></li>
+                                                <?php }?>
                                             </ul>
                                         </div>
                                     </label>
@@ -131,16 +133,18 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <div class="option-cfg-item-subitem">
                                     <label class="option-cfg-item-subitem-subtitle">
                                         <span>Idioma das Legendas</span>
-                                        <div class="dropdown">
+                                        <div class="dropdown no-select">
                                             <div class="dropdown-toggle" type="button" id="dropdownMenuButton1"
                                                  data-bs-toggle="dropdown" aria-expanded="false">
                                                 <span id="selected-translation-language"
                                                       data-selected="2"></span>
                                             </div>
-                                            <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1"
-                                                id="availableSeasons">
-                                                <li  data-id="1">Português (Portugal)</li>
-                                                <li data-id="2">English (US)</li>
+                                            <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1">
+                                                <?php
+                                                $languages = Language::find();
+                                                foreach($languages as $language){?>
+                                                    <li <?php echo $_SESSION["user"]->getTranslationLanguage()?->getId() === $language->getId() ? 'class = "selected"' : ''?>data-id="<?php echo $language->getId()?>"><?php echo $language->getOriginalName() . " (" . $language->getCode() . ")"?></li>
+                                                <?php }?>
                                             </ul>
                                         </div>
                                     </label>
@@ -162,17 +166,17 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <div class="option-cfg-item-subitem">
                                     <div class="cyrus-input-group disable-after">
                                         <span class="option-cfg-item-subitem-title">E-mail Atual</span>
-                                        <span class="option-cfg-item-subitem-text">vesilva24a@gmail.com</span>
+                                        <span class="option-cfg-item-subitem-text" id = "change-email_current-email"><?php echo $_SESSION["user"]->getEmail()?></span>
                                     </div>
                                 </div>
                                 <div class="option-cfg-item-subitem">
                                     <div class="cyrus-input-group option-cfg-item-subitem-text">
                                         <input class="w-100 cyrus-minimal" type="text" value=''
-                                               onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password">
+                                               onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password" id = "change-email_new-email">
                                         <span class="cyrus-floating-label">Novo e-mail</span>
                                     </div>
                                     <div class = "cyrus-input-group option-cfg-item-subitem-text">
-                                        <input class = "w-100 cyrus-minimal" type = "password" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password">
+                                        <input class = "w-100 cyrus-minimal" type = "password" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password" id = "change-email_current-password">
                                         <span class = "cyrus-floating-label">Palavra-Passe Atual</span>
                                     </div>
                                     <div class = "d-flex justify-content-center mt-4">
@@ -208,6 +212,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                         <input id = "change-password_repeat-password" class = "w-100 cyrus-minimal" type = "password" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password">
                                         <span class = "cyrus-floating-label">Repete a nova palavra-passe</span>
                                     </div>
+                                    <span class = "option-cfg-item-subitem-title">Mínimo de 8 caracteres</span>
                                     <div class = "cyrus-alert-info">
                                         <i class="fa-solid fa-circle-info"></i>
                                         <span class = "cyrus-alert-info-text">

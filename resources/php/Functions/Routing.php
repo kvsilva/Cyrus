@@ -22,6 +22,7 @@ class Routing
                 "episode" => (Utils::getURL() . "episode/"),
                 "search" => (Utils::getURL() . "search/"),
                 "account" => (Utils::getURL() . "user/account/"),
+                "home" => (Utils::getURL()),
             );
 
            self::$resources = array(

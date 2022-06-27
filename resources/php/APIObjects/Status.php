@@ -15,7 +15,7 @@ class Status
      * @param array $return
      * @param mixed|null $bareReturn
      */
-    public function __construct(bool $isError, ?string $message = null, array $return = array(), mixed $bareReturn = null)
+    public function __construct(bool $isError, ?string $message = null, array $return = array(), mixed $bareReturn = array())
     {
         $this->isError = $isError;
         $this->message = $message;

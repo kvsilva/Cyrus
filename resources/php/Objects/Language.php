@@ -63,7 +63,8 @@ class Language extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $code = null,  string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, string $code = null,  string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "code" => $code

@@ -711,9 +711,9 @@ class User extends Entity
     }
 
     /**
-     * @return Language
+     * @return Language|null
      */
-    public function getDisplayLanguage(): Language
+    public function getDisplayLanguage(): ?Language
     {
         return $this->display_language;
     }
@@ -729,9 +729,9 @@ class User extends Entity
     }
 
     /**
-     * @return Language
+     * @return Language|null
      */
-    public function getEmailCommunicationLanguage(): Language
+    public function getEmailCommunicationLanguage(): ?Language
     {
         return $this->email_communication_language;
     }
@@ -747,9 +747,9 @@ class User extends Entity
     }
 
     /**
-     * @return Language
+     * @return Language|null
      */
-    public function getTranslationLanguage(): Language
+    public function getTranslationLanguage(): ?Language
     {
         return $this->translation_language;
     }

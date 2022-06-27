@@ -36,4 +36,19 @@ class Authentication
         return new Status(isError: false, message: "We hope to see you soon.");
     }
 
+    public static function register(String $username, String $email, String $password) : Status{
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new Status(isError: true, message: "Email inválido.", return: array(), bareReturn: array());
+        }
+        if(strlen($password) < 8){
+            return new Status(isError: true, message: "Palavra-Passe inferior ao tamanho permitido (8 caracteres).", return: array(), bareReturn: array());
+        }
+        $user = new User();
+        $user->setUsername($username);
+        $user->setEmail($email);
+        $user->setPassword($password);
+        $user->store();
+        return new Status(isError: false, return: array($user->toArray()), bareReturn: array($user));
+    }
+
 }

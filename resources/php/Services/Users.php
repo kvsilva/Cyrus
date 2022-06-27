@@ -6,7 +6,13 @@ use APIObjects\Status;
 use DateTime;
 use Enumerators\DayOfWeek;
 use Exception;
+use Exceptions\ColumnNotFound;
+use Exceptions\InvalidSize;
+use Exceptions\IOException;
+use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
+use Exceptions\TableNotFound;
+use Exceptions\UniqueKey;
 use Functions\Database;
 use Functions\Utils;
 use Objects\Anime;
@@ -45,5 +51,59 @@ class Users
         } else {
             return new Status(isError: false, return: array(), bareReturn: array());
         }
+    }
+
+    /**
+     * @param String $currentPassword
+     * @param String $newPassword
+     * @return Status
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     * @throws ColumnNotFound
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws NotNullable
+     * @throws TableNotFound
+     * @throws UniqueKey
+     */
+    public static function changePassword(String $currentPassword, String $newPassword) : Status{
+        if(isset($_SESSION["user"])){
+            $_SESSION["user"] = new User($_SESSION["user"]->getId());
+            if($_SESSION["user"]->isPassword($currentPassword)){
+                if(strlen($newPassword) >= 8) {
+                    $_SESSION["user"]->setPassword($newPassword);
+                    $_SESSION["user"]->store();
+                    Authentication::logout();
+                    return new Status(isError: false, return: array(), bareReturn: array());
+                } else return new Status(isError: true, message: "Palavra-Passe inferior ao tamanho permitido (8 caracteres).", return: array(), bareReturn: array());
+            } else return new Status(isError: true, message: "Palavra-Passe incorreta.", return: array(), bareReturn: array());
+        } else return new Status(isError: true, message: "Nenhuma sessão foi iniciada.", return: array(), bareReturn: array());
+    }
+
+
+    /**
+     * @param String $currentPassword
+     * @param String $newEmail
+     * @return Status
+     * @throws ColumnNotFound
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws NotNullable
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     * @throws TableNotFound
+     * @throws UniqueKey
+     */
+    public static function changeEmail(String $currentPassword, String $newEmail) : Status{
+        if(isset($_SESSION["user"])){
+            $_SESSION["user"] = new User($_SESSION["user"]->getId());
+            if($_SESSION["user"]->isPassword($currentPassword)){
+                if(filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+                    $_SESSION["user"]->setEmail($newEmail);
+                    $_SESSION["user"]->store();
+                    return new Status(isError: false, return: array($_SESSION["user"]->toArray()), bareReturn: array($_SESSION["user"]));
+                } else return new Status(isError: true, message: "Email inválido.", return: array(), bareReturn: array());
+            } else return new Status(isError: true, message: "Palavra-Passe incorreta.", return: array(), bareReturn: array());
+        } else return new Status(isError: true, message: "Nenhuma sessão foi iniciada.", return: array(), bareReturn: array());
     }
 }

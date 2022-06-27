@@ -74,7 +74,7 @@ use Functions\Routing;
                             </div>
                         </div>
                         <div class = "list-menu-section">
-                            <div class = "list-menu-section-item list-menu-btn">
+                            <div class = "list-menu-section-item list-menu-btn" id = "cyrus-logout">
                                 <div>
                                     <i class="list-icon fa-solid fa-right-from-bracket"></i>
                                     <span>Encerrar Sessão</span>

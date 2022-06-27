@@ -198,6 +198,7 @@ class Request
         $parameters = array();
 
         if($data === null || count($data) == 0 || $method->getNumberOfRequiredParameters() > count($data[0])){
+
             (new Response(status: false, description: API_MESSAGES::MISSING_FIELDS_GENERIC))->encode(print: true);
             return;
         }
