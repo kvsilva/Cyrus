@@ -29,7 +29,6 @@ $(document).ready(function(){
                                 document.getElementById("player0")?.currentTime = loc[0].watched_until;
                             }
                         }
-
                     }
                 });
             }

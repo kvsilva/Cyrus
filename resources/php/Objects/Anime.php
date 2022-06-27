@@ -187,14 +187,14 @@ class Anime extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $operator = "=", string $orderBy = "id", string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, string $title = null, DayOfWeek $launch_day = null, Availability $available = Availability::AVAILABLE, string $operator = "=", ?int $limit = null, string $orderBy = "id", string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "title" => $title,
             "launch_day" => $launch_day?->value,
             "available" => $available?->value
-        ), table: 'anime', class: 'Objects\Anime', sql: $sql, operator: $operator, orderBy: $orderBy, flags: $flags);
+        ), table: 'anime', class: 'Objects\Anime', sql: $sql, operator: $operator, orderBy: $orderBy, limit: $limit, flags: $flags);
     }
 
     /**

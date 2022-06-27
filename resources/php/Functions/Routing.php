@@ -21,6 +21,7 @@ class Routing
                 "news" => (Utils::getURL() . "news/"),
                 "episode" => (Utils::getURL() . "episode/"),
                 "search" => (Utils::getURL() . "search/"),
+                "account" => (Utils::getURL() . "user/account/"),
             );
 
            self::$resources = array(

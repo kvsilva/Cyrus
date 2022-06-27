@@ -102,7 +102,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <?php
                                 $isFirst = true;
                                 foreach($seasons as $season){
-                                    echo '<li'. ($isFirst ? ' class = "selected"' : ''). 'data-id="'. $season->getId() .'"> Temporada ' . $season->getNumeration() . " - " . $season->getName() . '</li>';
+                                    echo '<li '. ($isFirst ? ' class = "selected"' : ''). 'data-id="'. $season->getId() .'"> Temporada ' . $season->getNumeration() . " - " . $season->getName() . '</li>';
                                     $isFirst = false;
                                 }?>
                             </ul>

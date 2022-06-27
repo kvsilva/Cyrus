@@ -581,4 +581,14 @@ export declare class Paginator {
     totalPages: number;
     constructor(obj?: any);
 }
+export declare class APIFile {
+    id: number;
+    name: string;
+    type: string;
+    size: number;
+    tmp_name: string;
+    error: number;
+    full_path: string;
+    constructor(obj?: any);
+}
 export declare const models: any;

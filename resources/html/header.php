@@ -63,6 +63,24 @@ use Functions\Routing;
                                 </div>
                             </div>
                         </div>
+                        <div class = "list-menu-section">
+                            <div class = "list-menu-section-item list-menu-btn">
+                                <a href = "<?php echo Routing::getRouting("account"); ?>" class = "link-nodecoration">
+                                    <div>
+                                        <i class="list-icon fa-solid fa-user"></i>
+                                        <span>A minha conta</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class = "list-menu-section">
+                            <div class = "list-menu-section-item list-menu-btn">
+                                <div>
+                                    <i class="list-icon fa-solid fa-right-from-bracket"></i>
+                                    <span>Encerrar Sessão</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

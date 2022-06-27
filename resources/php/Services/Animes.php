@@ -16,7 +16,7 @@ use ReflectionException;
 class Animes
 {
 
-    private const recentReleasedItems = 12;
+    private const returnItems = 12;
 
     public static function getAnimeList() : Status{
         try {
@@ -124,9 +124,14 @@ class Animes
      */
     public static function getLastReleasedVideos() : Status{
 
-        $videos = Video::find(limit: self::recentReleasedItems, order: "release_date");
+        $videos = Video::find(limit: self::returnItems, order: "release_date");
 
         return new Status(isError: false, return: array($videos->toArray()), bareReturn: array($videos));
+    }
+
+    public static function getRandomizedList() : Status{
+        $animes = Anime::find(limit: self::returnItems, orderBy: "RAND()");
+        return new Status(isError: false, return: array($animes->toArray()), bareReturn: array($animes));
     }
 
 }

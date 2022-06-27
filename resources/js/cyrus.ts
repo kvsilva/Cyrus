@@ -11,19 +11,7 @@ $(document).ready(function() {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
-    /*setTimeout(function()
-    {
-        var max = 360;
-        var tot, str;
-        $('.text span').each(function() {
-            str = String($(this).html());
-            tot = str.length;
-            str = (tot <= max)
-                ? str
-                : str.substring(0,(max - 3))+"...";
-            $(this).html(str);
-        });
-    },500);*/
+
     $(".cyrus-carousel-next").click(function(){
         $(this).parent().parent().children(".cyrus-carousel-items").children(".cyrus-carousel-items-wrapper").each( function()
         {
@@ -74,4 +62,29 @@ $(document).ready(function() {
             }
         });
     }).trigger("click");
+
+    /* User Menu*/
+    $(".dropdown").find(".dropdown-menu").each(function(){
+        let alreadySelected = false;
+        $(this).find("li").each(function(){
+            if($(this).hasClass("selected")) {
+                alreadySelected = true;
+            }
+        })
+        if(!alreadySelected) {
+            $(this).find("li:first-child").addClass("selected").each(function () {
+                $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
+            });
+        } else {
+            $(this).find("li.selected").each(function() {
+                $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
+            });
+        }
+    });
+    $(".dropdown").find(".dropdown-menu li").click(function(){
+        $(this).parent().find(".selected").removeClass("selected");
+        $(this).addClass("selected");
+        $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
+    });
+
 });

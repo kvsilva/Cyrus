@@ -1,0 +1,162 @@
+@import url('../../../../resources/css/cyrus.css');
+
+.user-info{
+    margin-top: 30px;
+    margin-bottom: 32px;
+}
+
+.user-info-avatar{
+    width: 150px;
+    border-radius: 50%;
+}
+
+.option-cfg-item-subitem-title{
+    font-size: 14px;
+    color: var(--color3_darker);
+    font-weight: 600;
+}
+
+.option-cfg-item-subitem-text{
+    font-size: 20px;
+}
+
+.user-info-data{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-left: -40px;
+}
+
+.user-info-username{
+    font-size: 22px;
+    margin-top: 18px;
+}
+
+.user-info-role-text{
+    color: var(--color0_light);
+    font-size: 16px;
+}
+
+.user-options-section-title, .user-options-section-item{
+    padding-left: 12px;
+}
+
+.user-options-section-title{
+    font-size: 24px;
+    font-weight: 600;
+    cursor: context-menu;
+    margin-top: 8px;
+}
+
+.user-options-section-selected{
+    color: var(--color0_light) !important;
+}
+
+.user-options-section-items{
+    margin-top: 10px;
+}
+
+.user-options-section-item{
+    color: var(--color3);
+    font-size: 18px;
+    cursor: pointer;
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+.user-options-section-item:hover{
+    color: white;
+    background-color: var(--hoverBackground);
+}
+
+
+
+.user-options-body{
+    background-color: var(--backgroundColor3);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+}
+
+.user-options-body-wrapper{
+    width: 60%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.user-options-body-title{
+    font-size: 24px;
+}
+
+.user-options-body-description{
+    color: var(--color3);
+}
+
+.option-cfg-item{
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.option-cfg-item-title{
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.option-cfg-item > .option-cfg-item-subitem:not(:last-child){
+    margin-bottom: 32px;
+}
+
+.user-options-body-cfg{
+    width: 100%;
+}
+
+.user-options-body-cfg .option-cfg-item:not(:first-child){
+    margin-top: 50px;
+}
+
+.dropdown, .dropdown-toggle{
+    font-size: 22px !important;
+}
+
+.dropdown{
+    color: var(--color1);
+    width: 100%;
+}
+
+.dropdown::after {
+    background-color: #4a4e58;
+    bottom: 0;
+    content: "";
+    height: 0.0625rem;
+    position: absolute;
+    width: 100%;
+}
+
+.user-options-body-hidden{
+    width: 0 !important;
+    height: 0 !important;
+    visibility: hidden !important;
+}
+
+.user-options-body-hidden{
+
+}
+
+.option-cfg-item-subitem-subtitle{
+    font-size: 14px;
+    color: var(--color3_darker);
+    font-weight: 600;
+}
+
+.user-options-body-hidden * {
+    visibility: hidden !important;
+    width: 0 !important;;
+    height: 0 !important;
+}

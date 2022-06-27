@@ -439,6 +439,18 @@ export class Paginator {
         this.totalPages = (obj_.totalPages !== undefined) ? obj_.totalPages : null;
     }
 }
+export class APIFile {
+    constructor(obj) {
+        const obj_ = obj || {};
+        this.id = (obj_.id !== undefined) ? obj_.id : null;
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.type = (obj_.type !== undefined) ? obj_.type : null;
+        this.size = (obj_.size !== undefined) ? obj_.size : null;
+        this.tmp_name = (obj_.tmp_name !== undefined) ? obj_.tmp_name : null;
+        this.error = (obj_.error !== undefined) ? obj_.error : null;
+        this.full_path = (obj_.full_path !== undefined) ? obj_.full_path : null;
+    }
+}
 export const models = {
     "GlobalSetting": GlobalSetting,
     "Resource": Resource,
@@ -464,5 +476,6 @@ export const models = {
     "AccountPurchase": AccountPurchase,
     "LogAction": LogAction,
     "Log": Log,
-    "Paginator": Paginator
+    "Paginator": Paginator,
+    "APIFile": APIFile
 };

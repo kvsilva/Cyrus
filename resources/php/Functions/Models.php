@@ -58,6 +58,7 @@ class Models
         "Objects\\LogAction",
         "Objects\\Log",
         "Objects\\Paginator",
+        "APIObjects\\File",
     );
 
 

@@ -9,16 +9,19 @@
     --color0_light: #b495f8;
     --color1: white;
     --color2: dimgrey;
+    --color2_darker: #4a4e58;
     --color3: #c5c3c3;
+    --color3_darker: #a0a0a0;
     --color4: #6cdcdc;
     --color5: #213944;
     --color6: black;
-    --color7: #fab818;
+    --color7: #a0a0a0;
     --color8: #ef4323;
 
     --backgroundColor: black;
 
     --backgroundColor2: #23252B;
+    --backgroundColor3: #23252bb3;
     --hoverBackground: #141519;
 
 
@@ -349,11 +352,100 @@ input[type=submit].cyrus-input{
     background-color: var(--color0);
 }
 
-input[type=submit].cyrus-input:hover{
+input[type=submit].cyrus-input:not(:disabled):hover{
     box-shadow:  inset 0 0 0 0.125rem var(--color0_light);
     transition-timing-function: ease;
     background-color: var(--color0_light);
 }
+
+input[type=submit].cyrus-input:disabled{
+    box-shadow:  inset 0 0 0 0.125rem var(--color2_darker);
+    background-color: transparent;
+    color: var(--color2_darker);
+}
+
+.cyrus-minimal{
+    border:none;
+    background-image: none;
+    background-color: transparent;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+.cyrus-minimal:focus-visible{
+    border:none;
+    background-image: none;
+    background-color: transparent;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    outline: none;
+}
+
+
+.cyrus-input-group{
+    position: relative;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+/*
+    Adicionar ao input o seguinte para funcionar o floating-label:
+        value='' onkeyup="this.setAttribute('value', this.value);"
+*/
+
+.cyrus-input-group .cyrus-floating-label {
+    position: absolute;
+    pointer-events: none;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease;
+}
+
+
+.cyrus-input-group input:focus ~ .cyrus-floating-label,
+.cyrus-input-group input:not([value='']) ~ .cyrus-floating-label {
+    transform: translateY(-200%);
+    font-size: 14px;
+    opacity: 1;
+    font-weight: 600;
+    color: var(--color3_darker);
+}
+
+
+
+
+
+select.cyrus-minimal{
+     direction: rtl;
+}
+
+label.cyrus-minimal:not(input){
+    font-size: 12px;
+    font-weight: 600;
+}
+
+input.cyrus-minimal{
+    color: var(--color1) !important;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+.cyrus-input-group:not(.disable-after)::after {
+    background-color: var(--color2_darker);
+    bottom: 0;
+    content: "";
+    height: 0.0625rem;
+}
+/*
+.cyrus-input-group input:focus ~ .cyrus-floating-label,
+.cyrus-input-group input:not([value='']) ~ .cyrus-floating-label {
+*/
+.cyrus-input-group:focus-within:after{
+    background-color: var(--color0_light);
+}
+
 
 .cyrus-form-buttons{
     display: flex;
@@ -362,18 +454,6 @@ input[type=submit].cyrus-input:hover{
 }
 .cyrus-form-buttons > *{
     margin-left: 10px;
-
-}
-
-.cyrus-form-buttons > :not(:last-child) {
-
-}
-
-.cyrus-form{
-
-}
-
-.cyrus-form-inputs{
 
 }
 
@@ -534,8 +614,19 @@ input[type=submit].cyrus-input:hover{
     border-right: 0.3em solid transparent;
     border-bottom: 0;
     border-left: 0.3em solid transparent;
-
 }
+
+.dropdown-arrow-before:before{
+    display: inline-block;
+    margin-left: 0.255em;
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+}
+
 
 /* User Menu */
 
@@ -1045,4 +1136,20 @@ input[type=submit].cyrus-input:hover{
 }
 .cyrus-grid-3{
     grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+}
+
+/* Alert Info */
+
+.cyrus-alert-info{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+}
+.cyrus-alert-info i{
+    margin-right: 15px;
+}
+.cyrus-alert-info-text{
+    font-size: 12px;
+    font-weight: 400;
 }
