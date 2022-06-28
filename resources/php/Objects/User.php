@@ -49,7 +49,7 @@ class User extends Entity
     protected ?Language $display_language = null;
     protected ?Language $email_communication_language = null;
     protected ?Language $translation_language = null;
-    protected ?NightMode $night_mode = null;
+    protected ?NightMode $night_mode = null; // REMOVER
     protected ?Availability $available = null;
 
     // RELATIONS
@@ -396,6 +396,7 @@ class User extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     public function toArray(bool $minimal = false): array
@@ -809,7 +810,7 @@ class User extends Entity
     /**
      * @return RolesArray
      */
-    public function getRoles(): RolesArray
+    public function getRoles(): ?RolesArray
     {
         return $this->roles;
     }

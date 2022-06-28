@@ -17,6 +17,13 @@ enum Removal: int
         };
     }
 
+    public static function getAllItems(): array{
+        return array(
+            self::DELETE,
+            self::AVAILABILITY
+        );
+    }
+
     #[Pure]
     #[ArrayShape(["name" => "string", "value" => "\Availability"])]
     public function toArray() : array

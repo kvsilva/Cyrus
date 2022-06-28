@@ -19,7 +19,7 @@ class Session
     }
     public static function updateSession() : Status{
         if(isset($_SESSION["user"])){
-            $_SESSION["user"] = new User($_SESSION["user"]->getId());
+            $_SESSION["user"] = new User($_SESSION["user"]->getId(), flags: [User::ROLES]);
             return new Status(isError: false, return: array(), bareReturn: array());
         } else return new Status(isError: true, message: "Nenhuma sessão foi iniciada.", return: array(), bareReturn: array());
     }

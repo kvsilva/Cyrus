@@ -36,6 +36,23 @@ enum Month: int
         };
     }
 
+    public static function getAllItems(): array{
+        return array(
+            self::JANUARY,
+            self::FEBRUARY,
+            self::MARCH,
+            self::APRIL,
+            self::MAY,
+            self::JUNE,
+            self::JULY,
+            self::AUGUST,
+            self::SEPTEMBER,
+            self::OCTOBER,
+            self::NOVEMBER,
+            self::DECEMBER,
+        );
+    }
+
     #[Pure]
     #[ArrayShape(["name" => "string", "value" => "\Month"])]
     public function toArray() : array

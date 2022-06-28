@@ -21,6 +21,15 @@ enum AnimeStatus: int
         };
     }
 
+    public function getAllItems(): array{
+        return array(
+            self::FAVOURITE,
+            self::LIKE,
+            self::DONT_LIKE,
+            self::WATCH_LATER
+        );
+    }
+
     #[Pure]
     #[ArrayShape(["name" => "string", "value" => "\AnimeStatus"])]
     public function toArray() : array

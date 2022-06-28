@@ -17,6 +17,13 @@ enum Maturity: int
         };
     }
 
+    public static function getAllItems(): array{
+        return array(
+            self::NORMAL,
+            self::MATURE
+        );
+    }
+
     #[Pure]
     #[ArrayShape(["name" => "string", "value" => "\Maturity"])]
     public function toArray() : array

@@ -1,0 +1,80 @@
+@import url('../../../resources/css/cyrus.css');
+
+.menu{
+    background-color: var(--backgroundColor3);
+    padding-top: 15px;
+    min-height: 100vh;
+    height: 100%;
+}
+
+.menu-section{
+    width: 100%;
+}
+
+.menu-section-item{
+    width: 100%;
+}
+
+.menu-section-title{
+    font-size: 24px;
+    font-weight: bold;
+    margin-left: 7px;
+}
+.menu-section-items{
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-left: 14px;
+}
+.menu-section-items .menu-section-item:not(:first-child){
+    margin-top: 4px;
+}
+.menu-section-item{
+    padding-left: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+.menu-section-item:hover{
+    color: white;
+    background-color: var(--color2_darker);
+}
+
+input[type=text].group-input, .group-input-text, .group-input-datepicker{
+
+}
+
+.group{
+
+}
+
+.group-section{
+
+}
+
+.group-section-item{
+    display: grid;
+    grid-template-columns: minmax(0,1fr);
+    gap: 15px;
+}
+
+.group-wrapper{
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+.group-section-title{
+    font-size: 32px;
+}
+.group-section-subitem{
+    margin-top: 15px;
+}
+.group-section-subitem-items{
+    margin-left: 16px;
+}
+
+.group-section-subitem-title{
+    font-size: 22px;
+}

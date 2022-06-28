@@ -12,9 +12,16 @@ enum Verification: int
     public function name(): string
     {
         return match ($this) {
-            self::VERIFIED => 'Verified',
-            self::NOT_VERIFIED => 'Not Verified',
+            self::VERIFIED => 'Verificado',
+            self::NOT_VERIFIED => 'Não Verificado',
         };
+    }
+
+    public static function getAllItems(): array{
+        return array(
+            self::NOT_VERIFIED,
+            self::VERIFIED
+        );
     }
 
     #[Pure]

@@ -23,6 +23,7 @@ class Routing
                 "search" => (Utils::getURL() . "search/"),
                 "account" => (Utils::getURL() . "user/account/"),
                 "home" => (Utils::getURL()),
+                "backoffice" => (Utils::getURL() . "backoffice/"),
             );
 
            self::$resources = array(

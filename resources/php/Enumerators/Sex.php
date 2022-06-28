@@ -13,10 +13,18 @@ enum Sex: int
     public function name(): string
     {
         return match ($this) {
-            self::MALE => 'Male',
-            self::FEMALE => 'Female',
-            self::OTHER => 'Other'
+            self::MALE => 'Masculino',
+            self::FEMALE => 'Feminino',
+            self::OTHER => 'Outro'
         };
+    }
+
+    public static function getAllItems(): array{
+        return array(
+            self::MALE,
+            self::FEMALE,
+            self::OTHER,
+        );
     }
 
     #[Pure]

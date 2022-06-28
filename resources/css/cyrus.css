@@ -371,6 +371,7 @@ input[type=submit].cyrus-input:disabled{
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
+    color: white;
 }
 .cyrus-minimal:focus-visible{
     border:none;
@@ -385,7 +386,7 @@ input[type=submit].cyrus-input:disabled{
 
 .cyrus-input-group{
     position: relative;
-    margin-top: 15px;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
 }
@@ -401,19 +402,28 @@ input[type=submit].cyrus-input:disabled{
     top: 50%;
     left: 0;
     transform: translateY(-50%);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, top 0.2s ease;
 }
 
 
 .cyrus-input-group input:focus ~ .cyrus-floating-label,
-.cyrus-input-group input:not([value='']) ~ .cyrus-floating-label {
-    transform: translateY(-200%);
+.cyrus-input-group input:not([value='']) ~ .cyrus-floating-label, .cyrus-input-group textarea:focus ~ .cyrus-floating-label,
+.cyrus-input-group textarea:not([value='']) ~ .cyrus-floating-label, .cyrus-floating-label.cyrus-floating-label-float, .cyrus-floating-label.cyrus-floating-label-float-textarea{
     font-size: 14px;
     opacity: 1;
     font-weight: 600;
     color: var(--color3_darker);
 }
 
+.cyrus-input-group input:focus ~ .cyrus-floating-label,
+.cyrus-input-group input:not([value='']) ~ .cyrus-floating-label, .cyrus-floating-label.cyrus-floating-label-float{
+    transform: translateY(-200%);
+}
+
+.cyrus-input-group textarea:focus ~ .cyrus-floating-label,
+.cyrus-input-group textarea:not([value='']) ~ .cyrus-floating-label, .cyrus-floating-label.cyrus-floating-label-float-textarea{
+    top: -9px;
+}
 
 
 
@@ -566,6 +576,31 @@ input.cyrus-minimal{
     background-color: var(--backgroundColor2);
     color: var(--color3);
     width: 100%;
+    overflow-y: auto;
+    max-height: 280px;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 15px;
+    cursor: context-menu;
+}
+
+/* Track */
+.dropdown-menu::-webkit-scrollbar-track {
+    background: var(--color2);
+    cursor: context-menu;
+}
+
+/* Handle */
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: var(--color3);
+    cursor: context-menu;
+}
+
+/* Handle on hover */
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: var(--color1);
+    cursor: context-menu;
 }
 
 .dropdown .dropdown-menu .selected{
@@ -1152,4 +1187,10 @@ input.cyrus-minimal{
 .cyrus-alert-info-text{
     font-size: 12px;
     font-weight: 400;
+}
+
+.cyrus-item-hidden{
+    width: 0 !important;
+    height: 0 !important;
+    visibility: hidden !important;
 }

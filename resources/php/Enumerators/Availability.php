@@ -17,6 +17,13 @@ enum Availability: int
         };
     }
 
+    public static function getAllItems(): array{
+        return array(
+            self::NOT_AVAILABLE,
+            self::AVAILABLE
+        );
+    }
+
     #[Pure]
     #[ArrayShape(["name" => "string", "value" => "\Availability"])]
     public function toArray() : array

@@ -176,7 +176,6 @@ abstract class Entity
                     }
                     foreach ($value as $relation_array) {
                         if (sizeof($relation_array) == 0) continue;
-                        // relation_array hasValidFields
                         $obj = static::arrayToObject(object: $object_name, array: $relation_array);
                         $this->addRelation($const, $obj);
                     }
@@ -424,20 +423,20 @@ abstract class Entity
      * @param int $flag
      * @return array
      */
-    public function addFlag(int $flag): array
+    public function addFlag(int $flag): Entity
     {
         if(!$this->hasFlag($flag)){
             $this->flags[] = $flag;
             if($this->getId() != null) $this->buildRelations();
         }
-        return $this->flags;
+        return $this;
     }
 
     /**
      * @param array $flags
      * @return array
      */
-    public function addFlags(array $flags): array
+    public function addFlags(array $flags): Entity
     {
         $newFlag = false;
         foreach($flags as $flag){
@@ -447,7 +446,7 @@ abstract class Entity
             }
         }
         if($newFlag && $this->getId() != null) $this->buildRelations();
-        return $this->flags;
+        return $this;
     }
 
     /**

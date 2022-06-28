@@ -22,12 +22,12 @@ class Role extends Entity
 
     // DEFAULT STRUCTURE
 
-    protected ?String $name = null;
+    protected ?string $name = null;
 
     // RELATIONS
 
     // Role::Permissions
-    private ?array $permissions = null;
+    private ?PermissionsArray $permissions = null;
 
     /**
      * @param int|null $id
@@ -35,7 +35,7 @@ class Role extends Entity
      * @throws ReflectionException
      * @throws RecordNotFound
      */
-    public function __construct(int $id = null, array $flags = array(self::NORMAL))
+    public function __construct(int $id = null, array $flags = array(self::NORMAL, self::PERMISSIONS))
     {
         parent::__construct(table: "role", id: $id, flags: $flags);
     }
@@ -48,10 +48,10 @@ class Role extends Entity
     {
         $database = $this->getDatabase();
         $id = $this->getId();
-        if($this->hasFlag(self::PERMISSIONS)){
-            $this->permissions = array();
+        if ($this->hasFlag(self::PERMISSIONS)) {
+            $this->permissions = new PermissionsArray();
             $query = $database->query("SELECT permission as 'id' FROM ROLE_PERMISSION WHERE role = $id;");
-            while($row = $query->fetch_array()){
+            while ($row = $query->fetch_array()) {
                 $this->permissions[] = new Permission($row["id"]);
             }
         }
@@ -66,7 +66,8 @@ class Role extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store() : Role{
+    public function store(): Role
+    {
         parent::__store();
         return $this;
     }
@@ -92,7 +93,7 @@ class Role extends Entity
                 if ($remove) $database->query("DELETE FROM ROLE_PERMISSION WHERE role = $id AND permission = $row[id]");
             }
             foreach ($this->permissions as $permission) {
-                $database->query("INSERT IGNORE INTO role_permission (role, permission) VALUES ($id, $permission->getId())");
+                $database->query("INSERT IGNORE INTO role_permission (role, permission) VALUES ($id, ".$permission->getId() .")");
             }
         }
     }
@@ -100,7 +101,8 @@ class Role extends Entity
     /**
      * @throws IOException
      */
-    public function remove() : Role{
+    public function remove(): Role
+    {
         parent::__remove();
         return $this;
     }
@@ -108,7 +110,8 @@ class Role extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]): EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name
@@ -133,10 +136,16 @@ class Role extends Entity
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
     public function toArray(bool $minimal = false): array
     {
-        return array(
+        $array = array(
             "id" => $this->getId(),
             "name" => $this->name
         );
+        $array["permissions"] = null;
+        if($this->permissions != null) {
+            $array["permissions"] = array();
+            foreach($this->permissions as $value) $array["permissions"][] = $value->toArray();
+        };
+        return $array;
     }
 
     /**
@@ -151,7 +160,7 @@ class Role extends Entity
      * @param String $name
      * @return Role
      */
-    public function setName(String $name): Role
+    public function setName(string $name): Role
     {
         $this->name = $name;
         return $this;
@@ -166,10 +175,10 @@ class Role extends Entity
     }
 
     /**
-     * @param array $permissions
+     * @param PermissionsArray $permissions
      * @return Role
      */
-    public function setPermissions(array $permissions): Role
+    public function setPermissions(PermissionsArray $permissions): Role
     {
         $this->permissions = $permissions;
         return $this;
@@ -182,9 +191,7 @@ class Role extends Entity
      */
     public function addPermission(Permission $permission): Role
     {
-        if(is_a($permission, 'Permission')){
-            $this->permissions[] = $permission;
-        } else throw new InvalidDataType("permission", "Permission");
+        $this->permissions[] = $permission;
         return $this;
     }
 
@@ -196,15 +203,13 @@ class Role extends Entity
      */
     public function removePermission(Permission $permission = null, int $id = null): Role
     {
-        if(isset($permission)){
-            if(is_a($permission, 'Permission')) {
-                for ($i = 0; $i < count($this->permissions); $i++) {
-                    if ($this->permissions[$i]->getId() == $permission->getId()) {
-                        unset($this->permissions[$i]);
-                    }
+        if (isset($permission)) {
+            for ($i = 0; $i < count($this->permissions); $i++) {
+                if ($this->permissions[$i]->getId() == $permission->getId()) {
+                    unset($this->permissions[$i]);
                 }
-            } else throw new InvalidDataType("permission", "Permission");
-        } else if (isset($id)){
+            }
+        } else if (isset($id)) {
             for ($i = 0; $i < count($this->permissions); $i++) {
                 if ($this->permissions[$i]->getId() == $id) {
                     unset($this->permissions[$i]);
@@ -219,10 +224,48 @@ class Role extends Entity
      * @param String|null $tag
      * @return bool
      */
-    public function hasPermission(Permission $permission = null, String $tag = null) : bool{
-        foreach($this->permissions as $element){
-            if(($permission != null && $element->getId() == $permission->getId()) || ($element != null  && $element->getTag() == $tag)) return true;
+    public function hasPermission(Permission $permission = null, string $tag = null): bool
+    {
+        foreach ($this->permissions as $element) {
+            if (($permission != null && $element->getId() == $permission->getId()) || ($element != null && $element->getTag() == $tag)) return true;
         }
         return false;
     }
+
+    public function setRelation(int $relation, array|EntityArray $value): Role
+    {
+        switch ($relation) {
+            case self::PERMISSIONS:
+                $this->setPermissions($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws InvalidDataType
+     */
+    public function addRelation(int $relation, mixed $value): Role
+    {
+        switch ($relation) {
+            case self::PERMISSIONS:
+                $this->addPermission($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws InvalidDataType
+     */
+    public function removeRelation(int $relation, mixed $value = null, int $id = null): Role
+    {
+        switch ($relation) {
+            case self::PERMISSIONS:
+                $this->removePermission(permission: $value);
+                break;
+        }
+        return $this;
+    }
+
 }

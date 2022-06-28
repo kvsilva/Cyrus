@@ -26,6 +26,18 @@ enum DayOfWeek: int
         };
     }
 
+    public static function getAllItems(): array{
+        return array(
+            self::MONDAY,
+            self::TUESDAY,
+            self::WEDNESDAY,
+            self::THURSDAY,
+            self::FRIDAY,
+            self::SATURDAY,
+            self::SUNDAY
+        );
+    }
+
     #[Pure]
     #[ArrayShape(["name" => "string", "value" => "\DayOfWeek"])]
     public function toArray() : array

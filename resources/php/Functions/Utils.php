@@ -78,6 +78,7 @@ class Utils
                 "List" => (new Dependency("List", self::$BASE_URL . "animes/"))->addImport(path: "assets/js/list.js")->addImport(path: "assets/css/list.css", extension: "css"),
                 "Home" => (new Dependency("Home", self::$BASE_URL))->addImport(path: "assets/js/home.js")->addImport(path: "assets/css/home.css", extension: "css"),
                 "Account" => (new Dependency("Account", self::$BASE_URL . "user/"))->addImport(path: "assets/js/account.js")->addImport(path: "assets/css/account.css", extension: "css"),
+                "Backoffice" => (new Dependency("Backoffice", self::$BASE_URL))->addImport(path: "assets/js/backoffice.js")->addImport(path: "assets/css/backoffice.css", extension: "css"),
                 "Cyrus" => (new Dependency("resources", self::$BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
             );
         }
