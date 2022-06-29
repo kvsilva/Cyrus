@@ -1,11 +1,11 @@
 import {Request as API} from "../../../resources/js/Request";
 import {UserFlags} from "../../../resources/js/models";
 
-$(document).ready(function() {
-    $("input[type=submit]").click(function(){
-        let formName : string = $(this).data("form");
-        let formEntity : string = $(this).data("entity");
-        let formData : any[string] = {};
+$(document).ready(function () {
+    $("input[type=submit]").click(function () {
+        let formName: string = $(this).data("form");
+        let formEntity: string = $(this).data("entity");
+        let formData: any[string] = {};
 
         createDataArray(formName, formData).then(value => {
             formData = value;
@@ -21,29 +21,29 @@ $(document).ready(function() {
         })
 
     })
-    
+
 });
 
-async function createDataArray(formName : string, formData : any[string]) {
-    let files : File[] = [];
-    $("[data-form='" + formName + "'").each(function(){
-        let name : string = $(this).data("name");
-        let value : any = null;
-        if($(this).attr("type") != "submit" && $(this).attr("type") != "reset") {
+async function createDataArray(formName: string, formData: any[string]) {
+    let files: File[] = [];
+    $("[data-form='" + formName + "'").each(function () {
+            let name: string = $(this).data("name");
+            let value: any = null;
+        if ($(this).attr("type") != "submit" && $(this).attr("type") != "reset") {
             if ($(this).is("input") || $(this).is("textarea")) {
                 value = $(this).val();
             } else if ($(this).data("ismultiple")) {
-                if($(this).data("selectedsection")){
-                    let selectedSection : string = $(this).data("selectedsection");
+                if ($(this).data("selectedsection")) {
+                    let selectedSection: string = $(this).data("selectedsection");
                     $(this).find("[data-section='" + selectedSection + "']").each(function () {
-                        let subItemData : any[string] = {};
+                        let subItemData: any[string] = {};
                         $(this).find("[data-subitem]").each(function () {
-                            let nameMultiple : any = $(this).data("subitem");
-                            let valueMultiple : any = null;
+                            let nameMultiple: any = $(this).data("subitem");
+                            let valueMultiple: any = null;
                             if ($(this).attr("type") != "submit" && $(this).attr("type") != "reset") {
                                 if ($(this).is("input") || $(this).is("textarea")) {
-                                    if($(this).attr("type") == "file"){
-                                        if($(this).prop("files").length > 0) {
+                                    if ($(this).attr("type") == "file") {
+                                        if ($(this).prop("files").length > 0) {
                                             files.push($(this).prop("files")[0]);
                                         } else {
                                             console.log("Nenhum ficheiro detectado.");
@@ -64,20 +64,20 @@ async function createDataArray(formName : string, formData : any[string]) {
                             }
                         });
                         // colocar para converter para nulo se n existir;
-                        let isNull : boolean = true;
+                        let isNull: boolean = true;
                         for (const item in subItemData) {
-                            if(subItemData[item] !== null) {
+                            if (subItemData[item] !== null) {
                                 isNull = false;
                                 break;
                             }
                         }
-                        if(isNull) subItemData = null;
-                        if(subItemData !== null && $(this).data("service") && $(this).data("action")){
-                            let service : string = $(this).data("service");
-                            let action : string = $(this).data("action");
+                        if (isNull) subItemData = null;
+                        if (subItemData !== null && $(this).data("service") && $(this).data("action")) {
+                            let service: string = $(this).data("service");
+                            let action: string = $(this).data("action");
                             subItemData["process"] = {
-                              "service": service,
-                              "action": action
+                                "service": service,
+                                "action": action
                             };
                         }
                         value = subItemData;
@@ -92,11 +92,12 @@ async function createDataArray(formName : string, formData : any[string]) {
             if (value !== null && $.trim(<string>value).length == 0) value = null;
             formData[name] = value;
         }
-
-    });
+        }
+    )
+    ;
     let i = -1;
-    for(const item in formData){
-        if(formData[item] !== null && typeof formData[item] === "object" && "process" in formData[item]) {
+    for (const item in formData) {
+        if (formData[item] !== null && typeof formData[item] === "object" && "process" in formData[item]) {
             let service: string = formData[item]["process"].service;
             let action: string = formData[item]["process"].action;
             delete formData[item].process;

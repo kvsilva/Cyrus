@@ -63,22 +63,27 @@ export class Request {
             request.open("POST", Request.API_URL, true);
             request.setRequestHeader("Content-Type", "application/json");
             //request.setRequestHeader('Content-Type', 'multipart/form-data');
-            request.responseType = 'json';
+            //request.responseType = 'json';
             request.onload = function () {
                 if (request.status >= 200 && request.status < 300) {
-                    if (request.response !== null) {
-                        let _ret;
-                        if ("dataTypes" in request.response && request.response.dataTypes !== null) {
-                            _ret = Request.buildElement(request.response.dataTypes, request.response.data);
+                    if (isJson(request.response)) {
+                        let response = JSON.parse(request.response);
+                        if (response !== null) {
+                            let _ret;
+                            if ("dataTypes" in response && response.dataTypes !== null) {
+                                _ret = Request.buildElement(response.dataTypes, response.data);
+                            }
+                            else {
+                                _ret = response.data;
+                            }
+                            delete response.dataTypes;
+                            response.data = _ret;
                         }
-                        else {
-                            _ret = request.response.data;
-                        }
-                        let response = request.response;
-                        delete response.dataTypes;
-                        response.data = _ret;
+                        resolve(response);
                     }
-                    resolve(request.response);
+                    else {
+                        console.error(request.response);
+                    }
                 }
                 else {
                     console.error({
@@ -164,3 +169,12 @@ export class Request {
 }
 Request.API_URL = new URL("../../API/v1/", import.meta.url).href;
 Request.UPLOAD_FILE_URL = new URL("../../API/v1/uploadFile.php", import.meta.url).href;
+function isJson(str) {
+    try {
+        JSON.parse(str);
+    }
+    catch (e) {
+        return false;
+    }
+    return true;
+}

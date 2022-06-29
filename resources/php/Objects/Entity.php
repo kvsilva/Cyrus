@@ -304,7 +304,6 @@ abstract class Entity
             $update_sql = substr($update_sql,0,-1);
             $sql = "UPDATE $table SET $update_sql WHERE id = $this->id";
         }
-        //echo "Sql: \n" . $sql . "\n";
         $database->query($sql);
         $database->query("COMMIT");
         $this->id = $query_keys_values["id"];
@@ -440,7 +439,6 @@ abstract class Entity
      */
     public function addFlag(int $flag): Entity
     {
-        echo "add flag";
         if(!$this->hasFlag($flag)){
             $this->flags[] = $flag;
             if($this->getId() != null) $this->buildRelations();
@@ -454,7 +452,6 @@ abstract class Entity
      */
     public function addFlags(array $flags): Entity
     {
-        echo "add flags";
         $newFlag = false;
         foreach($flags as $flag){
             if(!$this->hasFlag($flag)){

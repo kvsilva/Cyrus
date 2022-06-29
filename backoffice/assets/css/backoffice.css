@@ -77,4 +77,14 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
 
 .group-section-subitem-title{
     font-size: 22px;
+    width: fit-content;
+}
+
+.group-section-subitem-header{
+    position: relative;
+}
+
+.group-section-subitem-header button{
+    position: absolute;
+    right: -1px;
 }

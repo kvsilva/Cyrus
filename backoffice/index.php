@@ -20,29 +20,56 @@ $models = array(
 );
 
 $objects = array(
-        "Objects\User" => array(
-                "icon" => "fa-solid fa-users",
-                "ignoreFields" => array(
-                        "update" => array("id"),
-                        "insert" => array("id")
-                ),
-                "forceModel" => array(
-                        "status" => "text",
-                        "about_me" => "text",
-                ),
+    "Objects\User" => array(
+        "icon" => "fa-solid fa-users",
+        "forceModel" => array(
+            "status" => "text",
+            "about_me" => "text",
         ),
-        "Objects\Language" => array(
-            "icon" => "fa-solid fa-users",
-            "ignoreFields" => array(
-                "update" => array("id"),
-                "insert" => array("id")
+        "update" => true,
+        "insert" => true,
+        "relations" => array(
+            "roles" => array(
+                "model" => "relation-dropdown",
+                "class" => "Objects\Role"
             ),
-            "forceModel" => array(
-
+            "punishments" => array(
+                "model" => "relation-full",
+                "class" => "Objects\Punishment"
             ),
         )
-)
+    ),
+    "Objects\Language" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(),
+        "relations" => null
+    ),
+    "Objects\Punishment" => array(
+         "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => false,
+        "forceModel" => array(),
+        "relations" => null
+    ),
+    "Objects\GlobalSetting" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(
+                "value_binary" => "text"
+        ),
+        "relations" => null
+    )
+);
 
+$entity_name = $_GET["entity"] ?? "User";
+$entity_class = "Objects\\" . $entity_name;
+if(!isset($objects[$entity_class])) {
+    $entity_name = "User";
+    $entity_class = "Objects\\" . $entity_name;
+}
 ?>
 <html lang="pt_PT">
 <head>
@@ -86,60 +113,104 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <span>Adicionar</span>
                             </div>
 
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                Launch demo modal
-                            </button>
+                            <?php
+                            if(isset($objects[$entity_class]) && $objects[$entity_class]["relations"] !== null){
+                            ?>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#relationModal">
+                                    Relações
+                                </button>
 
-                            <!-- Modal -->
-                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-xl">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Adicionar</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class = "group-section-items">
-                                                <div class = "group-section-item">
-                                                    <?php
-                                                        $entity_class = "Objects\\User";
-                                                        $entity = new ReflectionClass($entity_class);
-                                                        $properties = $entity->getProperties();
-                                                        foreach($properties as $property){
-                                                            if($property->isProtected()){
-                                                                $type = $property->getType();
-                                                                $isEntity = str_contains($type, "Objects\\");
-                                                                $isEnum = str_contains($type, "Enumerators\\");
-                                                                $type = str_replace("Objects\\", "", $type);
-                                                                $type = str_replace("Enumerators\\", "", $type);
-                                                                $type = str_replace("?", "", $type);
-                                                                $type = str_replace("DateTime", "date", $type);
-                                                                $field_name = $property->getName();
-                                                                $display_name = ucwords(str_replace("_", " ", $field_name));
-                                                                if(isset($objects[$entity_class])) {
-                                                                    if(isset($objects[$entity_class]["forceModel"][$field_name])){
-                                                                        $type = $objects[$entity_class]["forceModel"][$field_name];
-                                                                    }
-                                                                    echoModelFor($type, array("user_add", $field_name, $display_name));
-                                                                }
+                                <div class="modal fade" id="relationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Relações</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class = "group-section-items">
+                                                    <div class = "group-section-item">
+                                                        <?php
+                                                        $entity_class = "Objects\\" . $entity_name;
+                                                        if(isset($objects[$entity_class])) {
+                                                            foreach ($objects[$entity_class]["relations"] as $relation => $data){
+                                                                $model = $data["model"];
+                                                                $obj = $data["class"];
+                                                                echoModelFor($model, array(strtolower($entity_name) . "_update_relations", "punishments", ucfirst(strtolower($relation)), $obj));
                                                             }
                                                         }
-                                                    ?>
+                                                        ?>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="modal-footer">
+                                            <div class="modal-footer">
+                                                <input class="cyrus-input" type="reset" data-bs-dismiss="modal" value="CANCELAR" data-form="<?php echo strtolower($entity_name); ?>_update" data-entity = "<?php echo $entity_name; ?>">
+                                                <input class="cyrus-input" type="submit" data-bs-dismiss="modal" value="ATUALIZAR" data-form="<?php echo strtolower($entity_name); ?>_update" data-entity = "<?php echo $entity_name; ?>">
 
-                                            <input class="cyrus-input" type="reset" data-bs-dismiss="modal" value="CANCELAR" data-form="user_add" data-entity = "User">
-                                            <input class="cyrus-input" type="submit" data-bs-dismiss="modal" value="ADICIONAR" data-form="user_add" data-entity = "User">
-
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            <?php
+                            }
+                            ?>
 
+                            <?php
+                            if(isset($objects[$entity_class]) && $objects[$entity_class]["insert"]){?>
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                    Adicionar
+                                </button>
 
+                                <!-- Modal -->
+                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Adicionar</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class = "group-section-items">
+                                                    <div class = "group-section-item">
+                                                        <?php
+                                                            $entity = new ReflectionClass($entity_class);
+                                                            $properties = $entity->getProperties();
+                                                            foreach($properties as $property){
+                                                                if($property->isProtected()){
+                                                                    $type = $property->getType();
+                                                                    $isEntity = str_contains($type, "Objects\\");
+                                                                    $isEnum = str_contains($type, "Enumerators\\");
+                                                                    $type = str_replace("Objects\\", "", $type);
+                                                                    $type = str_replace("Enumerators\\", "", $type);
+                                                                    $type = str_replace("?", "", $type);
+                                                                    $type = str_replace("DateTime", "date", $type);
+                                                                    $field_name = $property->getName();
+                                                                    $display_name = ucwords(str_replace("_", " ", $field_name));
+                                                                    if(isset($objects[$entity_class])) {
+                                                                        if(isset($objects[$entity_class]["forceModel"][$field_name])){
+                                                                            $type = $objects[$entity_class]["forceModel"][$field_name];
+                                                                        }
+                                                                        echoModelFor($type, array(strtolower($entity_name) . "_insert", $field_name, $display_name));
+                                                                    }
+                                                                }
+                                                            }
+                                                        ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+
+                                                <input class="cyrus-input" type="reset" data-bs-dismiss="modal" value="CANCELAR" data-form="<?php echo strtolower($entity_name); ?>_insert" data-entity = "<?php echo $entity_name; ?>">
+                                                <input class="cyrus-input" type="submit" data-bs-dismiss="modal" value="ADICIONAR" data-form="<?php echo strtolower($entity_name); ?>_insert" data-entity = "<?php echo $entity_name; ?>">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <?php
+                            }?>
 
 
                         </div>

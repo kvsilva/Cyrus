@@ -84,22 +84,26 @@ export class Request {
             request.open("POST", Request.API_URL, true);
             request.setRequestHeader("Content-Type", "application/json");
             //request.setRequestHeader('Content-Type', 'multipart/form-data');
-            request.responseType = 'json';
+            //request.responseType = 'json';
 
             request.onload = function () {
                 if (request.status >= 200 && request.status < 300) {
-                    if(request.response !== null) {
-                        let _ret: any[];
-                        if ("dataTypes" in request.response && request.response.dataTypes !== null) {
-                            _ret = Request.buildElement(request.response.dataTypes, request.response.data);
-                        } else {
-                            _ret = request.response.data;
+                    if(isJson(request.response)) {
+                        let response = JSON.parse(request.response);
+                        if (response !== null) {
+                            let _ret: any[];
+                            if ("dataTypes" in response && response.dataTypes !== null) {
+                                _ret = Request.buildElement(response.dataTypes, response.data);
+                            } else {
+                                _ret = response.data;
+                            }
+                            delete response.dataTypes;
+                            response.data = _ret;
                         }
-                        let response = request.response;
-                        delete response.dataTypes;
-                        response.data = _ret;
+                        resolve(response);
+                    } else {
+                        console.error(request.response);
                     }
-                    resolve(request.response);
                 } else {
                     console.error({
                         request
@@ -177,5 +181,13 @@ export class Request {
         }
         return _objs;
     }
+}
 
+function isJson(str: string) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
 }

@@ -77,13 +77,14 @@ class GlobalSetting extends Entity
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|null", "name" => "null|String", "group" => "null|String", "value_binary" => "\Cassandra\Blob|null", "data_type" => "null|String"])]
+    #[ArrayShape(["id" => "int|null", "name" => "null|String", "category" => "null|String", "value" => "null|String", "value_binary" => "\Cassandra\Blob|null", "data_type" => "null|String"])]
     protected function valuesArray(): array
     {
         return array(
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("global_settings"),
             "name" => $this->name,
-            "group" => $this->group,
+            "category" => $this->category,
+            "value" => $this->value,
             "value_binary" => $this->value_binary,
             "data_type" => $this->data_type,
         );
@@ -92,14 +93,15 @@ class GlobalSetting extends Entity
     /**
      * @return array
      */
-    #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "group" => "null|String", "value_binary" => "\Cassandra\Blob|null", "data_type" => "null|String"])]
+    #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "category" => "null|String", "value_binary" => "\Cassandra\Blob|null", "data_type" => "null|String"])]
     public function toArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),
             "name" => $this->name,
-            "group" => $this->group,
+            "category" => $this->category,
             "value_binary" => $this->value_binary,
+            "value" => $this->value,
             "data_type" => $this->data_type,
         );
     }

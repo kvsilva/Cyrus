@@ -66,20 +66,31 @@ $(document).ready(function () {
     /* User Menu*/
     $(".dropdown").find(".dropdown-menu").each(function () {
         let alreadySelected = false;
-        $(this).find("li").each(function () {
-            if ($(this).hasClass("selected")) {
-                alreadySelected = true;
-            }
+        let select = true;
+        $(this).parent().find(".dropdown-toggle").each(function () {
+            $(this).find("[data-selected]").each(function () {
+                if ($(this).data("selected") == null || $(this).data("selected") == "null") {
+                    select = false;
+                    $(this).html("Nenhum");
+                }
+            });
         });
-        if (!alreadySelected) {
-            $(this).find("li:first-child").addClass("selected").each(function () {
-                $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
+        if (select) {
+            $(this).find("li").each(function () {
+                if ($(this).hasClass("selected")) {
+                    alreadySelected = true;
+                }
             });
-        }
-        else {
-            $(this).find("li.selected").each(function () {
-                $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
-            });
+            if (!alreadySelected) {
+                $(this).find("li:first-child").addClass("selected").each(function () {
+                    $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
+                });
+            }
+            else {
+                $(this).find("li.selected").each(function () {
+                    $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html());
+                });
+            }
         }
     });
     $(".dropdown").find(".dropdown-menu li").click(function () {

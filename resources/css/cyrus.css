@@ -476,6 +476,7 @@ input.cyrus-minimal{
 .cyrus-btn{
     width: auto;
     text-transform: uppercase;
+
 }
 .cyrus-btn-simple{
     border: none;
@@ -487,6 +488,31 @@ input.cyrus-minimal{
 .cyrus-btn-simple:hover {
     color: var(--color3) !important;
 }
+
+.cyrus-btn-type2{
+    border: none;
+    padding: 7px 22px;
+    font-weight: 900;
+    box-shadow:  inset 0 0 0 0.125rem var(--color0);
+    transition-duration: .2s;
+    transition-property: color,background-color,box-shadow;
+    transition-timing-function: ease;
+    color: var(--backgroundColor);
+    background-color: var(--color0);
+}
+
+.cyrus-btn-type2:not(:disabled):hover{
+    box-shadow:  inset 0 0 0 0.125rem var(--color0_light);
+    transition-timing-function: ease;
+    background-color: var(--color0_light);
+}
+
+.cyrus-btn-type2:disabled {
+    box-shadow: inset 0 0 0 0.125rem var(--color2_darker);
+    background-color: transparent;
+    color: var(--color2_darker);
+}
+
 
 /* Footer */
 

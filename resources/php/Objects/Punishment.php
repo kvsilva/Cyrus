@@ -71,7 +71,8 @@ class Punishment extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $user = null, int $punishment_type = null, int $performed_by = null, int $revoked_by = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $user = null, int $punishment_type = null, int $performed_by = null, int $revoked_by = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "user" => $user,
