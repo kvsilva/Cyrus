@@ -6,7 +6,7 @@ use APIObjects\Response;
 use Functions\Routing;
 use Functions\Utils;
 
-$fi = new FilesystemIterator(Utils::correctURL(Utils::getBasePath() . "/resources/site/"), FilesystemIterator::SKIP_DOTS);
+$fi = new FilesystemIterator(Utils::correctURL(Utils::getBasePath() . "/resources/site/tmp_files/"), FilesystemIterator::SKIP_DOTS);
 $amount = iterator_count($fi);
 $data = array();
 
@@ -33,6 +33,7 @@ if(isset($_FILES["files"])) {
             "tmp_name" => $_FILES["files"]["tmp_name"][$i],
             "error" => $_FILES["files"]["error"][$i],
             "full_path" => $_FILES["files"]["full_path"][$i],
+            "extension" => $extension,
             "system_path" => $system_path,
             "web_path" => $webURL,
         );

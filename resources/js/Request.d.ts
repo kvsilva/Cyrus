@@ -5,6 +5,7 @@ export declare class WebFile {
     tmp_name: string;
     error: number;
     full_path: string;
+    extension: string;
     system_path: string;
     web_path: string;
     constructor(obj?: any);

@@ -7,6 +7,7 @@ export class WebFile{
     tmp_name: string;
     error: number;
     full_path: string;
+    extension: string;
     system_path: string;
     web_path: string;
 
@@ -18,8 +19,9 @@ export class WebFile{
         this.tmp_name = (obj_.tmp_name !== undefined) ? obj_.tmp_name : null;
         this.error = (obj_.error !== undefined) ? obj_.error : null;
         this.full_path = (obj_.full_path !== undefined) ? obj_.full_path : null;
-        this.system_path = (obj_.data_type !== undefined) ? obj_.system_path : null;
-        this.web_path = (obj_.data_type !== undefined) ? obj_.web_path : null;
+        this.extension = (obj_.extension !== undefined) ? obj_.extension : null;
+        this.system_path = (obj_.system_path !== undefined) ? obj_.system_path : null;
+        this.web_path = (obj_.web_path !== undefined) ? obj_.web_path : null;
     }
 
 }
@@ -68,39 +70,6 @@ export class Request {
                 }
                 resolve(response);
             });
-
-            /*let request = new XMLHttpRequest();
-            request.open("POST", Request.UPLOAD_FILE_URL, true);
-            //request.setRequestHeader("Content-Type", "application/json");
-            request.setRequestHeader('Content-Type', 'multipart/form-data');
-            //request.responseType = 'json';
-
-            request.onload = function () {
-                if (request.status >= 200 && request.status < 300) {
-                    if(request.response !== null) {
-
-                        let response = request.response;
-                        if("data" in response) {
-                            response.data = new WebFile(response.data);
-                        }
-                    }
-                    resolve(request.response);
-                } else {
-                    reject({
-                        status: request.status,
-                        statusText: request.statusText
-                    });
-                }
-            };
-            request.onerror = function () {
-                reject({
-                    status: request.status,
-                    statusText: request.statusText
-                });
-            };*/
-
-
-            //request.send(formData);
         });
     }
 
@@ -141,18 +110,7 @@ export class Request {
                 });
             };
 
-            let formData : FormData = new FormData();
-            console.log(array);
-            formData.append("teste", "t");
-            console.log(formData.get("teste"));
-            for (const item in array) {
-                // @ts-ignore
-                formData.append(item, array[item]);
-            }
-            console.log(formData);
-
             request.send(JSON.stringify(array));
-            //request.send(formData);
         });
     }
 
