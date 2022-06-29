@@ -131,8 +131,8 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                         </div>
                                         <div class="modal-footer">
 
-                                            <input class="cyrus-input" type="reset" data-bs-dismiss="modal" value="CANCELAR" data-form="user_add">
-                                            <input class="cyrus-input" type="submit" data-bs-dismiss="modal" value="ADICIONAR" data-form="user_add">
+                                            <input class="cyrus-input" type="reset" data-bs-dismiss="modal" value="CANCELAR" data-form="user_add" data-entity = "User">
+                                            <input class="cyrus-input" type="submit" data-bs-dismiss="modal" value="ADICIONAR" data-form="user_add" data-entity = "User">
 
                                         </div>
                                     </div>

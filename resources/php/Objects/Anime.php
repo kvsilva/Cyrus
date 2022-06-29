@@ -96,6 +96,7 @@ class Anime extends Entity
                 $this->genders[] = new Gender($row["id"]);
             }
         }
+        parent::buildRelations();
     }
 
     /**
@@ -121,6 +122,7 @@ class Anime extends Entity
     #[Pure]
     protected function updateRelations()
     {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::SEASONS)) {

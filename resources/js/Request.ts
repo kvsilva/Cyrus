@@ -55,12 +55,14 @@ export class Request {
         return new Promise(function (resolve) : any {
             let formData : FormData = new FormData();
             formData.append("files", file);
+            let ret = null;
             $.ajax({
                 url: Request.UPLOAD_FILE_URL,
                 type: "POST",
                 contentType: false,
                 processData: false,
                 data: formData,
+                async: false,
                 dataType: "json"
             }).done(function (response : any){
                 if(response.status){
@@ -68,8 +70,10 @@ export class Request {
                         response.data = new WebFile(response.data[0]);
                     }
                 }
-                resolve(response);
+                ret = response;
             });
+            resolve(ret);
+            return ret;
         });
     }
 
@@ -97,6 +101,9 @@ export class Request {
                     }
                     resolve(request.response);
                 } else {
+                    console.error({
+                        request
+                    })
                     reject({
                         status: request.status,
                         statusText: request.statusText

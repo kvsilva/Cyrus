@@ -55,6 +55,7 @@ class Role extends Entity
                 $this->permissions[] = new Permission($row["id"]);
             }
         }
+        parent::buildRelations();
     }
 
     /**
@@ -75,8 +76,9 @@ class Role extends Entity
     /**
      * @return void
      */
-    public function updateRelations()
+    protected function updateRelations()
     {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::PERMISSIONS)) {

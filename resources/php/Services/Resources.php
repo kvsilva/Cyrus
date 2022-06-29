@@ -13,6 +13,7 @@ use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
 use Exceptions\UniqueKey;
+use Functions\Routing;
 use Functions\Utils;
 use Objects\Resource;
 use Objects\Video;
@@ -48,7 +49,8 @@ class Resources
         $resource->store();
         $path = Utils::getBasePath() . "/" . self::RESOURCES_DIRECTORY . "/" . $resource->getId() . "." . $resource->getExtension();
         rename($file->getSystemPath(), $path);
-        $resource->setPath($path);
+        $webPath = Routing::getResource("site") . "/" . self::RESOURCES_DIRECTORY . "/" . $resource->getId() . "." . $resource->getExtension();
+        $resource->setPath($webPath);
         $resource->store();
         return new Status(isError: false,return: array($resource->toArray()), bareReturn: array($resource));
     }

@@ -84,6 +84,7 @@ class Ticket extends Entity {
                 $this->messages[] = new TicketMessage($row["id"], array(Entity::ALL));
             }
         }
+        parent::buildRelations();
     }
 
     /**
@@ -110,6 +111,7 @@ class Ticket extends Entity {
     #[Pure]
     protected function updateRelations()
     {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::ALL)) {

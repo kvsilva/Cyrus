@@ -83,6 +83,7 @@ class Video extends Entity
                 $this->dubbing[] = new Dubbing($row["id"]);
             }
         }
+        parent::buildRelations();
     }
 
     /**
@@ -110,6 +111,7 @@ class Video extends Entity
     #[Pure]
     protected function updateRelations()
     {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::SUBTITLES)) {

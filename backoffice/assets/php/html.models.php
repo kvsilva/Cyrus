@@ -50,12 +50,12 @@ function echoModelFor(String $model, array $data = array()){
                 <div class="group-section-subitem-title"><?php echo $data[2]?></div>
 
                 <!-- Upload File -->
-                <div class="group-section-subitem-items" data-section = "1">
+                <div class="group-section-subitem-items" data-section = "1" data-service = "Resources" data-action = "uploadFile">
                     <div class="cyrus-input-group group-input-text">
                         <input type="text" class="cyrus-minimal group-input" value=''
                                onkeyup="this.setAttribute('value', this.value);"
                                autocomplete="new-password"
-                               data-subitem = "title" data-service = "Resources" data-action = "uploadFile">
+                               data-subitem = "title">
                         <span class="cyrus-floating-label">Title</span>
                     </div>
                     <div class="cyrus-input-group group-input-text">
@@ -86,9 +86,8 @@ function echoModelFor(String $model, array $data = array()){
                     <div class="cyrus-input-group group-input-text">
                         <input type="text" class="cyrus-minimal group-input" value=''
                                onkeyup="this.setAttribute('value', this.value);"
-                               autocomplete="new-password">
-                        autocomplete="new-password"
-                        data-subitem = "description" data-service = "Resources" data-action = "registerFile">
+                               autocomplete="new-password"
+                                data-subitem = "description" data-service = "Resources" data-action = "registerFile">
                     </div>
                     <div class="cyrus-input-group group-input-text">
                         <input type="text" class="cyrus-minimal group-input" value=''

@@ -58,6 +58,7 @@ class TicketMessage extends Entity
                 $this->attachments[] = new Resource($row["id"], array(Entity::ALL));
             }
         }
+        parent::buildRelations();
     }
 
     /**
@@ -83,6 +84,7 @@ class TicketMessage extends Entity
     #[Pure]
     protected function updateRelations()
     {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::ATTACHMENTS)) {

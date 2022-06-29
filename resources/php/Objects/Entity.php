@@ -62,6 +62,8 @@ abstract class Entity
 
     private array $flags;
 
+    private bool $builtRelations = false;
+
     /**
      * @param String $table
      * @param int|null $id
@@ -242,7 +244,9 @@ abstract class Entity
     /**
      * @return void
      */
-    protected function buildRelations(){}
+    protected function buildRelations(){
+        $this->setBuiltRelations(true);
+    }
 
     /**
      * This method will update the data in the database, according to the object properties
@@ -311,7 +315,11 @@ abstract class Entity
     /**
      * @return void
      */
-    protected function updateRelations(){}
+    protected function updateRelations(){
+        if(!$this->relationsAreBuilt()){
+            $this->buildRelations();
+        }
+    }
 
     /**
      * This method will remove the object from the database.
@@ -340,6 +348,9 @@ abstract class Entity
      * @param String $table
      * @param String $class
      * @param string|null $sql
+     * @param string $operator
+     * @param string $orderBy
+     * @param int|null $limit
      * @param array $flags
      * @return EntityArray
      * @throws ReflectionException
@@ -365,8 +376,12 @@ abstract class Entity
                 $clause = true;
                 $sql_command .= ($value != null ? "($table.`$key` IS NOT NULL AND $table.`$key` ". $operator ." '$value') AND " : "");
             }
-            if($clause) $sql_command = substr($sql_command,0,-4);
-            if(str_ends_with($sql_command, "WHERE ")) $sql_command = str_replace($sql_command, "WHERE ", "");
+            if($clause) {
+                $sql_command = substr($sql_command, 0, -4);
+            }
+            if(str_ends_with($sql_command, "WHERE ")) {
+                $sql_command = str_replace("WHERE ", "", $sql_command);
+            }
         }
         $sql_command.= " order by " . $orderBy;
         $sql_command.= ($limit !== null) ? " LIMIT " . $limit : "";
@@ -425,6 +440,7 @@ abstract class Entity
      */
     public function addFlag(int $flag): Entity
     {
+        echo "add flag";
         if(!$this->hasFlag($flag)){
             $this->flags[] = $flag;
             if($this->getId() != null) $this->buildRelations();
@@ -438,6 +454,7 @@ abstract class Entity
      */
     public function addFlags(array $flags): Entity
     {
+        echo "add flags";
         $newFlag = false;
         foreach($flags as $flag){
             if(!$this->hasFlag($flag)){
@@ -532,6 +549,16 @@ abstract class Entity
         return !is_bool($reflection->getConstant($name));
     }
 
+
+    public function relationsAreBuilt(): bool
+    {
+        return $this->builtRelations;
+    }
+
+    public function setBuiltRelations(bool $built) : Entity{
+        $this->builtRelations = $built;
+        return $this;
+    }
 
 }
 ?>

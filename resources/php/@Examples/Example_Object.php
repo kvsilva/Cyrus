@@ -60,6 +60,7 @@ SELECT object as 'id' FROM example_object WHERE id = $id;");
                 $this->relations[] = new Example_Object($row["id"], array(Entity::ALL));
             }
         }
+        parent::buildRelations();
     }
 
     /**
@@ -85,6 +86,7 @@ SELECT object as 'id' FROM example_object WHERE id = $id;");
     #[Pure]
     protected function updateRelations()
     {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::ALL)) {

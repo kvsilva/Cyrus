@@ -171,6 +171,7 @@ class User extends Entity
                 );
             }
         }
+        parent::buildRelations();
     }
 
     /**
@@ -193,6 +194,7 @@ class User extends Entity
      */
     protected function updateRelations()
     {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::ROLES)) {
@@ -309,7 +311,6 @@ class User extends Entity
             }
         }
         if ($this->hasFlag(self::VIDEOHISTORY)) {
-
             $animes = $database->query("SELECT video as 'id' FROM history WHERE user = $id ORDER BY date;");
             while ($record = $animes->fetch_array()) {
                 $remove = true;
@@ -421,22 +422,22 @@ class User extends Entity
         );
         // Relations
         $array["roles"] = null;
-        if($this->roles != null) {
+        if($this->roles !== null) {
             $array["roles"] = array();
             foreach($this->roles as $value) $array["roles"][] = $value->toArray();
         }
         $array["logs"] = null;
-        if($this->logs != null) {
+        if($this->logs !== null) {
             $array["logs"] = array();
             foreach($this->logs as $value) $array["logs"][] = $value->toArray();
         }
         $array["punishments"] = null;
-        if($this->punishments != null) {
+        if($this->punishments !== null) {
             $array["punishments"] = array();
             foreach($this->punishments as $value) $array["punishments"][] = $value->toArray();
         }
         $array["purchases"] = null;
-        if($array["purchases"] != null) {
+        if($array["purchases"] !== null) {
             $array["purchases"] = array(
                 "current" => null,
                 "rescue" => array(),
@@ -456,12 +457,12 @@ class User extends Entity
             }
         }
         $array["tickets"] = null;
-        if($this->tickets != null) {
+        if($this->tickets !== null) {
             $array["tickets"] = array();
             foreach($this->tickets as $value) $array["tickets"][] = $value->toArray();
         }
         $array["anime_history"] = null;
-        if($this->anime_history != null) {
+        if($this->anime_history !== null) {
             $array["anime_history"] = array();
             foreach($this->anime_history as $value) {
                 $array["anime_history"][] = array(
@@ -472,7 +473,7 @@ class User extends Entity
             }
         }
         $array["video_history"] = null;
-        if($this->video_history != null) {
+        if($this->video_history !== null) {
             $array["video_history"] = array();
             foreach($this->video_history as $value) {
                 $array["video_history"][] = array(
