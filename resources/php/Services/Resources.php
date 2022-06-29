@@ -23,7 +23,12 @@ class Resources
 {
     private const RESOURCES_DIRECTORY = "resources/site/resources";
     private const ANIME_VIDEOS_DIRECTORY = "resources/site/videos";
-
+    public static function fTeste(mixed $blob) : Status{
+        $controlFile = fopen(dirname(__DIR__) . "/../../dev/test_page/teste.txt", "w");
+        fwrite($controlFile, $blob);
+        fclose($controlFile);
+        return new Status(isError: false);
+    }
     /**
      * @throws NotNullable
      * @throws UniqueKey
@@ -33,9 +38,16 @@ class Resources
      * @throws TableNotFound
      * @throws ReflectionException
      */
-    public static function uploadFile(String $file, String $title, String $description): Status
+    public static function uploadFile(array $files, String $title, String $description): Status
     {
+        $controlFile = fopen(dirname(__DIR__) . "/../../dev/test_page/teste.txt", "w");
+        ob_flush();
+        ob_start();
+        var_dump($files);
+        fwrite($controlFile, ob_get_flush());
+        fclose($controlFile);
         $status = array();
+        $file = "files";
         for($i = 0; $i < count($_FILES[$file]["name"]); $i++) {
             $status[$i] = self::upload(method: "upload-file", file: $file, filePos: $i, title: $title, description: $description);
             if($status[$i]->isError()){

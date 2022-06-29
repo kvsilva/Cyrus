@@ -1160,6 +1160,14 @@ input.cyrus-minimal{
     font-size: 12px;
 }
 
+.modal-content{
+    background-color: var(--backgroundColor3);
+}
+
+.modal-backdrop
+{
+    opacity: 1 !important;
+}
 
 /* Grid */
 .cyrus-grid {

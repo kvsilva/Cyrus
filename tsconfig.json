@@ -38,7 +38,9 @@
     "animes/list/assets/js/*",
     "animes/personal/assets/js/*",
     "home/assets/js/*",
+    "backoffice/assets/js/*",
     "user/account/assets/js/*",
+    "dev/test_page/assets/js/*",
   ],
   "exclude": [
     "node_modules",

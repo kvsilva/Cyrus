@@ -24,6 +24,7 @@ class Routing
                 "account" => (Utils::getURL() . "user/account/"),
                 "home" => (Utils::getURL()),
                 "backoffice" => (Utils::getURL() . "backoffice/"),
+                "API" => (Utils::getURL() . "api/v1/"),
             );
 
            self::$resources = array(
@@ -33,6 +34,8 @@ class Routing
                 "js" => (Utils::getURL() . "resources/js/"),
                 "pages" => (Utils::getURL() . "resources/pages/"),
                 "php" => (Utils::getURL() . "resources/php/"),
+                "site" => (Utils::getURL() . "resources/site/"),
+                "home" => (Utils::getURL() . "resources/"),
             );
 
             self::$initialized = true;

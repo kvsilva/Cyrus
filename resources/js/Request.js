@@ -1,4 +1,17 @@
 import { models } from "./models";
+export class WebFile {
+    constructor(obj) {
+        const obj_ = obj || {};
+        this.name = (obj_.name !== undefined) ? obj_.name : null;
+        this.type = (obj_.type !== undefined) ? obj_.type : null;
+        this.size = (obj_.size !== undefined) ? obj_.size : null;
+        this.tmp_name = (obj_.tmp_name !== undefined) ? obj_.tmp_name : null;
+        this.error = (obj_.error !== undefined) ? obj_.error : null;
+        this.full_path = (obj_.full_path !== undefined) ? obj_.full_path : null;
+        this.system_path = (obj_.data_type !== undefined) ? obj_.system_path : null;
+        this.web_path = (obj_.data_type !== undefined) ? obj_.web_path : null;
+    }
+}
 export class Request {
     static requestService(service, action, data, flags) {
         return this.sendRequest({
@@ -18,25 +31,79 @@ export class Request {
             "data": [data]
         });
     }
+    static uploadFile(file) {
+        return new Promise(function (resolve) {
+            let formData = new FormData();
+            formData.append("files", file);
+            $.ajax({
+                url: Request.UPLOAD_FILE_URL,
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                dataType: "json"
+            }).done(function (response) {
+                if (response.status) {
+                    if ("data" in response) {
+                        response.data = new WebFile(response.data[0]);
+                    }
+                }
+                resolve(response);
+            });
+            /*let request = new XMLHttpRequest();
+            request.open("POST", Request.UPLOAD_FILE_URL, true);
+            //request.setRequestHeader("Content-Type", "application/json");
+            request.setRequestHeader('Content-Type', 'multipart/form-data');
+            //request.responseType = 'json';
+
+            request.onload = function () {
+                if (request.status >= 200 && request.status < 300) {
+                    if(request.response !== null) {
+
+                        let response = request.response;
+                        if("data" in response) {
+                            response.data = new WebFile(response.data);
+                        }
+                    }
+                    resolve(request.response);
+                } else {
+                    reject({
+                        status: request.status,
+                        statusText: request.statusText
+                    });
+                }
+            };
+            request.onerror = function () {
+                reject({
+                    status: request.status,
+                    statusText: request.statusText
+                });
+            };*/
+            //request.send(formData);
+        });
+    }
     static sendRequest(array) {
         return new Promise(function (resolve, reject) {
             let request = new XMLHttpRequest();
-            request.open("POST", Request.URL, true);
+            request.open("POST", Request.API_URL, true);
             request.setRequestHeader("Content-Type", "application/json");
+            //request.setRequestHeader('Content-Type', 'multipart/form-data');
             request.responseType = 'json';
             request.onload = function () {
                 if (request.status >= 200 && request.status < 300) {
-                    let _ret;
-                    if ("dataTypes" in request.response && request.response.dataTypes !== null) {
-                        _ret = Request.buildElement(request.response.dataTypes, request.response.data);
+                    if (request.response !== null) {
+                        let _ret;
+                        if ("dataTypes" in request.response && request.response.dataTypes !== null) {
+                            _ret = Request.buildElement(request.response.dataTypes, request.response.data);
+                        }
+                        else {
+                            _ret = request.response.data;
+                        }
+                        let response = request.response;
+                        delete response.dataTypes;
+                        response.data = _ret;
                     }
-                    else {
-                        _ret = request.response.data;
-                    }
-                    let response = request.response;
-                    delete response.dataTypes;
-                    response.data = _ret;
-                    resolve(response);
+                    resolve(request.response);
                 }
                 else {
                     reject({
@@ -51,7 +118,17 @@ export class Request {
                     statusText: request.statusText
                 });
             };
+            let formData = new FormData();
+            console.log(array);
+            formData.append("teste", "t");
+            console.log(formData.get("teste"));
+            for (const item in array) {
+                // @ts-ignore
+                formData.append(item, array[item]);
+            }
+            console.log(formData);
             request.send(JSON.stringify(array));
+            //request.send(formData);
         });
     }
     static buildElement(dataType, data) {
@@ -117,4 +194,5 @@ export class Request {
         return _objs;
     }
 }
-Request.URL = new URL("../../API/v1/", import.meta.url).href;
+Request.API_URL = new URL("../../API/v1/", import.meta.url).href;
+Request.UPLOAD_FILE_URL = new URL("../../API/v1/uploadFile.php", import.meta.url).href;
