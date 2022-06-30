@@ -129,6 +129,25 @@ class Punishment extends Entity
     }
 
     /**
+     * @return array
+     */
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "punishment_type" => $this->punishment_type,
+            "reason" => $this->reason,
+            "lasts_until" => $this->lasts_until?->format(Database::DateFormat),
+            "performed_by" => $this->performed_by,
+            "performed_date" => $this->performed_date?->format(Database::DateFormat),
+            "revoked_by" => $this->revoked_by,
+            "revoked_date" => $this->revoked_date?->format(Database::DateFormat),
+            "revoked_reason" => $this->revoked_reason,
+            "available" => $this->available
+        );
+    }
+
+    /**
      * @return PunishmentType
      */
     public function getPunishmentType(): PunishmentType

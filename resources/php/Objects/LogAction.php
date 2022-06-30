@@ -63,7 +63,8 @@ class LogAction extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name
@@ -89,6 +90,15 @@ class LogAction extends Entity
     #[Pure]
     #[ArrayShape(["id" => "int|null", "name" => "null|String", "description" => "null|String"])]
     public function toArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name,
+            "description" => $this->description
+        );
+    }
+
+    public function toOriginalArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

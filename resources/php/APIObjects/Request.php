@@ -173,7 +173,7 @@ class Request
                 break;
             default:
                 (new Response(status: false, description: API_MESSAGES::ACTION_UNKNOWN))->encode(print: true);
-                break;
+                exit;
         }
         return $objects;
     }

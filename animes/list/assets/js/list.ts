@@ -44,7 +44,7 @@ $(document).ready(function() {
                                 $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.animes + "?anime=" + item.id).attr("title", item.title)
                             ).append(
                                 $("<div>").attr("class", "cyrus-card-image-cape").append(
-                                    $("<img>").attr("src", item.cape?.path)
+                                    $("<img>").attr("src", item.cape === null ? "" : item.cape?.path)
                                 )
                             ).append(
                                 $("<div>").attr("class", "cyrus-card-body").append(

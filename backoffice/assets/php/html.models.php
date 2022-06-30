@@ -64,6 +64,12 @@ function echoModelFor(string $model, array $data = array())
                 <!-- Upload File -->
                 <div class="group-section-subitem-items" data-section="1" data-service="Resources"
                      data-action="uploadFile">
+
+                    <input type="text" class="cyrus-item-hidden" value=''
+                           onkeyup="this.setAttribute('value', this.value);"
+                           autocomplete="new-password"
+                           data-subitem="id">
+
                     <div class="cyrus-input-group group-input-text">
                         <input type="text" class="cyrus-minimal group-input" value=''
                                onkeyup="this.setAttribute('value', this.value);"
@@ -159,6 +165,29 @@ function echoModelFor(string $model, array $data = array())
                     <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1">
                         <?php
                         $sex = Enumerators\Sex::getAllItems();
+                        foreach ($sex as $item) {
+                            echo '<li data-id = "' . $item->value . '">' . $item->name() . '</li>';
+                        }
+                        ?>
+                    </ul>
+                </div>
+                <span class="cyrus-floating-label cyrus-floating-label-float"><?php echo $data[2]; ?></span>
+            </div>
+
+            <?php
+            break;
+        case "availability":
+            ?>
+            <div class="cyrus-input-group group-input-text">
+                <div class="dropdown no-select">
+                    <div class="dropdown-toggle w-100" type="button"
+                         data-bs-toggle="dropdown" aria-expanded="false">
+                        <span data-isDropdown="true" data-form="<?php echo $data[0]; ?>"
+                              data-name="<?php echo $data[1] ?>" data-selected="null"></span>
+                    </div>
+                    <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1">
+                        <?php
+                        $sex = Enumerators\Availability::getAllItems();
                         foreach ($sex as $item) {
                             echo '<li data-id = "' . $item->value . '">' . $item->name() . '</li>';
                         }

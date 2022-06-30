@@ -14,7 +14,7 @@ export class WebFile {
     }
 }
 export class Request {
-    static requestService(service, action, data, flags) {
+    static requestService(service, action, data = {}, flags = []) {
         return this.sendRequest({
             "service": service,
             "action": action,
@@ -23,7 +23,7 @@ export class Request {
             "data": [data]
         });
     }
-    static requestType(target, action, data, flags) {
+    static requestType(target, action, data = {}, flags = []) {
         return this.sendRequest({
             "type": target,
             "action": action,
@@ -69,6 +69,7 @@ export class Request {
                     if (isJson(request.response)) {
                         let response = JSON.parse(request.response);
                         if (response !== null) {
+                            response.original = response.data;
                             let _ret;
                             if ("dataTypes" in response && response.dataTypes !== null) {
                                 _ret = Request.buildElement(response.dataTypes, response.data);

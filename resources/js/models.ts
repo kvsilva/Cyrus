@@ -1,6 +1,7 @@
 export const Availability = {
     NOT_AVAILABLE: 0,
-    AVAILABLE: 1
+    AVAILABLE: 1,
+    BOTH: 2
 };
 export const DayOfWeek = {
     MONDAY: 1,
@@ -20,10 +21,6 @@ export const AnimeStatus = {
 export const Maturity = {
     NORMAL: 0,
     MATURE: 1
-};
-export const NightMode = {
-    DISABLE: 0,
-    ENABLE: 1
 };
 export const Removal = {
     DELETE: 0,
@@ -109,14 +106,13 @@ export class User {
     sex: number;
     creation_date: Date;
     status: string;
-    profile_image: Resource;
-    profile_background: Resource;
+    profile_image: Resource | null;
+    profile_background: Resource | null;
     about_me: string;
     verified: number;
-    display_language: Language;
-    email_communication_language: Language;
-    translation_language: Language;
-    night_mode: number;
+    display_language: Language | null;
+    email_communication_language: Language | null;
+    translation_language: Language | null;
     available: number;
     roles: Role[];
     punishments: Punishment[];
@@ -136,14 +132,13 @@ export class User {
         this.sex = (obj_.sex !== undefined) ? obj_.sex : null;
         this.creation_date = (obj_.creation_date !== undefined) ? obj_.creation_date : null;
         this.status = (obj_.status !== undefined) ? obj_.status : null;
-        this.profile_image = (obj_.profile_image !== undefined) ? obj_.profile_image : null;
-        this.profile_background = (obj_.profile_background !== undefined) ? obj_.profile_background : null;
+        this.profile_image = (obj_.profile_image !== undefined) ? (obj_.profile_image !== null ? new Resource(obj_.profile_image): null) : null;
+        this.profile_background = (obj_.profile_background !== undefined) ? (obj_.profile_background !== null ? new Resource(obj_.profile_background): null) : null;
         this.about_me = (obj_.about_me !== undefined) ? obj_.about_me : null;
         this.verified = (obj_.verified !== undefined) ? obj_.verified : null;
-        this.display_language = (obj_.display_language !== undefined) ? obj_.display_language : null;
-        this.email_communication_language = (obj_.email_communication_language !== undefined) ? obj_.email_communication_language : null;
-        this.translation_language = (obj_.translation_language !== undefined) ? obj_.translation_language : null;
-        this.night_mode = (obj_.night_mode !== undefined) ? obj_.night_mode : null;
+        this.display_language = (obj_.display_language !== undefined) ? (obj_.display_language !== null ? new Language(obj_.display_language): null) : null;
+        this.email_communication_language = (obj_.email_communication_language !== undefined) ? (obj_.email_communication_language !== null ? new Language(obj_.email_communication_language): null) : null;
+        this.translation_language = (obj_.translation_language !== undefined) ? (obj_.translation_language !== null ? new Language(obj_.translation_language): null) : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
         this.roles = (obj_.roles !== undefined) ? obj_.roles : [];
         this.punishments = (obj_.punishments !== undefined) ? obj_.punishments : [];
@@ -200,15 +195,15 @@ export class Anime {
     title: string;
     original_title: string;
     synopsis: string;
-    profile: Resource;
-    cape: Resource;
+    profile: Resource | null;
+    cape: Resource | null;
     start_date: Date;
     end_date: Date;
     mature: number;
     launch_day: number;
     launch_time: Date;
-    source: SourceType;
-    audience: Audience;
+    source: SourceType | null;
+    audience: Audience | null;
     trailer: string;
     available: number;
     videos: Video[];
@@ -221,15 +216,15 @@ export class Anime {
         this.title = (obj_.title !== undefined) ? obj_.title : null;
         this.original_title = (obj_.original_title !== undefined) ? obj_.original_title : null;
         this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;
-        this.profile = (obj_.profile !== undefined) ? obj_.profile : null;
-        this.cape = (obj_.cape !== undefined) ? obj_.cape : null;
+        this.profile = (obj_.profile !== undefined) ? (obj_.profile !== null ? new Resource(obj_.profile): null) : null;
+        this.cape = (obj_.cape !== undefined) ? (obj_.cape !== null ? new Resource(obj_.cape): null) : null;
         this.start_date = (obj_.start_date !== undefined) ? obj_.start_date : null;
         this.end_date = (obj_.end_date !== undefined) ? obj_.end_date : null;
         this.mature = (obj_.mature !== undefined) ? obj_.mature : null;
         this.launch_day = (obj_.launch_day !== undefined) ? obj_.launch_day : null;
         this.launch_time = (obj_.launch_time !== undefined) ? obj_.launch_time : null;
-        this.source = (obj_.source !== undefined) ? obj_.source : null;
-        this.audience = (obj_.audience !== undefined) ? obj_.audience : null;
+        this.source = (obj_.source !== undefined) ? (obj_.source !== null ? new SourceType(obj_.source): null) : null;
+        this.audience = (obj_.audience !== undefined) ? (obj_.audience !== null ? new Audience(obj_.audience): null) : null;
         this.trailer = (obj_.trailer !== undefined) ? obj_.trailer : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
         this.videos = (obj_.videos !== undefined) ? obj_.videos : [];
@@ -285,42 +280,42 @@ export const VideoTypeFlags = {
 };
 export class Video {
     id: number;
-    video_type: VideoType;
+    video_type: VideoType | null;
     numeration: number;
     title: string;
     synopsis: string;
-    thumbnail: Resource;
+    thumbnail: Resource | null;
     release_date: Date;
     duration: number;
     opening_start: number;
     opening_end: number;
     ending_start: number;
     ending_end: number;
-    path: Resource;
+    path: Resource | null;
     available: number;
-    anime: Anime;
-    season: Season;
+    anime: Anime | null;
+    season: Season | null;
     subtitles: any[];
     dubbing: any[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.video_type = (obj_.video_type !== undefined) ? obj_.video_type : null;
+        this.video_type = (obj_.video_type !== undefined) ? (obj_.video_type !== null ? new VideoType(obj_.video_type): null) : null;
         this.numeration = (obj_.numeration !== undefined) ? obj_.numeration : null;
         this.title = (obj_.title !== undefined) ? obj_.title : null;
         this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;
-        this.thumbnail = (obj_.thumbnail !== undefined) ? obj_.thumbnail : null;
+        this.thumbnail = (obj_.thumbnail !== undefined) ? (obj_.thumbnail !== null ? new Resource(obj_.thumbnail): null) : null;
         this.release_date = (obj_.release_date !== undefined) ? obj_.release_date : null;
         this.duration = (obj_.duration !== undefined) ? obj_.duration : null;
         this.opening_start = (obj_.opening_start !== undefined) ? obj_.opening_start : null;
         this.opening_end = (obj_.opening_end !== undefined) ? obj_.opening_end : null;
         this.ending_start = (obj_.ending_start !== undefined) ? obj_.ending_start : null;
         this.ending_end = (obj_.ending_end !== undefined) ? obj_.ending_end : null;
-        this.path = (obj_.path !== undefined) ? obj_.path : null;
+        this.path = (obj_.path !== undefined) ? (obj_.path !== null ? new Resource(obj_.path): null) : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
-        this.anime = (obj_.anime !== undefined) ? obj_.anime : null;
-        this.season = (obj_.season !== undefined) ? obj_.season : null;
+        this.anime = (obj_.anime !== undefined) ? (obj_.anime !== null ? new Anime(obj_.anime): null) : null;
+        this.season = (obj_.season !== undefined) ? (obj_.season !== null ? new Season(obj_.season): null) : null;
         this.subtitles = (obj_.subtitles !== undefined) ? obj_.subtitles : [];
         this.dubbing = (obj_.dubbing !== undefined) ? obj_.dubbing : [];
     }
@@ -333,14 +328,14 @@ export const VideoFlags = {
 };
 export class Subtitle {
     id: number;
-    language: Language;
+    language: Language | null;
     path: string;
     available: number;
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.language = (obj_.language !== undefined) ? obj_.language : null;
+        this.language = (obj_.language !== undefined) ? (obj_.language !== null ? new Language(obj_.language): null) : null;
         this.path = (obj_.path !== undefined) ? obj_.path : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
@@ -351,14 +346,14 @@ export const SubtitleFlags = {
 };
 export class Dubbing {
     id: number;
-    language: Language;
+    language: Language | null;
     path: string;
     available: number;
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.language = (obj_.language !== undefined) ? obj_.language : null;
+        this.language = (obj_.language !== undefined) ? (obj_.language !== null ? new Language(obj_.language): null) : null;
         this.path = (obj_.path !== undefined) ? obj_.path : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
@@ -383,12 +378,12 @@ export const PunishmentTypeFlags = {
 };
 export class Punishment {
     id: number;
-    punishment_type: PunishmentType;
+    punishment_type: PunishmentType | null;
     reason: string;
     lasts_until: Date;
-    performed_by: User;
+    performed_by: User | null;
     performed_date: Date;
-    revoked_by: User;
+    revoked_by: User | null;
     revoked_date: Date;
     revoked_reason: string;
     available: number;
@@ -396,12 +391,12 @@ export class Punishment {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.punishment_type = (obj_.punishment_type !== undefined) ? obj_.punishment_type : null;
+        this.punishment_type = (obj_.punishment_type !== undefined) ? (obj_.punishment_type !== null ? new PunishmentType(obj_.punishment_type): null) : null;
         this.reason = (obj_.reason !== undefined) ? obj_.reason : null;
         this.lasts_until = (obj_.lasts_until !== undefined) ? obj_.lasts_until : null;
-        this.performed_by = (obj_.performed_by !== undefined) ? obj_.performed_by : null;
+        this.performed_by = (obj_.performed_by !== undefined) ? (obj_.performed_by !== null ? new User(obj_.performed_by): null) : null;
         this.performed_date = (obj_.performed_date !== undefined) ? obj_.performed_date : null;
-        this.revoked_by = (obj_.revoked_by !== undefined) ? obj_.revoked_by : null;
+        this.revoked_by = (obj_.revoked_by !== undefined) ? (obj_.revoked_by !== null ? new User(obj_.revoked_by): null) : null;
         this.revoked_date = (obj_.revoked_date !== undefined) ? obj_.revoked_date : null;
         this.revoked_reason = (obj_.revoked_reason !== undefined) ? obj_.revoked_reason : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
@@ -442,11 +437,11 @@ export const TicketStatusFlags = {
 export class Ticket {
     id: number;
     title: string;
-    attended_by: User;
-    status: TicketStatus;
+    attended_by: User | null;
+    status: TicketStatus | null;
     created_at: Date;
     closed_at: Date;
-    closed_by: User;
+    closed_by: User | null;
     evaluation: number;
     messages: any[];
 
@@ -454,11 +449,11 @@ export class Ticket {
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
         this.title = (obj_.title !== undefined) ? obj_.title : null;
-        this.attended_by = (obj_.attended_by !== undefined) ? obj_.attended_by : null;
-        this.status = (obj_.status !== undefined) ? obj_.status : null;
+        this.attended_by = (obj_.attended_by !== undefined) ? (obj_.attended_by !== null ? new User(obj_.attended_by): null) : null;
+        this.status = (obj_.status !== undefined) ? (obj_.status !== null ? new TicketStatus(obj_.status): null) : null;
         this.created_at = (obj_.created_at !== undefined) ? obj_.created_at : null;
         this.closed_at = (obj_.closed_at !== undefined) ? obj_.closed_at : null;
-        this.closed_by = (obj_.closed_by !== undefined) ? obj_.closed_by : null;
+        this.closed_by = (obj_.closed_by !== undefined) ? (obj_.closed_by !== null ? new User(obj_.closed_by): null) : null;
         this.evaluation = (obj_.evaluation !== undefined) ? obj_.evaluation : null;
         this.messages = (obj_.messages !== undefined) ? obj_.messages : [];
     }
@@ -470,7 +465,7 @@ export const TicketFlags = {
 };
 export class TicketMessage {
     id: number;
-    author: User;
+    author: User | null;
     content: string;
     sent_at: Date;
     attachments: any[];
@@ -478,7 +473,7 @@ export class TicketMessage {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.author = (obj_.author !== undefined) ? obj_.author : null;
+        this.author = (obj_.author !== undefined) ? (obj_.author !== null ? new User(obj_.author): null) : null;
         this.content = (obj_.content !== undefined) ? obj_.content : null;
         this.sent_at = (obj_.sent_at !== undefined) ? obj_.sent_at : null;
         this.attachments = (obj_.attachments !== undefined) ? obj_.attachments : [];
@@ -492,7 +487,7 @@ export const TicketMessageFlags = {
 export class Role {
     id: number;
     name: string;
-    permissions: any[];
+    permissions: Permission[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
@@ -550,11 +545,11 @@ export const AccountPlanFlags = {
 };
 export class AccountPurchase {
     id: number;
-    plan: AccountPlan;
+    plan: AccountPlan | null;
     price: number;
     purchased_on: Date;
     duration: number;
-    revoked_by: User;
+    revoked_by: User | null;
     revoked_reason: string;
     revoked_at: Date;
     rescued_at: Date;
@@ -563,11 +558,11 @@ export class AccountPurchase {
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.plan = (obj_.plan !== undefined) ? obj_.plan : null;
+        this.plan = (obj_.plan !== undefined) ? (obj_.plan !== null ? new AccountPlan(obj_.plan): null) : null;
         this.price = (obj_.price !== undefined) ? obj_.price : null;
         this.purchased_on = (obj_.purchased_on !== undefined) ? obj_.purchased_on : null;
         this.duration = (obj_.duration !== undefined) ? obj_.duration : null;
-        this.revoked_by = (obj_.revoked_by !== undefined) ? obj_.revoked_by : null;
+        this.revoked_by = (obj_.revoked_by !== undefined) ? (obj_.revoked_by !== null ? new User(obj_.revoked_by): null) : null;
         this.revoked_reason = (obj_.revoked_reason !== undefined) ? obj_.revoked_reason : null;
         this.revoked_at = (obj_.revoked_at !== undefined) ? obj_.revoked_at : null;
         this.rescued_at = (obj_.rescued_at !== undefined) ? obj_.rescued_at : null;
@@ -596,14 +591,14 @@ export const LogActionFlags = {
 };
 export class Log {
     id: number;
-    action_type: LogAction;
+    action_type: LogAction | null;
     arguments: any[];
     description: string;
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.action_type = (obj_.action_type !== undefined) ? obj_.action_type : null;
+        this.action_type = (obj_.action_type !== undefined) ? (obj_.action_type !== null ? new LogAction(obj_.action_type): null) : null;
         this.arguments = (obj_.arguments !== undefined) ? obj_.arguments : [];
         this.description = (obj_.description !== undefined) ? obj_.description : null;
     }
@@ -628,7 +623,7 @@ export class Paginator {
         this.totalPages = (obj_.totalPages !== undefined) ? obj_.totalPages : null;
     }
 }
-export class APIFile {
+export class APIWebFile {
     id: number;
     name: string;
     type: string;
@@ -636,6 +631,9 @@ export class APIFile {
     tmp_name: string;
     error: number;
     full_path: string;
+    extension: string;
+    system_path: string;
+    web_path: string;
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
@@ -646,6 +644,9 @@ export class APIFile {
         this.tmp_name = (obj_.tmp_name !== undefined) ? obj_.tmp_name : null;
         this.error = (obj_.error !== undefined) ? obj_.error : null;
         this.full_path = (obj_.full_path !== undefined) ? obj_.full_path : null;
+        this.extension = (obj_.extension !== undefined) ? obj_.extension : null;
+        this.system_path = (obj_.system_path !== undefined) ? obj_.system_path : null;
+        this.web_path = (obj_.web_path !== undefined) ? obj_.web_path : null;
     }
 }
 export const models : any = { 
@@ -674,5 +675,5 @@ export const models : any = {
     "LogAction" : LogAction,
     "Log" : Log,
     "Paginator" : Paginator,
-    "APIFile" : APIFile
+    "APIWebFile" : APIWebFile
 }

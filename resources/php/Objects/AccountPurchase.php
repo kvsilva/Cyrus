@@ -69,7 +69,8 @@ class AccountPurchase extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $user = null, int $plan = null, int $revoked_by = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $user = null, int $plan = null, int $revoked_by = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "user" => $user,
@@ -122,6 +123,23 @@ class AccountPurchase extends Entity
             "available" => $this->available?->toArray()
         );
     }
+
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "plan" => $this->plan,
+            "price" => $this->price,
+            "purchased_on" => $this->purchased_on?->format(Database::DateFormat),
+            "duration" => $this->duration,
+            "revoked_by" => $this->revoked_by,
+            "revoked_reason" => $this->revoked_reason,
+            "revoked_at" => $this->revoked_at?->format(Database::DateFormat),
+            "rescued_at" => $this->rescued_at?->format(Database::DateFormat),
+            "available" => $this->available
+        );
+    }
+
     /**
      * @return AccountPlan|null
      */

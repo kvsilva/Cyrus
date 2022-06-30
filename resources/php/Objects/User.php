@@ -4,7 +4,6 @@ namespace Objects;
 
 use DateTime;
 use Enumerators\Availability;
-use Enumerators\NightMode;
 use Enumerators\Removal;
 use Enumerators\Sex;
 use Enumerators\AnimeStatus;
@@ -49,7 +48,6 @@ class User extends Entity
     protected ?Language $display_language = null;
     protected ?Language $email_communication_language = null;
     protected ?Language $translation_language = null;
-    protected ?NightMode $night_mode = null; // REMOVER
     protected ?Availability $available = null;
 
     // RELATIONS
@@ -391,7 +389,6 @@ class User extends Entity
             "display_language" => $this->display_language?->store()->getId(),
             "email_communication_language" => $this->email_communication_language?->store()->getId(),
             "translation_language" => $this->translation_language?->store()->getId(),
-            "night_mode" => $this->night_mode != null ? $this->night_mode->value : NightMode::DISABLE->value,
             "available" => $this->available != null ? $this->available->value : Availability::AVAILABLE->value
         );
     }
@@ -406,7 +403,7 @@ class User extends Entity
             "id" => $this->getId(),
             "email" => $this->email,
             "username" => $this->username,
-            "birthdate" => $this->birthdate?->format(Database::DateFormat),
+            "birthdate" => $this->birthdate?->format(Database::DateFormatSimplified),
             "sex" => $this->sex?->toArray(),
             "creation_date" => $this->creation_date?->format(Database::DateFormat),
             "status" => $this->status,
@@ -417,74 +414,163 @@ class User extends Entity
             "display_language" => $this->display_language?->toArray(),
             "email_communication_language" => $this->email_communication_language?->toArray(),
             "translation_language" => $this->translation_language?->toArray(),
-            "night_mode" => $this->night_mode?->toArray(),
             "available" => $this->available?->toArray()
         );
-        // Relations
-        $array["roles"] = null;
-        if($this->roles !== null) {
-            $array["roles"] = array();
-            foreach($this->roles as $value) $array["roles"][] = $value->toArray();
-        }
-        $array["logs"] = null;
-        if($this->logs !== null) {
-            $array["logs"] = array();
-            foreach($this->logs as $value) $array["logs"][] = $value->toArray();
-        }
-        $array["punishments"] = null;
-        if($this->punishments !== null) {
-            $array["punishments"] = array();
-            foreach($this->punishments as $value) $array["punishments"][] = $value->toArray();
-        }
-        $array["purchases"] = null;
-        if($array["purchases"] !== null) {
-            $array["purchases"] = array(
-                "current" => null,
-                "rescue" => array(),
-                "rescued" => array(),
-                "revoked" => array()
-            );
-            foreach($this->purchases as $value) {
-                if($value->isActive()){
-                    $array["purchases"]["current"] = $value->toArray();
-                } else if ($value->isRedeemable()){
-                    $array["purchases"]["rescue"][] = $value->toArray();
-                } else if ($value->isRescued()){
-                    $array["purchases"]["rescued"][] = $value->toArray();
-                } else if ($value->isRevoked()){
-                    $array["purchases"]["revoked"][] = $value->toArray();
+        if(!$minimal) {
+            // Relations
+            $array["roles"] = null;
+            if ($this->roles !== null) {
+                $array["roles"] = array();
+                foreach ($this->roles as $value) $array["roles"][] = $value->toArray();
+            }
+            $array["logs"] = null;
+            if ($this->logs !== null) {
+                $array["logs"] = array();
+                foreach ($this->logs as $value) $array["logs"][] = $value->toArray();
+            }
+            $array["punishments"] = null;
+            if ($this->punishments !== null) {
+                $array["punishments"] = array();
+                foreach ($this->punishments as $value) $array["punishments"][] = $value->toArray();
+            }
+            $array["purchases"] = null;
+            if ($array["purchases"] !== null) {
+                $array["purchases"] = array(
+                    "current" => null,
+                    "rescue" => array(),
+                    "rescued" => array(),
+                    "revoked" => array()
+                );
+                foreach ($this->purchases as $value) {
+                    if ($value->isActive()) {
+                        $array["purchases"]["current"] = $value->toArray();
+                    } else if ($value->isRedeemable()) {
+                        $array["purchases"]["rescue"][] = $value->toArray();
+                    } else if ($value->isRescued()) {
+                        $array["purchases"]["rescued"][] = $value->toArray();
+                    } else if ($value->isRevoked()) {
+                        $array["purchases"]["revoked"][] = $value->toArray();
+                    }
                 }
             }
-        }
-        $array["tickets"] = null;
-        if($this->tickets !== null) {
-            $array["tickets"] = array();
-            foreach($this->tickets as $value) $array["tickets"][] = $value->toArray();
-        }
-        $array["anime_history"] = null;
-        if($this->anime_history !== null) {
-            $array["anime_history"] = array();
-            foreach($this->anime_history as $value) {
-                $array["anime_history"][] = array(
-                    "anime" => $value["anime"]?->toArray(),
-                    "status" => $value["status"]?->toArray(),
-                    "date" => $value["date"]?->format(Database::DateFormat)
-                );
+            $array["tickets"] = null;
+            if ($this->tickets !== null) {
+                $array["tickets"] = array();
+                foreach ($this->tickets as $value) $array["tickets"][] = $value->toArray();
             }
-        }
-        $array["video_history"] = null;
-        if($this->video_history !== null) {
-            $array["video_history"] = array();
-            foreach($this->video_history as $value) {
-                $array["video_history"][] = array(
-                    "video" => $value["video"]?->toArray(),
-                    "date" => $value["date"]?->format(Database::DateFormat),
-                    "watched_until" => $value["watched_until"]
-                );
+            $array["anime_history"] = null;
+            if ($this->anime_history !== null) {
+                $array["anime_history"] = array();
+                foreach ($this->anime_history as $value) {
+                    $array["anime_history"][] = array(
+                        "anime" => $value["anime"]?->toArray(),
+                        "status" => $value["status"]?->toArray(),
+                        "date" => $value["date"]?->format(Database::DateFormat)
+                    );
+                }
+            }
+            $array["video_history"] = null;
+            if ($this->video_history !== null) {
+                $array["video_history"] = array();
+                foreach ($this->video_history as $value) {
+                    $array["video_history"][] = array(
+                        "video" => $value["video"]?->toArray(),
+                        "date" => $value["date"]?->format(Database::DateFormat),
+                        "watched_until" => $value["watched_until"]
+                    );
+                }
             }
         }
         return $array;
     }
+
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        $array = array(
+            "id" => $this->getId(),
+            "email" => $this->email,
+            "username" => $this->username,
+            "birthdate" => $this->birthdate?->format(Database::DateFormat),
+            "sex" => $this->sex,
+            "creation_date" => $this->creation_date?->format(Database::DateFormat),
+            "status" => $this->status,
+            "profile_image" => $this->profile_image,
+            "profile_background" =>$this->profile_background,
+            "about_me" => $this->about_me,
+            "verified" => $this->verified,
+            "display_language" => $this->display_language,
+            "email_communication_language" => $this->email_communication_language,
+            "translation_language" => $this->translation_language,
+            "available" => $this->available
+        );
+        if(!$minimal) {
+            // Relations
+            $array["roles"] = null;
+            if ($this->roles !== null) {
+                $array["roles"] = array();
+                foreach ($this->roles as $value) $array["roles"][] = $value;
+            }
+            $array["logs"] = null;
+            if ($this->logs !== null) {
+                $array["logs"] = array();
+                foreach ($this->logs as $value) $array["logs"][] = $value;
+            }
+            $array["punishments"] = null;
+            if ($this->punishments !== null) {
+                $array["punishments"] = array();
+                foreach ($this->punishments as $value) $array["punishments"][] = $value;
+            }
+            $array["purchases"] = null;
+            if ($array["purchases"] !== null) {
+                $array["purchases"] = array(
+                    "current" => null,
+                    "rescue" => array(),
+                    "rescued" => array(),
+                    "revoked" => array()
+                );
+                foreach ($this->purchases as $value) {
+                    if ($value->isActive()) {
+                        $array["purchases"]["current"] = $value;
+                    } else if ($value->isRedeemable()) {
+                        $array["purchases"]["rescue"][] = $value;
+                    } else if ($value->isRescued()) {
+                        $array["purchases"]["rescued"][] = $value;
+                    } else if ($value->isRevoked()) {
+                        $array["purchases"]["revoked"][] = $value;
+                    }
+                }
+            }
+            $array["tickets"] = null;
+            if ($this->tickets !== null) {
+                $array["tickets"] = array();
+                foreach ($this->tickets as $value) $array["tickets"][] = $value;
+            }
+            $array["anime_history"] = null;
+            if ($this->anime_history !== null) {
+                $array["anime_history"] = array();
+                foreach ($this->anime_history as $value) {
+                    $array["anime_history"][] = array(
+                        "anime" => $value["anime"],
+                        "status" => $value["status"],
+                        "date" => $value["date"]?->format(Database::DateFormat)
+                    );
+                }
+            }
+            $array["video_history"] = null;
+            if ($this->video_history !== null) {
+                $array["video_history"] = array();
+                foreach ($this->video_history as $value) {
+                    $array["video_history"][] = array(
+                        "video" => $value["video"],
+                        "date" => $value["date"]?->format(Database::DateFormat),
+                        "watched_until" => $value["watched_until"]
+                    );
+                }
+            }
+        }
+        return $array;
+    }
+
 
     /**
      * @return String
@@ -763,27 +849,6 @@ class User extends Entity
     public function setTranslationLanguage(Language $translation_language): User
     {
         $this->translation_language = $translation_language;
-        return $this;
-    }
-
-    /**
-     * @return NightMode|null
-     */
-    public function getNightMode(): ?NightMode
-    {
-        return $this->night_mode;
-    }
-
-    /**
-     * @param NightMode|null $night_mode
-     * @return User
-     * @throws NotNullable
-     */
-    public function setNightMode(?NightMode $night_mode): User
-    {
-        if($night_mode != null){
-            $this->night_mode = $night_mode;
-        } else throw new NotNullable("night_mode");
         return $this;
     }
 

@@ -106,6 +106,19 @@ class Resource extends Entity
         );
     }
 
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "array|null"])]
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "title" => $this->title,
+            "description" => $this->description,
+            "extension" => $this->extension,
+            "path" => $this->path,
+            "available" => $this->available
+        );
+    }
+
     /**
      * @return String|null
      */

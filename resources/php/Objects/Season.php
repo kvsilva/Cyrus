@@ -137,6 +137,7 @@ class Season extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "array|null", "videos" => "array|null"])]
@@ -150,8 +151,28 @@ class Season extends Entity
             "release_date" => $this->release_date != null ? Database::convertDateToDatabase($this->release_date) : null,
             "available" => $this->available?->toArray()
         );
-        $array["videos"] = $this->videos != null ? array() : null;
-        if($array["videos"] != null) foreach($this->videos as $value) $array["videos"][] = $value->toArray();
+        if(!$minimal) {
+            $array["videos"] = $this->videos != null ? array() : null;
+            if ($array["videos"] != null) foreach ($this->videos as $value) $array["videos"][] = $value->toArray();
+        }
+        return $array;
+    }
+
+    #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "array|null", "videos" => "array|null"])]
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        $array = array(
+            "id" => $this->getId(),
+            "numeration" => $this->numeration,
+            "name" => $this->name,
+            "synopsis" => $this->synopsis,
+            "release_date" => $this->release_date != null ? Database::convertDateToDatabase($this->release_date) : null,
+            "available" => $this->available
+        );
+        if(!$minimal) {
+            $array["videos"] = $this->videos != null ? array() : null;
+            if ($array["videos"] != null) foreach ($this->videos as $value) $array["videos"][] = $value;
+        }
         return $array;
     }
 

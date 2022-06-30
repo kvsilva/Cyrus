@@ -8,12 +8,14 @@ enum Availability: int
 {
     case NOT_AVAILABLE = 0;
     case AVAILABLE = 1;
+    case BOTH = 2;
 
     public function name(): string
     {
         return match ($this) {
-            self::AVAILABLE => 'Available',
-            self::NOT_AVAILABLE => 'Not Available',
+            self::AVAILABLE => 'Disponível',
+            self::NOT_AVAILABLE => 'Indisponível',
+            self::BOTH => 'Ambos',
         };
     }
 
@@ -38,6 +40,7 @@ enum Availability: int
         return match ($num) {
             0 => self::NOT_AVAILABLE,
             1 => self::AVAILABLE,
+            2 => self::BOTH,
             default => null,
         };
     }

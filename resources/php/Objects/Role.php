@@ -142,11 +142,29 @@ class Role extends Entity
             "id" => $this->getId(),
             "name" => $this->name
         );
-        $array["permissions"] = null;
-        if($this->permissions != null) {
-            $array["permissions"] = array();
-            foreach($this->permissions as $value) $array["permissions"][] = $value->toArray();
-        };
+        if(!$minimal) {
+            $array["permissions"] = null;
+            if ($this->permissions != null) {
+                $array["permissions"] = array();
+                foreach ($this->permissions as $value) $array["permissions"][] = $value->toArray();
+            };
+        }
+        return $array;
+    }
+
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        $array = array(
+            "id" => $this->getId(),
+            "name" => $this->name
+        );
+        if(!$minimal) {
+            $array["permissions"] = null;
+            if ($this->permissions != null) {
+                $array["permissions"] = array();
+                foreach ($this->permissions as $value) $array["permissions"][] = $value;
+            };
+        }
         return $array;
     }
 

@@ -67,7 +67,8 @@ class AccountPlan extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $name = null, float $duration = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $name = null, float $duration = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name,
@@ -98,6 +99,27 @@ class AccountPlan extends Entity
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "duration" => "mixed", "price" => "float|int", "stack" => "int|null", "maximum" => "int|null", "available" => "int|null"])]
     public function toArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name,
+            "duration" => $this->reason ?? null,
+            "price" => $this->price ?? 0,
+            "stack" => array(
+                "value" => $this->stack,
+                "isStackable" => $this->isStackable() ? 'true' : 'false',
+                "isUnlimited" => $this->isUnlimitedStackable() ? 'true' : 'false'
+            ),
+            "maximum" => array(
+                "value" => $this->maximum,
+                "isPurchasable" => $this->isPurchasable() ? 'true' : 'false',
+                "isUnlimited" => $this->isUnlimitedPurchasable() ? 'true' : 'false'
+            ),
+            "available" => $this->available?->value,
+        );
+    }
+
+    public function toOriginalArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

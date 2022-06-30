@@ -24,7 +24,6 @@ class Models
         "DayOfWeek",
         "AnimeStatus",
         "Maturity",
-        "NightMode",
         "Removal",
         "Sex",
         "Verification",
@@ -58,7 +57,7 @@ class Models
         "Objects\\LogAction",
         "Objects\\Log",
         "Objects\\Paginator",
-        "APIObjects\\File",
+        "APIObjects\\WebFile",
     );
 
 
@@ -115,6 +114,7 @@ class Models
                 $class .= "\n";
                 $name = $property->getName();
                 $dataType = str_replace("?", "", $property->getType());
+                $isEntity = str_contains($dataType, "Objects");
                 $isArray = str_ends_with($dataType, "sArray");
                 $dataType = str_replace("sArray", "", $dataType);
                 $dataType = str_replace("Objects\\", "", $dataType);
@@ -129,10 +129,13 @@ class Models
                     $isArray = self::REPLACE_TO[$dataType]["isArray"];
                     $dataType = str_replace($dataType, self::REPLACE_TO[$dataType]["value"], $dataType);
                 }
-
-                $assignments .= "        this." . $name . " = (obj_.".$name." !== undefined) ? obj_.". $name ." : ". ($isArray ? "[]" : "null") .";";
+                if($isEntity && !$isArray) {
+                    $assignments .= "        this." . $name . " = (obj_." . $name . " !== undefined) ? (obj_.". $name ." !== null ? new ". $dataType . "(obj_." . $name . "): null) : " . ($isArray ? "[]" : "null") . ";";
+                } else {
+                    $assignments .= "        this." . $name . " = (obj_." . $name . " !== undefined) ? obj_." . $name . " : " . ($isArray ? "[]" : "null") . ";";
+                }
                 if(count($reflection->getProperties()) > $count) $assignments .= "\n";
-                $class .= "    " . $name . ": " . $dataType . ($isArray ? "[]" : "") .";";
+                $class .= "    " . $name . ": " . $dataType . ($isArray ? "[]" : "") . ($isEntity && !$isArray ? " | null" : "") .";";
             }
             $assignments .= "\n    }";
             $class .= "\n\n" . $assignments;

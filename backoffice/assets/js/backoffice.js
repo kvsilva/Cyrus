@@ -8,24 +8,150 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Request as API } from "../../../resources/js/Request";
-import { UserFlags } from "../../../resources/js/models";
+import { Availability, Language, UserFlags } from "../../../resources/js/models";
+let entity;
+let rows = [];
+let detailsModal;
+let updateModal;
 $(document).ready(function () {
-    $("input[type=submit]").click(function () {
-        let formName = $(this).data("form");
-        let formEntity = $(this).data("entity");
-        let formData = {};
-        createDataArray(formName, formData).then(value => {
-            formData = value;
-            API.requestType(formEntity, "insert", formData, [UserFlags.VIDEOHISTORY.name]).then((result) => {
-                if (result.status) {
-                    if ("data" in result) {
+    return __awaiter(this, void 0, void 0, function* () {
+        entity = $("#entity-data").data("entity");
+        // @ts-ignore
+        detailsModal = new bootstrap.Modal($("#detailsModal"), {});
+        // @ts-ignore
+        updateModal = new bootstrap.Modal($("#updateModal"), {});
+        yield API.requestType(entity, "query", { "available": Availability.BOTH }).then((result) => {
+            if (result.status && result.data) {
+                for (let i = 0; i < result.data.length; i++) {
+                    let tr = $("<tr>");
+                    let item = result.data[i];
+                    $(tr).data("id", item === null || item === void 0 ? void 0 : item.id);
+                    let id = item === null || item === void 0 ? void 0 : item.id;
+                    let originalItem = result.original[i];
+                    for (const index in originalItem) {
+                        let td = $("<td>").attr("class", "cyrus-scrollbar backoffice-td");
+                        let value;
+                        if (item[index] !== null && typeof item[index] === 'object') {
+                            if (item[index] instanceof Language) {
+                                value = item[index].original_name + " (" + item[index].code + ")";
+                            }
+                            else {
+                                if ("name" in item[index]) {
+                                    value = item[index].name;
+                                }
+                                if ("path" in item[index]) {
+                                    value = item[index].path;
+                                }
+                            }
+                        }
+                        else {
+                            value = item[index];
+                        }
+                        if (value === null)
+                            value = "(Nenhum)";
+                        if (id !== null) {
+                            if (rows[id] === undefined)
+                                rows[id] = { plainText: [], original: [] };
+                            rows[id].plainText[index] = value;
+                            rows[id].original[index] = item[index];
+                        }
+                        $(td).text(value);
+                        tr.append(td);
                     }
+                    $("#query-body").append(tr);
                 }
+            }
+        });
+        $("tr").dblclick(function () {
+            // @ts-ignore
+            let id = $(this).data("id");
+            let modalBody = $("#details-body").html("");
+            let item = rows[id].plainText;
+            for (const index in item) {
+                let field_name = index;
+                field_name = field_name.replace("_", " ");
+                field_name = field_name.split(" ");
+                field_name = field_name.map((word) => {
+                    return word[0].toUpperCase() + word.substring(1);
+                }).join(" ");
+                modalBody.append($("<div>").html("<span><u><b>" + field_name + "</b></u></span>:<span class ='p-2'>" + item[index] + "</span>"));
+            }
+            $("#btn-details-remove").data("id", id);
+            $("#btn-details-edit").data("id", id);
+            detailsModal.show();
+        });
+        $("#btn-details-edit").click(function () {
+            // @ts-ignore
+            detailsModal.hide();
+            $("#btn-update").data("id", $("#btn-details-remove").data("id"));
+            let id = $(this).data("id");
+            $("#updateModal").find("[data-name]").each(function () {
+                let name = $(this).data("name");
+                let beforeValue = undefined;
+                if ($(this).is("input")) {
+                    $(this).val(rows[id].original[name]);
+                    $(this).attr('value', rows[id].original[name]);
+                    beforeValue = rows[id].original[name];
+                    if (beforeValue !== undefined)
+                        $(this).data("beforevalue", beforeValue);
+                }
+                else if ($(this).data("ismultiple") && rows[id].original[name] !== null) {
+                    $(this).find("[data-subitem]").each(function () {
+                        if ($(this).is("input")) {
+                            let subItemName = $(this).data("subitem");
+                            $(this).val(rows[id].original[name][subItemName]);
+                            beforeValue = rows[id].original[name][subItemName];
+                            $(this).attr('value', rows[id].original[name][subItemName]);
+                            if (beforeValue !== undefined)
+                                $(this).data("beforevalue", beforeValue);
+                        }
+                    });
+                }
+                else if ($(this).data("isdropdown")) {
+                    $(this).parent().parent().find(".dropdown-menu li").each(function () {
+                        if ("id" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["id"]) {
+                            $(this).trigger("click");
+                            beforeValue = rows[id].original[name]["id"];
+                        }
+                        else if ("value" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["value"]) {
+                            beforeValue = rows[id].original[name]["value"];
+                            $(this).trigger("click");
+                        }
+                    });
+                    if (beforeValue !== undefined)
+                        $(this).data("beforevalue", beforeValue);
+                }
+            });
+            updateModal.show();
+        });
+        $("#btn-details-remove").click(function () {
+            API.requestType(entity, "remove", { "id": $(this).data("id") }).then((result) => {
+                if (result.status) {
+                    console.log("Apagado!");
+                }
+                else {
+                    console.error("Nao foi possivel processar o pedido: " + result.description);
+                }
+            });
+        });
+        $("input[type=submit]").click(function () {
+            let formName = $(this).data("form");
+            let formEntity = $(this).data("entity");
+            let formAction = $(this).data("action");
+            let formData = {};
+            createDataArray(formName, formData, formAction).then(value => {
+                formData = value;
+                API.requestType(formEntity, formAction, formData, [UserFlags.VIDEOHISTORY.name]).then((result) => {
+                    if (result.status) {
+                        if ("data" in result) {
+                        }
+                    }
+                });
             });
         });
     });
 });
-function createDataArray(formName, formData) {
+function createDataArray(formName, formData, action) {
     return __awaiter(this, void 0, void 0, function* () {
         let files = [];
         $("[data-form='" + formName + "'").each(function () {
@@ -147,6 +273,48 @@ function createDataArray(formName, formData) {
                 }
             }
         }
-        return formData;
+        if (action === "update") {
+            let entityId = $("#btn-update").data("id");
+            let item = rows[entityId].original;
+            formData = compareRecords(item, formData);
+            for (const index in formData) {
+                if (formData[index] === undefined)
+                    delete formData[index];
+            }
+            formData["id"] = entityId;
+        }
+        let ret = {};
+        for (const index in formData) {
+            // @ts-ignore
+            ret[index] = formData[index];
+        }
+        return ret;
     });
+}
+// [B]efore
+// [N]ew
+function compareRecords(b, n) {
+    let data;
+    for (const index in b) {
+        if (b[index] !== null && b[index] === 'object') {
+            n[index] = compareRecords(b[index], n[index]);
+        }
+        else {
+            if (b[index] == n[index]) {
+                n[index] = undefined;
+            }
+        }
+        if (data === undefined)
+            data = [];
+        data[index] = n[index];
+    }
+    let isUndefined = true;
+    for (const index in n) {
+        if (n[index] !== undefined) {
+            isUndefined = false;
+        }
+    }
+    if (isUndefined)
+        return undefined;
+    return data;
 }

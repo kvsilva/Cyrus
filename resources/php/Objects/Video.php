@@ -200,6 +200,7 @@ class Video extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     public function toArray(bool $minimal = false): array
@@ -231,6 +232,42 @@ class Video extends Entity
         if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value->toArray();
         $array["dubbing"] = $this->dubbing != null ? array() : null;
         if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
+        return $array;
+    }
+
+    /**
+     * @param bool $minimal
+     * @return array
+     */
+    public function toOriginalArray(bool $minimal = false): array
+    {
+
+        $array = array(
+            "id" => $this->getId(),
+            "video_type" => $this->video_type,
+            "numeration" => $this->numeration,
+            "title"=> $this->title,
+            "synopsis"=> $this->synopsis,
+            "thumbnail"=> $this->thumbnail,
+            "release_date"=> $this->release_date?->format(Database::DateFormat),
+            "duration"=> $this->duration,
+            "opening_start"=> $this->opening_start,
+            "opening_end"=> $this->opening_end,
+            "ending_start" => $this->ending_start,
+            "ending_end" => $this->ending_end,
+            "path" => $this->path,
+            "available" => $this->available,
+            "anime" => $this->anime,
+            "season" => $this->season
+        );
+        if(!$minimal){
+            $array["anime"] = $this->anime;
+            $array["season"] = $this->season;
+        }
+        $array["subtitles"] = $this->subtitles != null ? array() : null;
+        if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value;
+        $array["dubbing"] = $this->dubbing != null ? array() : null;
+        if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value;
         return $array;
     }
 

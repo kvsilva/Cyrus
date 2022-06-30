@@ -31,7 +31,7 @@ export class Request {
     private static API_URL: string = new URL("../../API/v1/", import.meta.url).href;
     private static UPLOAD_FILE_URL: string = new URL("../../API/v1/uploadFile.php", import.meta.url).href;
 
-    public static requestService(service: string, action: any, data: {}, flags: string[]) {
+    public static requestService(service: string, action: any, data: {} = {}, flags: string[] = []) {
         return this.sendRequest({
             "service": service,
             "action": action,
@@ -41,7 +41,7 @@ export class Request {
         });
     }
 
-    public static requestType(target: string, action: any, data: {}, flags: string[]) {
+    public static requestType(target: string, action: any, data: {} = {}, flags: string[] = []) {
         return this.sendRequest({
             "type": target,
             "action": action,
@@ -91,6 +91,7 @@ export class Request {
                     if(isJson(request.response)) {
                         let response = JSON.parse(request.response);
                         if (response !== null) {
+                            response.original = response.data;
                             let _ret: any[];
                             if ("dataTypes" in response && response.dataTypes !== null) {
                                 _ret = Request.buildElement(response.dataTypes, response.data);

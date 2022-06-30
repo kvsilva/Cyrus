@@ -145,7 +145,8 @@ class Ticket extends Entity {
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $user = null, int $attended_by = null, int $closed_by = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $user = null, int $attended_by = null, int $closed_by = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "user" => $user,
@@ -186,9 +187,30 @@ class Ticket extends Entity {
             "closed_by" => $this->closed_by?->toArray(),
             "evaluation" => $this->evaluation
         );
-        // Relations
-        $array["messages"] = $this->messages != null ? array() : null;
-        if($array["messages"] != null) foreach($this->messages as $value) $array["messages"][] = $value->toArray();
+        if(!$minimal) {
+            // Relations
+            $array["messages"] = $this->messages != null ? array() : null;
+            if ($array["messages"] != null) foreach ($this->messages as $value) $array["messages"][] = $value->toArray();
+        }
+        return $array;
+    }
+
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        $array = array(
+            "id" => $this->getId(),
+            "attended_by" => $this->attended_by,
+            "status" => $this->status,
+            "created_at" => $this->created_at?->format(Database::DateFormat),
+            "closed_at" => $this->closed_at?->format(Database::DateFormat),
+            "closed_by" => $this->closed_by,
+            "evaluation" => $this->evaluation
+        );
+        if(!$minimal) {
+            // Relations
+            $array["messages"] = $this->messages != null ? array() : null;
+            if ($array["messages"] != null) foreach ($this->messages as $value) $array["messages"][] = $value;
+        }
         return $array;
     }
 

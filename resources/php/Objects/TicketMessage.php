@@ -119,7 +119,8 @@ class TicketMessage extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $ticket = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $ticket = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "ticket" => $ticket
@@ -153,8 +154,26 @@ class TicketMessage extends Entity
             "sent_at" => $this->sent_at?->format(Database::DateFormat)
         );
         // Relations
-        $array["attachments"] = $this->attachments != null ? array() : null;
-        if($array["attachments"] != null) foreach($this->attachments as $value) $array["attachments"][] = $value->toArray();
+        if(!$minimal) {
+            $array["attachments"] = $this->attachments != null ? array() : null;
+            if ($array["attachments"] != null) foreach ($this->attachments as $value) $array["attachments"][] = $value->toArray();
+        }
+        return $array;
+    }
+
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        $array = array(
+            "id" => $this->getId(),
+            "author" => $this->author,
+            "content" => $this->content,
+            "sent_at" => $this->sent_at?->format(Database::DateFormat)
+        );
+        // Relations
+        if(!$minimal) {
+            $array["attachments"] = $this->attachments != null ? array() : null;
+            if ($array["attachments"] != null) foreach ($this->attachments as $value) $array["attachments"][] = $value;
+        }
         return $array;
     }
 

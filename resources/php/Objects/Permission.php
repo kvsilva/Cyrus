@@ -99,6 +99,18 @@ class Permission extends Entity
         );
     }
 
+    #[Pure] #[ArrayShape(["id" => "int|null", "tag" => "null|String", "name" => "null|String", "description" => "null|String"])]
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "tag" => $this->tag,
+            "name" => $this->name,
+            "description" => $this->description
+        );
+    }
+
+
     /**
      * @return String|null
      */

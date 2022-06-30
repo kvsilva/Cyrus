@@ -62,7 +62,8 @@ class PunishmentType extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, string $name = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name
@@ -86,6 +87,14 @@ class PunishmentType extends Entity
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
     public function toArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name
+        );
+    }
+
+    public function toOriginalArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

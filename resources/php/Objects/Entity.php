@@ -366,11 +366,32 @@ abstract class Entity
         } catch(IOException $e){
             return $result;
         }
+
+        $n_rows = $database->query("SELECT DISTINCT TABLE_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN ('Available') AND TABLE_NAME = '" . $table ."' AND TABLE_SCHEMA='Cyrus';")->num_rows > 0;
+        $available = "";
+        $clause = false;
+        if(!isset($fields["available"])){
+            if($n_rows > 0) {
+                $clause = true;
+                $available = "($table.`available` IS NOT NULL AND $table.`available` ". $operator ." '".Availability::AVAILABLE->value."') AND ";
+            }
+        } else {
+            if($n_rows == 0) {
+                unset($fields["available"]);
+            } else if($fields["available"] == Availability::BOTH->value){
+                $clause = true;
+                $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` in  ('". Availability::AVAILABLE->value ."', '".Availability::NOT_AVAILABLE->value."')) AND " : "");
+            } else {
+                $clause = true;
+                $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` ". $operator ." '".$fields["available"]."') AND " : "");
+            }
+            unset($fields["available"]);
+        }
         if($sql != null){
             $sql_command = "SELECT id from $table WHERE " . $sql;
         } else {
             $sql_command = "SELECT id from $table WHERE ";
-            $clause = false;
+            $sql_command .= $available;
             foreach($fields as $key => $value){
                 $clause = true;
                 $sql_command .= ($value != null ? "($table.`$key` IS NOT NULL AND $table.`$key` ". $operator ." '$value') AND " : "");
@@ -411,6 +432,11 @@ abstract class Entity
      * @return array
      */
     public abstract function toArray(bool $minimal = false): array;
+
+    /**
+     * @return array
+     */
+    public abstract function toOriginalArray(bool $minimal = false): array;
 
     /**
      * @return array

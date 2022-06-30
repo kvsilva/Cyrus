@@ -2,6 +2,7 @@
 import {Request as API} from "./Request";
 
 $(document).ready(function() {
+
     if ($("#user-menu-btn")) {
         $("#user-menu-btn").click(function () {
             $("#user-menu-list").toggleClass("state-open");
@@ -109,5 +110,4 @@ $(document).ready(function() {
             }
         });
     });
-
 });

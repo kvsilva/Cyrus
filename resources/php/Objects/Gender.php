@@ -62,7 +62,8 @@ class Gender extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, String $name = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, String $name = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name
@@ -82,10 +83,20 @@ class Gender extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
     public function toArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name
+        );
+    }
+
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
+    public function toOriginalArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

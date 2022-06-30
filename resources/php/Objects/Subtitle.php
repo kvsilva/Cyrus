@@ -64,7 +64,8 @@ class Subtitle extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $video = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, int $video = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "video" => $video,
@@ -99,6 +100,17 @@ class Subtitle extends Entity
             "language" => $this->language,
             "path" => $this->path,
             "available" => $this->available?->toArray()
+        );
+    }
+
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "language" => "null|\Objects\Language", "path" => "null|String", "available" => "array|null"])]
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "language" => $this->language,
+            "path" => $this->path,
+            "available" => $this->available
         );
     }
 

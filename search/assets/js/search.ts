@@ -50,7 +50,7 @@ $(document).ready(function(){
                                             $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.animes + "?anime=" + item.id).attr("title", item.title)
                                         ).append(
                                             $("<div>").attr("class", "cyrus-card-image").append(
-                                                $("<img>").attr("src", item.cape?.path)
+                                                $("<img>").attr("src", item.cape === null ? "" : item.cape?.path)
                                             )
                                         ).append(
                                             $("<div>").attr("class", "cyrus-card-body").append(
@@ -77,7 +77,7 @@ $(document).ready(function(){
                                             $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.episode + "?episode=" + item.id).attr("title", item.title)
                                         ).append(
                                             $("<div>").attr("class", "cyrus-card-image").append(
-                                                $("<img>").attr("class", "c-opacity-70").attr("src", item.thumbnail?.path)
+                                                $("<img>").attr("class", "c-opacity-70").attr("src", item.thumbnail === null ? "" : item.thumbnail?.path)
                                             ).append(
                                                 $("<div>").attr("class", "cyrus-card-duration").append(
                                                     $("<span>").html(duration + "m")
@@ -89,7 +89,7 @@ $(document).ready(function(){
                                             $("<div>").attr("class", "cyrus-card-body").append(
                                                 $("<div>").attr("class", "cyrus-card-description").append(
                                                     $("<div>").attr("class", "cyrus-card-description-info").append(
-                                                        $("<span>").html(item.anime?.title)
+                                                        $("<span>").html(item.anime === null ? "<Título não encontrado>" : item.anime?.title)
                                                     )
                                                 )
                                             ).append(
@@ -131,7 +131,7 @@ $(document).ready(function(){
                                         $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.animes + "?anime=" + item.id).attr("title", item.title)
                                     ).append(
                                         $("<div>").attr("class", "cyrus-card-image-catalog").append(
-                                            $("<img>").attr("src", item.profile?.path)
+                                            $("<img>").attr("src", item.profile === null ? "" : item.profile?.path)
                                         )
                                     ).append(
                                         $("<div>").attr("class", "cyrus-card-body").append(
@@ -158,11 +158,11 @@ $(document).ready(function(){
 
 
                             let videos: Video[] = result.data.filter((value: any) => value instanceof Video);
-                            let videosType: VideoType[] = videos.map(value => value.video_type);
-                            if (videos.length > 0) {
+                            let videosType: (VideoType | null)[] = videos.map(value => value.video_type);
+                            if (videosType !== null && videos.length > 0) {
                                 let videos_global = $("<div>").attr("id", "videos");
                                 for(let t = 0; t < videosType.length; t++) {
-                                    let type : VideoType = videosType[t];
+                                    let type : VideoType | null = videosType[t];
                                     let videosByType : Video[] = videos.filter(value => value.video_type == type);
                                     let video_results = $("<div>").attr("class", "results").attr("id", "series").append(
                                         $("<h4>").html(type !== null ? type.name : "Desconhecido")
@@ -177,7 +177,7 @@ $(document).ready(function(){
                                             $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.episode + "?episode=" + item.id).attr("title", item.title)
                                         ).append(
                                             $("<div>").attr("class", "cyrus-card-image-flex").append(
-                                                $("<img>").attr("class", "c-opacity-70").attr("src", item.thumbnail?.path)
+                                                $("<img>").attr("class", "c-opacity-70").attr("src", item.thumbnail === null ? "" : item.thumbnail?.path)
                                             ).append(
                                                 $("<div>").attr("class", "cyrus-card-duration").append(
                                                     $("<span>").html(duration + "m")
@@ -189,7 +189,7 @@ $(document).ready(function(){
                                             $("<div>").attr("class", "cyrus-card-body").append(
                                                 $("<div>").attr("class", "cyrus-card-description").append(
                                                     $("<div>").attr("class", "cyrus-card-description-info").append(
-                                                        $("<span>").html(item.anime?.title)
+                                                        $("<span>").html(item.anime === null ? "" : item.anime?.title)
                                                     )
                                                 )
                                             ).append(

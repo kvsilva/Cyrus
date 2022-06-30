@@ -245,26 +245,64 @@ class Anime extends Entity
             "start_date" => $this->start_date?->format(Database::DateFormat),
             "end_date" => $this->end_date?->format(Database::DateFormat),
             "mature" => $this->mature?->toArray(),
-            "launch_day" =>  $this->launch_day?->toArray(),
+            "launch_day" => $this->launch_day?->toArray(),
             "launch_time" => $this->launch_time?->format(Database::TimeFormat),
             "source" => $this->source?->toArray(),
             "audience" => $this->audience?->toArray(),
             "trailer" => $this->trailer,
             "available" => $this->available?->toArray()
         );
+        if (!$minimal) {
         // Relations
-        $array["videos"] = null;
-        if($this->videos != null) {
-            $array["videos"] = array();
-            foreach($this->videos as $value) $array["videos"][] = $value->toArray();
-        }
-        $array["genders"] = null;
-        if($this->genders != null) {
-            $array["genders"] = array();
-            foreach($this->genders as $value) $array["genders"][] = $value->toArray();
+            $array["videos"] = null;
+            if ($this->videos != null) {
+                $array["videos"] = array();
+                foreach ($this->videos as $value) $array["videos"][] = $value->toArray();
+            }
+            $array["genders"] = null;
+            if ($this->genders != null) {
+                $array["genders"] = array();
+                foreach ($this->genders as $value) $array["genders"][] = $value->toArray();
+            }
         }
         return $array;
     }
+
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        $array = array(
+            "id" => $this->getId(),
+            "title" => $this->title,
+            "original_title" => $this->original_title,
+            "synopsis" => $this->synopsis,
+            "cape" => $this->cape,
+            "profile" => $this->profile,
+            "start_date" => $this->start_date?->format(Database::DateFormat),
+            "end_date" => $this->end_date?->format(Database::DateFormat),
+            "mature" => $this->mature,
+            "launch_day" => $this->launch_day,
+            "launch_time" => $this->launch_time?->format(Database::TimeFormat),
+            "source" => $this->source,
+            "audience" => $this->audience,
+            "trailer" => $this->trailer,
+            "available" => $this->available
+        );
+        if (!$minimal) {
+            // Relations
+            $array["videos"] = null;
+            if ($this->videos != null) {
+                $array["videos"] = array();
+                foreach ($this->videos as $value) $array["videos"][] = $value;
+            }
+            $array["genders"] = null;
+            if ($this->genders != null) {
+                $array["genders"] = array();
+                foreach ($this->genders as $value) $array["genders"][] = $value;
+            }
+        }
+        return $array;
+    }
+
 
     /** @noinspection PhpParamsInspection */
     public function setRelation(int $relation, EntityArray|array $value) : Anime

@@ -82,10 +82,24 @@ class VideoType extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
     public function toArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name
+        );
+    }
+
+    /**
+     * @param bool $minimal
+     * @return array
+     */
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
+    public function toOriginalArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

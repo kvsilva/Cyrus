@@ -63,7 +63,8 @@ class Audience extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, String $name = null, int $minimum_age = null, string $sql = null, array $flags = [self::NORMAL]) : array{
+    public static function find(int $id = null, String $name = null, int $minimum_age = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    {
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name,
@@ -85,10 +86,25 @@ class Audience extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
     public function toArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name,
+            "minimum_age" => $this->minimum_age
+        );
+    }
+
+    /**
+     * @param bool $minimal
+     * @return array
+     */
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
+    public function toOriginalArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

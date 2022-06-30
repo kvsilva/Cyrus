@@ -99,6 +99,18 @@ class Language extends Entity
         );
     }
 
+    #[ArrayShape(["id" => "int|null", "code" => "null|String", "name" => "null|String", "original_name" => "null|String"])]
+    public function toOriginalArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "code" => $this->code,
+            "name" => $this->name,
+            "original_name" => $this->original_name
+        );
+    }
+
+
     /**
      * @return String|null
      */

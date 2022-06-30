@@ -1,6 +1,7 @@
 export declare const Availability: {
     NOT_AVAILABLE: number;
     AVAILABLE: number;
+    BOTH: number;
 };
 export declare const DayOfWeek: {
     MONDAY: number;
@@ -20,10 +21,6 @@ export declare const AnimeStatus: {
 export declare const Maturity: {
     NORMAL: number;
     MATURE: number;
-};
-export declare const NightMode: {
-    DISABLE: number;
-    ENABLE: number;
 };
 export declare const Removal: {
     DELETE: number;
@@ -102,14 +99,13 @@ export declare class User {
     sex: number;
     creation_date: Date;
     status: string;
-    profile_image: Resource;
-    profile_background: Resource;
+    profile_image: Resource | null;
+    profile_background: Resource | null;
     about_me: string;
     verified: number;
-    display_language: Language;
-    email_communication_language: Language;
-    translation_language: Language;
-    night_mode: number;
+    display_language: Language | null;
+    email_communication_language: Language | null;
+    translation_language: Language | null;
     available: number;
     roles: Role[];
     punishments: Punishment[];
@@ -194,15 +190,15 @@ export declare class Anime {
     title: string;
     original_title: string;
     synopsis: string;
-    profile: Resource;
-    cape: Resource;
+    profile: Resource | null;
+    cape: Resource | null;
     start_date: Date;
     end_date: Date;
     mature: number;
     launch_day: number;
     launch_time: Date;
-    source: SourceType;
-    audience: Audience;
+    source: SourceType | null;
+    audience: Audience | null;
     trailer: string;
     available: number;
     videos: Video[];
@@ -273,21 +269,21 @@ export declare const VideoTypeFlags: {
 };
 export declare class Video {
     id: number;
-    video_type: VideoType;
+    video_type: VideoType | null;
     numeration: number;
     title: string;
     synopsis: string;
-    thumbnail: Resource;
+    thumbnail: Resource | null;
     release_date: Date;
     duration: number;
     opening_start: number;
     opening_end: number;
     ending_start: number;
     ending_end: number;
-    path: Resource;
+    path: Resource | null;
     available: number;
-    anime: Anime;
-    season: Season;
+    anime: Anime | null;
+    season: Season | null;
     subtitles: any[];
     dubbing: any[];
     constructor(obj?: any);
@@ -312,7 +308,7 @@ export declare const VideoFlags: {
 };
 export declare class Subtitle {
     id: number;
-    language: Language;
+    language: Language | null;
     path: string;
     available: number;
     constructor(obj?: any);
@@ -329,7 +325,7 @@ export declare const SubtitleFlags: {
 };
 export declare class Dubbing {
     id: number;
-    language: Language;
+    language: Language | null;
     path: string;
     available: number;
     constructor(obj?: any);
@@ -361,12 +357,12 @@ export declare const PunishmentTypeFlags: {
 };
 export declare class Punishment {
     id: number;
-    punishment_type: PunishmentType;
+    punishment_type: PunishmentType | null;
     reason: string;
     lasts_until: Date;
-    performed_by: User;
+    performed_by: User | null;
     performed_date: Date;
-    revoked_by: User;
+    revoked_by: User | null;
     revoked_date: Date;
     revoked_reason: string;
     available: number;
@@ -415,11 +411,11 @@ export declare const TicketStatusFlags: {
 export declare class Ticket {
     id: number;
     title: string;
-    attended_by: User;
-    status: TicketStatus;
+    attended_by: User | null;
+    status: TicketStatus | null;
     created_at: Date;
     closed_at: Date;
-    closed_by: User;
+    closed_by: User | null;
     evaluation: number;
     messages: any[];
     constructor(obj?: any);
@@ -440,7 +436,7 @@ export declare const TicketFlags: {
 };
 export declare class TicketMessage {
     id: number;
-    author: User;
+    author: User | null;
     content: string;
     sent_at: Date;
     attachments: any[];
@@ -463,7 +459,7 @@ export declare const TicketMessageFlags: {
 export declare class Role {
     id: number;
     name: string;
-    permissions: any[];
+    permissions: Permission[];
     constructor(obj?: any);
 }
 export declare const RoleFlags: {
@@ -519,11 +515,11 @@ export declare const AccountPlanFlags: {
 };
 export declare class AccountPurchase {
     id: number;
-    plan: AccountPlan;
+    plan: AccountPlan | null;
     price: number;
     purchased_on: Date;
     duration: number;
-    revoked_by: User;
+    revoked_by: User | null;
     revoked_reason: string;
     revoked_at: Date;
     rescued_at: Date;
@@ -558,7 +554,7 @@ export declare const LogActionFlags: {
 };
 export declare class Log {
     id: number;
-    action_type: LogAction;
+    action_type: LogAction | null;
     arguments: any[];
     description: string;
     constructor(obj?: any);
@@ -581,7 +577,7 @@ export declare class Paginator {
     totalPages: number;
     constructor(obj?: any);
 }
-export declare class APIFile {
+export declare class APIWebFile {
     id: number;
     name: string;
     type: string;
@@ -589,6 +585,9 @@ export declare class APIFile {
     tmp_name: string;
     error: number;
     full_path: string;
+    extension: string;
+    system_path: string;
+    web_path: string;
     constructor(obj?: any);
 }
 export declare const models: any;

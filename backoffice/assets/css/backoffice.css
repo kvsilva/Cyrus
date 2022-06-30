@@ -51,7 +51,7 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
 }
 
 .group-section{
-
+    width: 100%;
 }
 
 .group-section-item{
@@ -61,8 +61,8 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
 }
 
 .group-wrapper{
-    margin-left: 15%;
-    margin-right: 15%;
+    display: flex;
+    justify-content: center;
 }
 
 .group-section-title{
@@ -87,4 +87,13 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
 .group-section-subitem-header button{
     position: absolute;
     right: -1px;
+}
+
+.backoffice-th, .backoffice-td{
+    max-width: 200px;
+    overflow-y: auto;
+    text-align: center;
+}
+table{
+
 }

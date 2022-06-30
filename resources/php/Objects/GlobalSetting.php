@@ -91,10 +91,28 @@ class GlobalSetting extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
-    #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "category" => "null|String", "value_binary" => "\Cassandra\Blob|null", "data_type" => "null|String"])]
+    #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "category" => "null|String", "value_binary" => "\Cassandra\Blob|null", "value" => "null|String", "data_type" => "null|String"])]
     public function toArray(bool $minimal = false): array
+    {
+        return array(
+            "id" => $this->getId(),
+            "name" => $this->name,
+            "category" => $this->category,
+            "value_binary" => $this->value_binary,
+            "value" => $this->value,
+            "data_type" => $this->data_type,
+        );
+    }
+
+    /**
+     * @param bool $minimal
+     * @return array
+     */
+    #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "category" => "null|String", "value_binary" => "\Cassandra\Blob|null", "value" => "null|String", "data_type" => "null|String"])]
+    public function toOriginalArray(bool $minimal = false): array
     {
         return array(
             "id" => $this->getId(),

@@ -13,8 +13,8 @@ export declare class WebFile {
 export declare class Request {
     private static API_URL;
     private static UPLOAD_FILE_URL;
-    static requestService(service: string, action: any, data: {}, flags: string[]): Promise<unknown>;
-    static requestType(target: string, action: any, data: {}, flags: string[]): Promise<unknown>;
+    static requestService(service: string, action: any, data?: {}, flags?: string[]): Promise<unknown>;
+    static requestType(target: string, action: any, data?: {}, flags?: string[]): Promise<unknown>;
     static uploadFile(file: File): Promise<unknown>;
     private static sendRequest;
     private static buildElement;
