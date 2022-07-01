@@ -83,6 +83,7 @@ class Request
                     if(isset($this->data[$key]["relations"])){
                         foreach($this->data[$key]["relations"] as $flag => $relation){
                             if($this->object->hasConstant(strtoupper($flag))){
+                                $this->flags[] = $relation;
                                 $relations[$flag] = $relation;
                             }
                         }
@@ -90,7 +91,7 @@ class Request
                     }
                     $objects = $this->handleClass(object_name: $object_name, data: $this->data[$key], relations: $relations, flags: $this->flags);
                     $this->dataTypes = array();
-                    $minimal = !($this->getAction() != "query");
+                    $minimal = ($this->getAction() !== "query");
                     foreach($objects as $object){
                         $this->dataTypes[] = $object;
                         $success[] = $object->toArray($minimal);

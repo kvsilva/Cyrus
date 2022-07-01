@@ -322,10 +322,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                             <div class="model-update-details-removed cyrus-item-hidden">
                                 <div class="w-100 text-center p-3">Removido</div>
                             </div>
-                            <div class="model-update-details-items" title="Apagar">
-                                <?php
-                                $role = Role::find(name: "Administrador");
-                                ?>
+                            <div class="model-update-details-items" title="Apagar" data-childentity="<?php echo $fieldName?>">
                                 <div class = "model-update-details">
                                     <b>ID</b>: 54; <b>Name</b>: Attack on Titan
                                 </div>
@@ -365,7 +362,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                         }
                         ?>
                     </div>
-                    <button type = "button" class = "mt-4 float-end cyrus-btn cyrus-btn-type2" data-entity="<?php echo $relationEntity?>" data-entityChild = "<?php echo $childEntity; ?>" data-relation = "<?php echo strtolower($displayName);?>" data-form = "<?php echo strtolower($entity_name) . "_update_relations";?>">Guardar Relação</button>
+                    <button type = "button" class = "mt-4 float-end cyrus-btn cyrus-btn-type2" data-entity="<?php echo strtolower(str_replace("Objects\\", "", $relationEntity))?>" data-entityChild = "<?php echo strtolower($entity_name); ?>" data-relation = "<?php echo strtolower($displayName);?>" data-form = "<?php echo strtolower($entity_name) . "_update_relations";?>">Guardar Relação</button>
                 </div>
             </div>
 
@@ -409,7 +406,6 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                 <?php
             } else if(class_exists("Objects\\" . $model)){
                 ?>
-
                 <div class="cyrus-input-group group-input-text">
                     <div class="dropdown no-select">
                         <div class="dropdown-toggle w-100" type="button"

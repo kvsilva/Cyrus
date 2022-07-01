@@ -1350,20 +1350,22 @@ input.cyrus-minimal {
     visibility: hidden !important;
 }
 
-/* Modals */
+/* Alerts */
 
-.modals {
+.alerts {
     position: absolute;
     right: 0;
     top: 0;
-    width: 40%;
     float: right;
-    z-index: 1000;
+    z-index: 2000;
     margin-right: 0.5%;
     margin-top: 0.5%;
+    display: flex;
+    justify-content: flex-end;
 }
 
-.modals-wrapper{
+.alerts-wrapper{
     position: fixed;
-    width: 40%;
+    min-width: 25%;
+    max-width: 40%;
 }

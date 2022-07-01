@@ -117,14 +117,15 @@ $(document).ready(function() {
 
 
 export function cyrusAlert(alertType: string, alertHtml: string){
-    $("#modals").find(".show").removeClass("show");
-    $("#modals").find("div").addClass("cyrus-item-hidden");
+    $("#alerts").find(".show").removeClass("show");
+    $("#alerts").find("div").addClass("cyrus-item-hidden");
     let currentTimestamp : number = getCurrentTimestamp();
-    $("#modals").data("last-alert", currentTimestamp);
+    $("#alerts").data("last-alert", currentTimestamp);
     switch (alertType.toLowerCase()) {
         case "success":
             $("#alert-success").find("span").html(alertHtml);
             $("#alert-success").addClass("show").removeClass("cyrus-item-hidden");
+
             break;
         case "danger":
             $("#alert-danger").find("span").html(alertHtml);
@@ -139,8 +140,8 @@ export function cyrusAlert(alertType: string, alertHtml: string){
             break;
     }
     setTimeout(function (){
-        if($("#modals").data("last-alert") == currentTimestamp){
-            $("#modals").find(".show").removeClass("show");
+        if($("#alerts").data("last-alert") == currentTimestamp){
+            $("#alerts").find(".show").removeClass("show");
             //$("#modals").find("div").addClass("cyrus-item-hidden");
         }
     }, 3000);

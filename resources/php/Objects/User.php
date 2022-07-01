@@ -1338,6 +1338,9 @@ class User extends Entity
             case self::TICKETS:
                 $this->setTickets($value);
                 break;
+            case self::PUNISHMENTS:
+                $this->setPunishments($value);
+                break;
             case self::ANIMEHISTORY:
                 $this->setAnimeHistory($value);
                 break;
@@ -1372,6 +1375,9 @@ class User extends Entity
             case self::TICKETS:
                 $this->addTicket($value);
                 break;
+            case self::PUNISHMENTS:
+                $this->addPunishment($value);
+                break;
             case self::ANIMEHISTORY:
                 if(is_array($value)) {
                     $this->addAnimeHistory($value["status"],$value["anime"],DateTime::createFromFormat(Database::DateFormat, $value["date"]));
@@ -1404,6 +1410,9 @@ class User extends Entity
                 break;
             case self::TICKETS:
                 $this->removeTicket($value, $id);
+                break;
+            case self::PUNISHMENTS:
+                $this->removePunishment($value, $id);
                 break;
             case self::ANIMEHISTORY:
                 if(is_array($value)) {

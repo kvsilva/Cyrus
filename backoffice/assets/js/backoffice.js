@@ -14,6 +14,7 @@ let entity;
 let rows = [];
 let detailsModal;
 let updateModal;
+let relationsModal = null;
 $(document).ready(function () {
     return __awaiter(this, void 0, void 0, function* () {
         entity = $("#entity-data").data("entity");
@@ -21,6 +22,9 @@ $(document).ready(function () {
         detailsModal = new bootstrap.Modal($("#detailsModal"), {});
         // @ts-ignore
         updateModal = new bootstrap.Modal($("#updateModal"), {});
+        // @ts-ignore
+        if ($("#relationsModal").length > 0)
+            relationsModal = new bootstrap.Modal($("#relationsModal"), {});
         yield API.requestType(entity, "query", { "available": Availability.BOTH }).then((result) => {
             if (result.status && result.data) {
                 for (let i = 0; i < result.data.length; i++) {
@@ -32,7 +36,7 @@ $(document).ready(function () {
                     for (const index in originalItem) {
                         let td = $("<td>").attr("class", "cyrus-scrollbar backoffice-td");
                         let value;
-                        if (item[index] !== null && typeof item[index] === 'object') {
+                        if (item[index] !== null && typeof item[index] === 'object' && !Array.isArray(item[index])) {
                             if (item[index] instanceof Language) {
                                 value = item[index].original_name + " (" + item[index].code + ")";
                             }
@@ -79,7 +83,69 @@ $(document).ready(function () {
             }
             $("#btn-details-remove").data("id", id);
             $("#btn-details-edit").data("id", id);
+            $("#btn-details-relations").data("id", id);
             detailsModal.show();
+        });
+        $("#btn-details-relations").each(function () {
+            $(this).click(function () {
+                let id = $("#btn-details-relations").data("id");
+                $(this).data("id", id);
+                API.requestType(entity, "query", { "id": id, "available": Availability.BOTH }, [UserFlags.ALL.name]).then((result) => {
+                    if (result.status && result.data) {
+                        for (let i = 0; i < result.data.length; i++) {
+                            let item = result.data[i];
+                            for (const index in item) {
+                                if (item[index] !== null && Array.isArray(item[index])) {
+                                    let relation = index;
+                                    let relationItems = $(".model-update-details-items[data-childentity='" + relation + "']");
+                                    for (let i = 0; i < item[index].length; i++) {
+                                        /*
+                                        *
+                                        * <div class = "model-update-details">
+                                    <b>ID</b>: 54; <b>Name</b>: Attack on Titan
+                                </div>
+                                        *
+                                        * */
+                                        let element = $("<div>").attr("class", "model-update-details");
+                                        let isFirst = true;
+                                        for (const index3 in item[index][i]) {
+                                            if (item[index][i][index3] !== null) {
+                                                let item3 = item[index][i][index3];
+                                                let value;
+                                                if (item3 !== null && item3 !== undefined && typeof item3 === 'object') {
+                                                    if ("name" in item3) {
+                                                        value = item3.name;
+                                                    }
+                                                    if ("path" in item3) {
+                                                        value = item3.path;
+                                                    }
+                                                }
+                                                else
+                                                    value = item3;
+                                                let name = index3;
+                                                name = name.replace("_", " ");
+                                                name = name.split(" ");
+                                                name = name.map((word) => {
+                                                    return word[0].toUpperCase() + word.substring(1);
+                                                }).join(" ");
+                                                if (value === undefined || value === null)
+                                                    value = "(Nenhum)";
+                                                element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
+                                            }
+                                            isFirst = false;
+                                        }
+                                        relationItems.append(element);
+                                        console.log(element);
+                                        console.log($(element)[0]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                detailsModal.hide();
+                relationsModal === null || relationsModal === void 0 ? void 0 : relationsModal.show();
+            });
         });
         $("#btn-details-edit").click(function () {
             // @ts-ignore
@@ -151,13 +217,20 @@ $(document).ready(function () {
             });
         });
         $("button[data-relation]").click(function () {
+            let entityID = $("#btn-details-relations").data("id");
             let formName = $(this).data("form");
-            let formEntity = $(this).data("entitychild");
+            //let entityChild: string = $(this).data("entitychild");
+            let relation = $(this).data("relation");
+            let entity = $(this).data("entity");
             let formData = {};
             createDataArray(formName, formData, "").then(value => {
-                formData = value;
-                return;
-                API.requestType(formEntity, "update", formData, [UserFlags.VIDEOHISTORY.name]).then((result) => {
+                formData = {
+                    "id": entityID,
+                    "relations": {}
+                };
+                formData["relations"][relation] = [value];
+                console.log(formData);
+                API.requestType(entity, "update", formData).then((result) => {
                     if (result.status) {
                         cyrusAlert("success", result.description);
                     }
@@ -174,7 +247,7 @@ $(document).ready(function () {
             let formData = {};
             createDataArray(formName, formData, formAction).then(value => {
                 formData = value;
-                API.requestType(formEntity, formAction, formData, [UserFlags.VIDEOHISTORY.name]).then((result) => {
+                API.requestType(formEntity, formAction, formData).then((result) => {
                     if (result.status) {
                         cyrusAlert("success", result.description);
                     }
