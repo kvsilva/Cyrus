@@ -49,7 +49,7 @@ class Resources
         $resource->store();
         $path = Utils::getBasePath() . "/" . self::RESOURCES_DIRECTORY . "/" . $resource->getId() . "." . $resource->getExtension();
         rename($file->getSystemPath(), $path);
-        $webPath = Routing::getResource("site") . "/" . self::RESOURCES_DIRECTORY . "/" . $resource->getId() . "." . $resource->getExtension();
+        $webPath = Routing::getRouting("root") . self::RESOURCES_DIRECTORY . "/" . $resource->getId() . "." . $resource->getExtension();
         $resource->setPath($webPath);
         $resource->store();
         return new Status(isError: false,return: array($resource->toArray()), bareReturn: array($resource));

@@ -88,7 +88,7 @@ $(document).ready(function () {
             let id = $(this).data("id");
             $("#updateModal").find("[data-name]").each(function () {
                 let name = $(this).data("name");
-                if ($(this).is("input")) {
+                if ($(this).is("input") || $(this).is("textarea")) {
                     $(this).val(rows[id].original[name]);
                     $(this).attr('value', rows[id].original[name]);
                 }
@@ -114,6 +114,7 @@ $(document).ready(function () {
                 else if ($(this).data("isdetailed")) {
                     let object = "null";
                     $(this).find(".model-update-details-items").removeClass("cyrus-item-hidden");
+                    //$(".model-update-details-removed").addClass("cyrus-item-hidden");
                     if (rows[id].original[name] !== null) {
                         object = JSON.stringify(rows[id].original[name]);
                         for (const index in rows[id].original[name]) {
@@ -121,10 +122,14 @@ $(document).ready(function () {
                         }
                         $(this).click(function () {
                             $(this).data("object", "null");
+                            $(this).find(".model-update-details-removed").find("div").text("(Removido)");
+                            $(this).find(".model-update-details-removed").removeClass("cyrus-item-hidden");
                             $(this).find(".model-update-details-items").addClass("cyrus-item-hidden");
                         });
                     }
                     else {
+                        $(this).find(".model-update-details-removed").find("div").text("(Nenhum)");
+                        $(this).find(".model-update-details-removed").removeClass("cyrus-item-hidden");
                         $(this).off("click");
                         $(this).find(".model-update-details-items").addClass("cyrus-item-hidden");
                     }
@@ -143,6 +148,23 @@ $(document).ready(function () {
                     console.error(result);
                 }
                 detailsModal.hide();
+            });
+        });
+        $("button[data-relation]").click(function () {
+            let formName = $(this).data("form");
+            let formEntity = $(this).data("entitychild");
+            let formData = {};
+            createDataArray(formName, formData, "").then(value => {
+                formData = value;
+                return;
+                API.requestType(formEntity, "update", formData, [UserFlags.VIDEOHISTORY.name]).then((result) => {
+                    if (result.status) {
+                        cyrusAlert("success", result.description);
+                    }
+                    else {
+                        cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
+                    }
+                });
             });
         });
         $("input[type=submit]").click(function () {
@@ -170,7 +192,7 @@ function createDataArray(formName, formData, action) {
         $("[data-form='" + formName + "'").each(function () {
             let name = $(this).data("name");
             let value = null;
-            if ($(this).attr("type") != "submit" && $(this).attr("type") != "reset") {
+            if ($(this).attr("type") != "submit" && $(this).attr("type") != "reset" && !$(this).is("button")) {
                 if ($(this).is("input") || $(this).is("textarea")) {
                     value = $(this).val();
                 }
@@ -235,13 +257,21 @@ function createDataArray(formName, formData, action) {
                     value = $(this).data("selected");
                 }
                 else if ($(this).data("isdetailed")) {
-                    value = $(this).data("object") === "null" ? null : undefined;
+                    if (action === "update") {
+                        let entityId = $("#btn-update").data("id");
+                        let name = $(this).data("name");
+                        let item = rows[entityId].original;
+                        value = (item[name] === null || $(this).data("object") !== "null") ? undefined : null;
+                    }
+                    else {
+                        value = $(this).data("object") === "null" ? null : undefined;
+                    }
                 }
                 else {
                     console.log("Other: ");
                     console.log($(this));
                 }
-                if (value !== null && $.trim(value).length == 0)
+                if (value !== null && value !== undefined && $.trim(value).length == 0)
                     value = null;
                 formData[name] = value;
             }
@@ -316,7 +346,7 @@ function createDataArray(formName, formData, action) {
 function compareRecords(b, n) {
     let data;
     for (const index in b) {
-        if (b[index] !== null && typeof b[index] === 'object') {
+        if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
             n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
         }
         else {

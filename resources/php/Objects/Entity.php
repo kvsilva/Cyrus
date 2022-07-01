@@ -378,12 +378,12 @@ abstract class Entity
         } else {
             if($n_rows == 0) {
                 unset($fields["available"]);
-            } else if(is_object($fields["available"]) ? $fields["available"]->value == Availability::BOTH->value : $fields["available"] == Availability::BOTH->value){
+            } else if($fields["available"] != null && is_object($fields["available"]) ? $fields["available"]->value == Availability::BOTH->value : $fields["available"] == Availability::BOTH->value){
                 $clause = true;
                 $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` in  ('". Availability::AVAILABLE->value ."', '".Availability::NOT_AVAILABLE->value."')) AND " : "");
             } else {
                 $clause = true;
-                $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` ". $operator ." '".$fields["available"]->value."') AND " : "");
+                $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` ". $operator ." '". (is_object($fields["available"]) ? $fields["available"]->value : $fields["available"]) ."') AND " : "");
             }
             unset($fields["available"]);
         }

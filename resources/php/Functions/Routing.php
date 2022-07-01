@@ -23,6 +23,7 @@ class Routing
                 "search" => (Utils::getURL() . "search/"),
                 "account" => (Utils::getURL() . "user/account/"),
                 "home" => (Utils::getURL()),
+                "root" => (Utils::getURL()),
                 "backoffice" => (Utils::getURL() . "backoffice/"),
                 "API" => (Utils::getURL() . "api/v1/"),
             );

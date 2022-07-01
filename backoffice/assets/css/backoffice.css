@@ -102,3 +102,7 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
     background-color: var(--hoverBackground2);
     cursor: pointer;
 }
+
+.model-update-details-removed{
+    font-size: 24px;
+}

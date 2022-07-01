@@ -4,6 +4,8 @@ require_once(dirname(__DIR__) . '\\backoffice\\assets\\php\\html.models.php');
 
 use Functions\Routing;
 use Functions\Utils;
+use Objects\Audience;
+use Objects\Entity;
 use Objects\Language;
 use Objects\Permission;
 use Objects\User;
@@ -62,6 +64,15 @@ $objects = array(
         "relations" => null
     ),
     "Objects\GlobalSetting" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(
+            "value_binary" => "text"
+        ),
+        "relations" => null
+    ),
+    "Objects\PunishmentType" => array(
         "icon" => "fa-solid fa-users",
         "update" => true,
         "insert" => true,
@@ -252,7 +263,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                                 foreach ($objects[$entity_class]["relations"] as $relation => $data) {
                                                                     $model = $data["model"];
                                                                     $obj = $data["class"];
-                                                                    echoModelFor($model, array(strtolower($entity_name) . "_update_relations", "punishments", ucfirst(strtolower($relation)), $obj));
+                                                                    //echoModelFor($model, array(strtolower($entity_name) . "_update_relations", "teste", ucfirst(strtolower($relation)), $obj));
+                                                                    echoModelFor(model: $model, formName: $entity_name . "_update_relations", fieldName: "teste", displayName: ucfirst(strtolower($relation)), relationEntity: $entity_class, childEntity: $obj);
+
                                                                 }
                                                             }
                                                             ?>
@@ -264,12 +277,6 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                            value="CANCELAR"
                                                            data-form="<?php echo strtolower($entity_name); ?>_update"
                                                            data-entity="<?php echo $entity_name; ?>">
-                                                    <input class="cyrus-input" type="submit" data-bs-dismiss="modal"
-                                                           value="ATUALIZAR"
-                                                           data-form="<?php echo strtolower($entity_name); ?>_update"
-                                                           data-entity="<?php echo $entity_name; ?>"
-                                                           data-action="update-relations">
-
                                                 </div>
                                             </div>
                                         </div>
@@ -314,7 +321,8 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                                         if (isset($objects[$entity_class]["forceModel"][$field_name])) {
                                                                             $type = $objects[$entity_class]["forceModel"][$field_name];
                                                                         }
-                                                                        echoModelFor($type, array(strtolower($entity_name) . "_insert", $field_name, $display_name));
+                                                                        //echoModelFor($type, array(strtolower($entity_name) . "_insert", $field_name, $display_name));
+                                                                        echoModelFor(model: $type, formName: $entity_name . "_insert", fieldName: $field_name, displayName: $display_name);
                                                                     }
                                                                 }
                                                             }
@@ -390,7 +398,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                                         if (isset($objects[$entity_class]["forceModelOnUpdate"][$field_name])) {
                                                                             $type = $objects[$entity_class]["forceModelOnUpdate"][$field_name];
                                                                         }
-                                                                        if (!$ignore) echoModelFor($type, array(strtolower($entity_name) . "_update", $field_name, $display_name));
+                                                                        if (!$ignore) echoModelFor(model: $type, formName: $entity_name . "_update_relations", fieldName: $field_name, displayName: $display_name, relationEntity: $entity_class);
                                                                     }
                                                                 }
                                                             }
@@ -428,6 +436,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
 </div>
 <?php
 include(Utils::getDependencies("Cyrus", "footer", true));
+
+$entity = new Audience();
+
 ?>
 </body>
 </html>

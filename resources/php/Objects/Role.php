@@ -152,6 +152,7 @@ class Role extends Entity
         return $array;
     }
 
+    #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|string", "permissions" => "array|null"])]
     public function toOriginalArray(bool $minimal = false): array
     {
         $array = array(
