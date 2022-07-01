@@ -94,6 +94,11 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
     overflow-y: auto;
     text-align: center;
 }
-table{
-
+/* Models */
+.model-update-details{
+    padding: 5px;
+}
+.model-update-details:hover{
+    background-color: var(--hoverBackground2);
+    cursor: pointer;
 }

@@ -105,6 +105,9 @@ $(document).ready(function () {
             }
         });
     });
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
 });
 export function cyrusAlert(alertType, alertHtml) {
     $("#modals").find(".show").removeClass("show");

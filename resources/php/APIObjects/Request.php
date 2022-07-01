@@ -4,6 +4,7 @@ namespace APIObjects;
 
 use Constants\API_MESSAGES;
 use DateTime;
+use Enumerators\Availability;
 use Exception;
 use Exceptions\InvalidDataType;
 use Exceptions\IOException;
@@ -148,12 +149,12 @@ class Request
                 break;
             case "update":
                 if($id == null) throw new NotNullable("id");
-                $objects_find = Entity::__find(fields: array("id" => $id), table: $obj->getTable(), class: $object_name, flags: $flags);
+                $objects_find = Entity::__find(fields: array("id" => $id, "available" => Availability::BOTH), table: $obj->getTable(), class: $object_name, flags: $flags);
                 if($objects_find->size() > 0) {
                     $object = Entity::arrayToObject(object: $objects_find[0], array: $data, id: $id, flags: $flags);
                     $object->arrayRelations($relations);
                     $object->store();
-                    $object = Entity::__find(fields: array("id" => $object->getId()), table: $obj->getTable(), class: $object_name, flags: $flags)[0];
+                    $object = Entity::__find(fields: array("id" => $object->getId(),  "available" => Availability::BOTH), table: $obj->getTable(), class: $object_name, flags: $flags)[0];
                     $objects[] = $object;
                 }
                 break;

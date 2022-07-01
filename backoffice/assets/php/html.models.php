@@ -55,6 +55,19 @@ function echoModelFor(string $model, array $data = array())
             </div>
             <?php
             break;
+        case "resource_update":
+            ?>
+            <div class="cyrus-input-group" data-form="<?php echo $data[0]; ?>" data-isDetailed="true" data-name = "<?php echo $data[1] ?>" data-object="null">
+                <div class = "model-update-details model-update-details-items"  title="Apagar">
+                    <div><b>Title</b>:<span class="ps-2" data-item = "title">Attack On Titan</span></div>
+                    <div><b>Description</b>:<span class="ps-2" data-item = "description">Cape Image</span></div>
+                    <div><b>URL</b>:<span class="ps-2" data-item = "path">https://i.pinimg.com/originals/13/a1/01/13a10172127bbf9da50b8ce6db35eeaa.png</span>
+                    </div>
+                </div>
+                <span class="cyrus-floating-label cyrus-floating-label-float-textarea"><?php echo $data[2] ?></span>
+            </div>
+            <?php
+            break;
         case "resource":
             ?>
             <div class="group-section-subitem" data-form="<?php echo $data[0]; ?>" data-isMultiple="true"
@@ -258,7 +271,7 @@ function echoModelFor(string $model, array $data = array())
                         <?php
                         $punishments = Punishment::find();
                         foreach ($punishments as $item) {
-                            echo '<li data-id = "' . $item->getId() . '">' . $item->getName() .'</li>';
+                            echo '<li data-id = "' . $item->getId() . '">' . $item->getName() . '</li>';
                         }
                         ?>
                     </ul>

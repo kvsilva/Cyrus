@@ -32,6 +32,10 @@ $objects = array(
         "ignoreUpdate" => array(
             "creation_date"
         ),
+        "forceModelOnUpdate" => array(
+            "profile_image" => "resource_update",
+            "profile_background" => "resource_update",
+        ),
         "relations" => array(
             "roles" => array(
                 "model" => "relation-dropdown",
@@ -382,6 +386,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                                         }
                                                                         if (isset($objects[$entity_class]["forceModel"][$field_name])) {
                                                                             $type = $objects[$entity_class]["forceModel"][$field_name];
+                                                                        }
+                                                                        if (isset($objects[$entity_class]["forceModelOnUpdate"][$field_name])) {
+                                                                            $type = $objects[$entity_class]["forceModelOnUpdate"][$field_name];
                                                                         }
                                                                         if (!$ignore) echoModelFor($type, array(strtolower($entity_name) . "_update", $field_name, $display_name));
                                                                     }

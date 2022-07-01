@@ -88,23 +88,16 @@ $(document).ready(function () {
             let id = $(this).data("id");
             $("#updateModal").find("[data-name]").each(function () {
                 let name = $(this).data("name");
-                let beforeValue = undefined;
                 if ($(this).is("input")) {
                     $(this).val(rows[id].original[name]);
                     $(this).attr('value', rows[id].original[name]);
-                    beforeValue = rows[id].original[name];
-                    if (beforeValue !== undefined)
-                        $(this).data("beforevalue", beforeValue);
                 }
                 else if ($(this).data("ismultiple") && rows[id].original[name] !== null) {
                     $(this).find("[data-subitem]").each(function () {
                         if ($(this).is("input")) {
                             let subItemName = $(this).data("subitem");
                             $(this).val(rows[id].original[name][subItemName]);
-                            beforeValue = rows[id].original[name][subItemName];
                             $(this).attr('value', rows[id].original[name][subItemName]);
-                            if (beforeValue !== undefined)
-                                $(this).data("beforevalue", beforeValue);
                         }
                     });
                 }
@@ -112,15 +105,30 @@ $(document).ready(function () {
                     $(this).parent().parent().find(".dropdown-menu li").each(function () {
                         if ("id" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["id"]) {
                             $(this).trigger("click");
-                            beforeValue = rows[id].original[name]["id"];
                         }
                         else if ("value" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["value"]) {
-                            beforeValue = rows[id].original[name]["value"];
                             $(this).trigger("click");
                         }
                     });
-                    if (beforeValue !== undefined)
-                        $(this).data("beforevalue", beforeValue);
+                }
+                else if ($(this).data("isdetailed")) {
+                    let object = "null";
+                    $(this).find(".model-update-details-items").removeClass("cyrus-item-hidden");
+                    if (rows[id].original[name] !== null) {
+                        object = JSON.stringify(rows[id].original[name]);
+                        for (const index in rows[id].original[name]) {
+                            $(this).find("[data-item='" + index + "']").html(rows[id].original[name][index]);
+                        }
+                        $(this).click(function () {
+                            $(this).data("object", "null");
+                            $(this).find(".model-update-details-items").addClass("cyrus-item-hidden");
+                        });
+                    }
+                    else {
+                        $(this).off("click");
+                        $(this).find(".model-update-details-items").addClass("cyrus-item-hidden");
+                    }
+                    $(this).data("object", object);
                 }
             });
             updateModal.show();
@@ -147,6 +155,9 @@ $(document).ready(function () {
                 API.requestType(formEntity, formAction, formData, [UserFlags.VIDEOHISTORY.name]).then((result) => {
                     if (result.status) {
                         cyrusAlert("success", result.description);
+                    }
+                    else {
+                        cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
                     }
                 });
             });
@@ -223,6 +234,9 @@ function createDataArray(formName, formData, action) {
                 else if ($(this).data("isdropdown")) {
                     value = $(this).data("selected");
                 }
+                else if ($(this).data("isdetailed")) {
+                    value = $(this).data("object") === "null" ? null : undefined;
+                }
                 else {
                     console.log("Other: ");
                     console.log($(this));
@@ -283,7 +297,11 @@ function createDataArray(formName, formData, action) {
                 if (formData[index] === undefined)
                     delete formData[index];
             }
-            formData["id"] = entityId;
+            if (formData === undefined) {
+                formData = { id: entityId };
+            }
+            else
+                formData["id"] = entityId;
         }
         let ret = {};
         for (const index in formData) {
@@ -298,21 +316,21 @@ function createDataArray(formName, formData, action) {
 function compareRecords(b, n) {
     let data;
     for (const index in b) {
-        if (b[index] !== null && b[index] === 'object') {
-            n[index] = compareRecords(b[index], n[index]);
+        if (b[index] !== null && typeof b[index] === 'object') {
+            n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
         }
         else {
-            if (b[index] == n[index]) {
+            if (b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]) {
                 n[index] = undefined;
             }
         }
         if (data === undefined)
             data = [];
-        data[index] = n[index];
+        data[index] = n !== undefined ? (n !== null ? n[index] : null) : undefined;
     }
     let isUndefined = true;
-    for (const index in n) {
-        if (n[index] !== undefined) {
+    for (const index in data) {
+        if (data[index] !== undefined) {
             isUndefined = false;
         }
     }

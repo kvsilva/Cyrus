@@ -106,7 +106,7 @@ abstract class Entity
         }
         foreach($array as $key => $value) {
             if (strtolower($key) != "relations") {
-                if ($value !== null) {
+                if (true /*$value !== null*/) {
                     if (!is_bool(get_parent_class(get_called_class()))) {
                         if (property_exists($reflection->getParentClass()->getName(), $key)) {
                             if (!$reflection->getParentClass()->getProperty($key)->isProtected() && !$reflection->getParentClass()->getProperty($key)->isPublic()) continue;
@@ -115,9 +115,9 @@ abstract class Entity
                             if (!$reflection->getProperty($key)->isProtected() && !$reflection->getProperty($key)->isPublic()) continue;
                             $type = $reflection->getProperty($key)->getType();
                         }
-                        $value_type = gettype($value) == "object" ? get_class($value) : gettype($value);
+                        //$value_type = gettype($value) == "object" ? get_class($value) : gettype($value);
                         if (isset($type)) {
-                            if ($value == "") {
+                            if ($value == "" || $value === null) {
                                 $this->{$key} = null;
                             } else if (str_contains(strtolower($type), "datetime")) {
                                 $value = str_replace("/","-", $value);
@@ -378,12 +378,12 @@ abstract class Entity
         } else {
             if($n_rows == 0) {
                 unset($fields["available"]);
-            } else if($fields["available"] == Availability::BOTH->value){
+            } else if(is_object($fields["available"]) ? $fields["available"]->value == Availability::BOTH->value : $fields["available"] == Availability::BOTH->value){
                 $clause = true;
                 $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` in  ('". Availability::AVAILABLE->value ."', '".Availability::NOT_AVAILABLE->value."')) AND " : "");
             } else {
                 $clause = true;
-                $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` ". $operator ." '".$fields["available"]."') AND " : "");
+                $available = ($fields["available"] != null ? "($table.`available` IS NOT NULL AND $table.`available` ". $operator ." '".$fields["available"]->value."') AND " : "");
             }
             unset($fields["available"]);
         }
