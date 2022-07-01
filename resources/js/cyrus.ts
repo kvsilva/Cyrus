@@ -111,3 +111,41 @@ $(document).ready(function() {
         });
     });
 });
+
+
+export function cyrusAlert(alertType: string, alertHtml: string){
+    $("#modals").find(".show").removeClass("show");
+    $("#modals").find("div").addClass("cyrus-item-hidden");
+    let currentTimestamp : number = getCurrentTimestamp();
+    $("#modals").data("last-alert", currentTimestamp);
+    switch (alertType.toLowerCase()) {
+        case "success":
+            $("#alert-success").find("span").html(alertHtml);
+            $("#alert-success").addClass("show").removeClass("cyrus-item-hidden");
+            break;
+        case "danger":
+            $("#alert-danger").find("span").html(alertHtml);
+            $("#alert-danger").addClass("show").removeClass("cyrus-item-hidden");
+            break;
+        case "warning":
+            $("#alert-warning").find("span").html(alertHtml);
+            $("#alert-warning").addClass("show").removeClass("cyrus-item-hidden");
+            break;
+        default:
+            console.error(`Alert Type (${alertType}) not supported!`);
+            break;
+    }
+    setTimeout(function (){
+        if($("#modals").data("last-alert") == currentTimestamp){
+            $("#modals").find(".show").removeClass("show");
+            //$("#modals").find("div").addClass("cyrus-item-hidden");
+        }
+    }, 3000);
+}
+
+export function getCurrentTimestamp(){
+    return Math.round(window.performance && window.performance.now() && window.performance.timing && window.performance.timing.navigationStart ? window.performance.now() + window.performance.timing.navigationStart : Date.now());
+}
+
+// @ts-ignore
+window.cyrusAlert = (alertType: string, alertHtml: string) => cyrusAlert(alertType, alertHtml);

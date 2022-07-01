@@ -1,6 +1,7 @@
 import {Request as API} from "../../../resources/js/Request";
 import {Availability, Language, UserFlags} from "../../../resources/js/models";
 import {Modal} from "bootstrap";
+import {cyrusAlert} from "../../../resources/js/cyrus";
 
 let entity: string;
 
@@ -130,10 +131,12 @@ $(document).ready(async function () {
     $("#btn-details-remove").click(function () {
         API.requestType(entity, "remove", {"id": $(this).data("id")}).then((result: any) => {
             if (result.status) {
-                console.log("Apagado!");
+                cyrusAlert("success", result.description);
             } else {
-                console.error("Nao foi possivel processar o pedido: " + result.description);
+                cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
+                console.error(result);
             }
+            detailsModal.hide();
         });
     });
 
@@ -147,8 +150,7 @@ $(document).ready(async function () {
             formData = value;
             API.requestType(formEntity, formAction, formData, [UserFlags.VIDEOHISTORY.name]).then((result: any) => {
                 if (result.status) {
-                    if ("data" in result) {
-                    }
+                    cyrusAlert("success", result.description);
                 }
             });
         })
