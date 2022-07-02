@@ -25,143 +25,42 @@ $(document).ready(function () {
         // @ts-ignore
         if ($("#relationsModal").length > 0)
             relationsModal = new bootstrap.Modal($("#relationsModal"), {});
-        yield API.requestType(entity, "query", { "available": Availability.BOTH }).then((result) => {
-            if (result.status && result.data) {
-                for (let i = 0; i < result.data.length; i++) {
-                    let tr = $("<tr>");
-                    let item = result.data[i];
-                    $(tr).data("id", item === null || item === void 0 ? void 0 : item.id);
-                    let id = item === null || item === void 0 ? void 0 : item.id;
-                    let originalItem = result.original[i];
-                    for (const index in originalItem) {
-                        if (flags[entity + "Flags"] !== undefined && (index.toUpperCase() in flags[entity + "Flags"] || index.replace("_", "").toUpperCase() in flags[entity + "Flags"]))
-                            continue;
-                        let td = $("<td>").attr("class", "cyrus-scrollbar backoffice-td");
-                        let value;
-                        if (item[index] !== null && typeof item[index] === 'object' && !Array.isArray(item[index])) {
-                            if (item[index] instanceof Language) {
-                                value = item[index].original_name + " (" + item[index].code + ")";
-                            }
-                            else {
-                                if ("name" in item[index]) {
-                                    value = item[index].name;
-                                }
-                                if ("path" in item[index]) {
-                                    value = item[index].path;
-                                }
-                            }
-                        }
-                        else {
-                            value = item[index];
-                        }
-                        if (value === null)
-                            value = "(Nenhum)";
-                        if (id !== null) {
-                            if (rows[id] === undefined)
-                                rows[id] = { plainText: [], original: [] };
-                            rows[id].plainText[index] = value;
-                            rows[id].original[index] = item[index];
-                        }
-                        $(td).text(value);
-                        tr.append(td);
-                    }
-                    $("#query-body").append(tr);
+        yield dataQuery();
+        // @ts-ignore
+        $('#query-table').DataTable({
+            buttons: [
+                { className: 'cyrus-btn' }
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "Nenhum registo disponível para esta tabela",
+                "info": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
+                "infoEmpty": "Showing 0 to 0 of 0 entries",
+                "infoFiltered": "(filtrado de _MAX_ total de entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrando _MENU_ entradas",
+                "loadingRecords": "Carregando...",
+                "processing": "",
+                "search": "Procurar:",
+                "zeroRecords": "Nenhum registo, que atenda à sua pesquisa, foi encontrado.",
+                "paginate": {
+                    "first": "Primeira",
+                    "last": "Última",
+                    "next": "Próxima",
+                    "previous": "Anterior"
+                },
+                "aria": {
+                    "sortAscending": ": ative para classificar a coluna em ordem crescente",
+                    "sortDescending": ": ative para classificar a coluna em ordem decrescente"
                 }
             }
-        });
-        $("tr").dblclick(function () {
-            // @ts-ignore
-            let id = $(this).data("id");
-            let modalBody = $("#details-body").html("");
-            let item = rows[id].plainText;
-            for (const index in item) {
-                let field_name = index;
-                field_name = field_name.replace("_", " ");
-                field_name = field_name.split(" ");
-                field_name = field_name.map((word) => {
-                    return word[0].toUpperCase() + word.substring(1);
-                }).join(" ");
-                modalBody.append($("<div>").html("<span><u><b>" + field_name + "</b></u></span>:<span class ='p-2'>" + item[index] + "</span>"));
-            }
-            $("#btn-details-remove").data("id", id);
-            $("#btn-details-edit").data("id", id);
-            $("#btn-details-relations").data("id", id);
-            detailsModal.show();
         });
         $("#btn-details-relations").each(function () {
             $(this).click(function () {
                 let id = $("#btn-details-relations").data("id");
-                $(this).data("id", id);
-                API.requestType(entity, "query", {
-                    "id": id,
-                    "available": Availability.BOTH
-                }, [UserFlags.ALL.name]).then((result) => {
-                    var _a;
-                    if (result.status && result.data) {
-                        for (let i = 0; i < result.data.length; i++) {
-                            let item = result.data[i];
-                            for (const index in item) {
-                                if (item[index] !== null && Array.isArray(item[index])) {
-                                    let relationItems = $(".model-update-details-items[data-childentity='" + index + "']");
-                                    for (let i = 0; i < item[index].length; i++) {
-                                        let element = $("<div>").attr("class", "model-update-details");
-                                        for (const index3 in item[index][i]) {
-                                            if (item[index][i][index3] !== null) {
-                                                let item3 = item[index][i][index3];
-                                                let value;
-                                                if (item3 !== null && item3 !== undefined && typeof item3 === 'object') {
-                                                    if ("name" in item3) {
-                                                        value = item3.name;
-                                                    }
-                                                    if ("path" in item3) {
-                                                        value = item3.path;
-                                                    }
-                                                }
-                                                else
-                                                    value = item3;
-                                                let name = index3;
-                                                name = name.replace("_", " ");
-                                                name = name.split(" ");
-                                                name = name.map((word) => {
-                                                    return word[0].toUpperCase() + word.substring(1);
-                                                }).join(" ");
-                                                if (value === undefined || value === null)
-                                                    value = "(Nenhum)";
-                                                element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
-                                            }
-                                        }
-                                        element.data("childentity", index);
-                                        element.data("id", item === null || item === void 0 ? void 0 : item.id);
-                                        element.data("relationid", (_a = item[index][i]) === null || _a === void 0 ? void 0 : _a.id);
-                                        element.click(function () {
-                                            let childEntity = $(this).data("childentity");
-                                            let entityID = $(this).data("id");
-                                            let relationID = $(this).data("relationid");
-                                            let formData = {
-                                                "id": entityID,
-                                                "relations": {}
-                                            };
-                                            formData["relations"][childEntity] = [{
-                                                    "id": relationID
-                                                }];
-                                            API.requestType(entity, "remove", formData).then((result) => {
-                                                if (result.status) {
-                                                    cyrusAlert("success", result.description);
-                                                }
-                                                else {
-                                                    cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
-                                                    console.error(result);
-                                                }
-                                                detailsModal.hide();
-                                            });
-                                        });
-                                        relationItems.append(element);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+                //$(this).data("id", id);
+                updateRelations(id);
                 detailsModal.hide();
                 relationsModal === null || relationsModal === void 0 ? void 0 : relationsModal.show();
             });
@@ -225,8 +124,10 @@ $(document).ready(function () {
         });
         $("#btn-details-remove").click(function () {
             API.requestType(entity, "remove", { "id": $(this).data("id") }).then((result) => {
+                cyrusAlert("warning", "Processando o seu pedido...");
                 if (result.status) {
                     cyrusAlert("success", result.description);
+                    dataQuery();
                 }
                 else {
                     cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
@@ -242,6 +143,7 @@ $(document).ready(function () {
             let relation = $(this).data("relation");
             let entity = $(this).data("entity");
             let formData = {};
+            cyrusAlert("warning", "Procecssando o seu pedido...");
             createDataArray(formName, formData, "").then(value => {
                 formData = {
                     "id": entityID,
@@ -252,6 +154,7 @@ $(document).ready(function () {
                 API.requestType(entity, "update", formData).then((result) => {
                     if (result.status) {
                         cyrusAlert("success", result.description);
+                        updateRelations(entityID);
                     }
                     else {
                         cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
@@ -266,12 +169,15 @@ $(document).ready(function () {
             let formData = {};
             createDataArray(formName, formData, formAction).then(value => {
                 formData = value;
+                cyrusAlert("warning", "Processando o seu pedido...");
                 API.requestType(formEntity, formAction, formData).then((result) => {
                     if (result.status) {
                         cyrusAlert("success", result.description);
+                        dataQuery();
                     }
                     else {
                         cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
+                        console.error(result);
                     }
                 });
             });
@@ -459,4 +365,153 @@ function compareRecords(b, n) {
     if (isUndefined)
         return undefined;
     return data;
+}
+// @ts-ignore
+window.updateRelations = (id) => updateRelations(id);
+function updateRelations(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        //await API.requestType(entity, "query", {"id": id, "available": Availability.BOTH}).then((result: any) => {
+        API.requestType(entity, "query", {
+            "id": id,
+            "available": Availability.BOTH
+        }, [UserFlags.ALL.name]).then((result) => {
+            var _a;
+            if (result.status && result.data) {
+                for (let i = 0; i < result.data.length; i++) {
+                    let item = result.data[i];
+                    for (const index in item) {
+                        if (item[index] !== null && Array.isArray(item[index])) {
+                            let relationItems = $(".model-update-details-items[data-childentity='" + index + "']").html("");
+                            for (let i = 0; i < item[index].length; i++) {
+                                let element = $("<div>").attr("class", "model-update-details");
+                                for (const index3 in item[index][i]) {
+                                    if (item[index][i][index3] !== null) {
+                                        let item3 = item[index][i][index3];
+                                        let value;
+                                        if (item3 !== null && item3 !== undefined && typeof item3 === 'object') {
+                                            if ("name" in item3) {
+                                                value = item3.name;
+                                            }
+                                            if ("path" in item3) {
+                                                value = item3.path;
+                                            }
+                                        }
+                                        else
+                                            value = item3;
+                                        let name = index3;
+                                        name = name.replace("_", " ");
+                                        name = name.split(" ");
+                                        name = name.map((word) => {
+                                            return word[0].toUpperCase() + word.substring(1);
+                                        }).join(" ");
+                                        if (value === undefined || value === null)
+                                            value = "(Nenhum)";
+                                        element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
+                                    }
+                                }
+                                element.data("childentity", index);
+                                element.data("id", item === null || item === void 0 ? void 0 : item.id);
+                                element.data("relationid", (_a = item[index][i]) === null || _a === void 0 ? void 0 : _a.id);
+                                element.click(function () {
+                                    let childEntity = $(this).data("childentity");
+                                    let entityID = $(this).data("id");
+                                    let relationID = $(this).data("relationid");
+                                    let formData = {
+                                        "id": entityID,
+                                        "relations": {}
+                                    };
+                                    formData["relations"][childEntity] = [{
+                                            "id": relationID
+                                        }];
+                                    cyrusAlert("warning", "Processando o seu pedido...");
+                                    API.requestType(entity, "remove", formData).then((result) => {
+                                        if (result.status) {
+                                            cyrusAlert("success", result.description);
+                                            updateRelations(entityID);
+                                        }
+                                        else {
+                                            cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
+                                            console.error(result);
+                                        }
+                                        detailsModal.hide();
+                                    });
+                                });
+                                relationItems.append(element);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+// @ts-ignore
+window.dataQuery = () => dataQuery();
+function dataQuery() {
+    return __awaiter(this, void 0, void 0, function* () {
+        $("#query-body").html("");
+        yield API.requestType(entity, "query", { "available": Availability.BOTH }).then((result) => {
+            if (result.status && result.data) {
+                for (let i = 0; i < result.data.length; i++) {
+                    let tr = $("<tr>");
+                    let item = result.data[i];
+                    $(tr).data("id", item === null || item === void 0 ? void 0 : item.id);
+                    let id = item === null || item === void 0 ? void 0 : item.id;
+                    let originalItem = result.original[i];
+                    for (const index in originalItem) {
+                        if (flags[entity + "Flags"] !== undefined && (index.toUpperCase() in flags[entity + "Flags"] || index.replace("_", "").toUpperCase() in flags[entity + "Flags"]))
+                            continue;
+                        let td = $("<td>").attr("class", "cyrus-scrollbar backoffice-td");
+                        let value;
+                        if (item[index] !== null && typeof item[index] === 'object' && !Array.isArray(item[index])) {
+                            if (item[index] instanceof Language) {
+                                value = item[index].original_name + " (" + item[index].code + ")";
+                            }
+                            else {
+                                if ("name" in item[index]) {
+                                    value = item[index].name;
+                                }
+                                if ("path" in item[index]) {
+                                    value = item[index].path;
+                                }
+                            }
+                        }
+                        else {
+                            value = item[index];
+                        }
+                        if (value === null)
+                            value = "(Nenhum)";
+                        if (id !== null) {
+                            if (rows[id] === undefined)
+                                rows[id] = { plainText: [], original: [] };
+                            rows[id].plainText[index] = value;
+                            rows[id].original[index] = item[index];
+                        }
+                        $(td).text(value);
+                        tr.append(td);
+                    }
+                    $("#query-body").append(tr);
+                }
+            }
+        });
+        $("tr").dblclick(function () {
+            // @ts-ignore
+            let id = $(this).data("id");
+            let modalBody = $("#details-body").html("");
+            let item = rows[id].plainText;
+            for (const index in item) {
+                let field_name = index;
+                field_name = field_name.replace("_", " ");
+                field_name = field_name.split(" ");
+                field_name = field_name.map((word) => {
+                    return word[0].toUpperCase() + word.substring(1);
+                }).join(" ");
+                modalBody.append($("<div>").html("<span><u><b>" + field_name + "</b></u></span>:<span class ='p-2'>" + item[index] + "</span>"));
+            }
+            $("#btn-details-remove").data("id", id);
+            $("#btn-details-edit").data("id", id);
+            $("#btn-details-relations").data("id", id);
+            detailsModal.show();
+        });
+    });
 }

@@ -71,6 +71,7 @@ class Utils
                 "Popper" => (new Dependency("Popper", Routing::getResource("dependencies"), "2.9.2"))->addImport(path: "popper.min.js"),
                 "FontAwesome" => (new Dependency("FontAwesome", Routing::getResource("dependencies"), "6.1.1"))->addImport(path: "css/all.css", extension: "css"),
                 "Bootstrap" => (new Dependency("Bootstrap", Routing::getResource("dependencies"), "5.0.2"))->addImport(path: "js/bootstrap.bundle.min.js")->addImport(path: "css/bootstrap.css", extension: "css"),
+                "DataTables" => (new Dependency("DataTables", Routing::getResource("dependencies"), "1.12.1"))->addImport(path: "datatables.min.js")->addImport(path: "datatables.min.css", extension: "css"),
                 "Personal" => (new Dependency("Personal", self::$BASE_URL . "animes/"))->addImport(path: "assets/js/personal.js")->addImport(path: "assets/css/personal.css", extension: "css"),
                 "Episode" => (new Dependency("Episode", self::$BASE_URL))->addImport(path: "assets/js/episode.js")->addImport(path: "assets/css/episode.css", extension: "css"),
                 "Search" => (new Dependency("Search", self::$BASE_URL))->addImport(path: "assets/js/search.js")->addImport(path: "assets/css/search.css", extension: "css"),

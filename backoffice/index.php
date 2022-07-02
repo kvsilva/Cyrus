@@ -28,6 +28,7 @@ $objects = array(
         "forceModel" => array(
             "status" => "text",
             "about_me" => "text",
+            "password" => "password"
         ),
         "update" => true,
         "insert" => true,
@@ -96,7 +97,9 @@ if (!isset($objects[$entity_class])) {
     include Utils::getDependencies("Cyrus", "head", true);
     echo getHead(" - Backoffice");
     ?>
+    <link href="<?php echo Utils::getDependencies("DataTables", "css") ?>" rel="stylesheet">
     <link href="<?php echo Utils::getDependencies("Backoffice", "css") ?>" rel="stylesheet">
+    <script type="module" src="<?php echo Utils::getDependencies("DataTables") ?>"></script>
     <script type="module" src="<?php echo Utils::getDependencies("Backoffice") ?>"></script>
 </head>
 <body>
@@ -167,13 +170,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 <div class="group">
                     <div class="group-wrapper">
                         <div class="group-section">
-                            <div class="group-section-title">
-                                <span>Adicionar</span>
-                            </div>
-
                             <div id="query" class="table-responsive cyrus-scrollbar">
 
-                                <table class="table align-middle table-striped table-dark table-hover cyrus-scrollbar">
+                                <table class="table align-middle table-striped table-dark table-hover cyrus-scrollbar" id = "query-table">
                                     <thead>
                                     <tr class="tr">
                                         <?php
@@ -199,11 +198,6 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <!-- Modals -->
                                 <!-- Details Modal -->
 
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                        data-bs-target="#detailsModal">
-                                    Details
-                                </button>
-
                                 <div class="modal fade" id="detailsModal" tabindex="-1"
                                      aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
@@ -227,11 +221,15 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                         data-entity="<?php echo $entity_name; ?>"
                                                         id="btn-details-remove">REMOVER
                                                 </button>
+                                                <?php
+                                                if (isset($objects[$entity_class]) && $objects[$entity_class]["relations"] !== null){
+                                                ?>
                                                 <button class="cyrus-btn cyrus-btn-type2"
                                                         data-form="<?php echo strtolower($entity_name); ?>_details"
                                                         data-entity="<?php echo $entity_name; ?>" id="btn-details-relations">
                                                     RELAÇÕES
                                                 </button>
+                                                <?php } ?>
                                                 <button class="cyrus-btn cyrus-btn-type2"
                                                         data-form="<?php echo strtolower($entity_name); ?>_details"
                                                         data-entity="<?php echo $entity_name; ?>" id="btn-details-edit">
@@ -245,10 +243,6 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <?php
                                 if (isset($objects[$entity_class]) && $objects[$entity_class]["relations"] !== null) {
                                     ?>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#relationsModal">
-                                        Relações
-                                    </button>
 
                                     <div class="modal fade" id="relationsModal" tabindex="-1"
                                          aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -280,7 +274,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                 <div class="modal-footer">
                                                     <input class="cyrus-input" type="reset" data-bs-dismiss="modal"
                                                            value="CANCELAR"
-                                                           data-form="<?php echo strtolower($entity_name); ?>_update"
+                                                           data-form="<?php echo strtolower($entity_name); ?>_update_relations"
                                                            data-entity="<?php echo $entity_name; ?>">
                                                 </div>
                                             </div>
@@ -327,7 +321,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                                             $type = $objects[$entity_class]["forceModel"][$field_name];
                                                                         }
                                                                         //echoModelFor($type, array(strtolower($entity_name) . "_insert", $field_name, $display_name));
-                                                                        echoModelFor(model: $type, formName: $entity_name . "_insert", fieldName: $field_name, displayName: $display_name);
+                                                                        echoModelFor(model: $type, formName: strtolower($entity_name) . "_insert", fieldName: $field_name, displayName: $display_name);
                                                                     }
                                                                 }
                                                             }
@@ -360,10 +354,6 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 <?php
                                 if (isset($objects[$entity_class]) && $objects[$entity_class]["update"]) {
                                     ?>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#updateModal">
-                                        Atualizar
-                                    </button>
                                     <div class="modal fade" id="updateModal" tabindex="-1"
                                          aria-labelledby="exampleModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-xl">
@@ -403,7 +393,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                                         if (isset($objects[$entity_class]["forceModelOnUpdate"][$field_name])) {
                                                                             $type = $objects[$entity_class]["forceModelOnUpdate"][$field_name];
                                                                         }
-                                                                        if (!$ignore) echoModelFor(model: $type, formName: $entity_name . "_update", fieldName: $field_name, displayName: $display_name, relationEntity: $entity_class);
+                                                                        if (!$ignore) echoModelFor(model: $type, formName: strtolower($entity_name) . "_update", fieldName: $field_name, displayName: $display_name, relationEntity: $entity_class);
                                                                     }
                                                                 }
                                                             }

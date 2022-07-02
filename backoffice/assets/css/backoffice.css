@@ -1,5 +1,9 @@
 @import url('../../../resources/css/cyrus.css');
 
+body {
+    background-color: var(--color9) !important;
+}
+
 .menu{
     background-color: var(--backgroundColor3);
     padding-top: 15px;
@@ -47,7 +51,7 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
 }
 
 .group{
-
+    margin-top: 125px;
 }
 
 .group-section{

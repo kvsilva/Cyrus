@@ -414,14 +414,14 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                             $entity_name = class_exists("Enumerators\\" . $model) ? $model : str_replace("Enumerators\\", "", $childEntity);
                             $entity_enum = class_exists("Enumerators\\" . $model) ? "Enumerators\\" . $model : $childEntity;
                             $entity = new ReflectionEnum($entity_enum);
-                            $cases = $entity->getCases();
+                            $cases = $entity->getMethod("getAllItems")->invoke(null);
                             foreach ($cases as $item) {
 
-                                $case = $entity->getMethod("getItem")->invokeArgs(null, array($item->getBackingValue()));
+                                //$case = $entity->getMethod("getItem")->invokeArgs(null, array($item->getBackingValue()));
 
 
-                                echo '<li data-id = "' . $case->value . '">';
-                                echo $case->name();
+                                echo '<li data-id = "' . $item->value . '">';
+                                echo $item->name();
                                 echo '</li>';
                             }
                             ?>
