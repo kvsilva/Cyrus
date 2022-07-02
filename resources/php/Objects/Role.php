@@ -136,7 +136,7 @@ class Role extends Entity
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = true): array
     {
         $array = array(
             "id" => $this->getId(),

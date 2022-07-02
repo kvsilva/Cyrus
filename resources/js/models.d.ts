@@ -590,4 +590,5 @@ export declare class APIWebFile {
     web_path: string;
     constructor(obj?: any);
 }
+export declare const flags: any;
 export declare const models: any;

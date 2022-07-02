@@ -37,6 +37,8 @@ class Request
 
     private ?array $dataTypes = null;
 
+    private bool $hasRelations = false;
+
     /**
      * @param array $array
      * @param User|null $user
@@ -81,6 +83,7 @@ class Request
                     $relations = array();
                     //$flags = array(Entity::NORMAL);
                     if(isset($this->data[$key]["relations"])){
+                        $this->hasRelations = true;
                         foreach($this->data[$key]["relations"] as $flag => $relation){
                             if($this->object->hasConstant(strtoupper($flag))){
                                 $this->flags[] = $relation;
@@ -169,9 +172,17 @@ class Request
                 break;
             case "remove":
                 if($id == null) throw new NotNullable("id");
-                $object = Entity::arrayToObject(object: $object_name, id: $id);
-                $object = $object->remove();
-                $objects[] = $object;
+                $objects_find = Entity::__find(fields: array("id" => $id, "available" => Availability::BOTH), table: $obj->getTable(), class: $object_name, flags: $flags);
+                if($objects_find->size() > 0) {
+                    $object = $objects_find[0];
+                    $object = Entity::arrayToRelations($object, $relations, remove: true);
+                    if (!$this->hasRelations) {
+                        $object = $object->remove();
+                    } else {
+                        $object->store();
+                    }
+                    $objects[] = $object;
+                }
                 break;
             default:
                 (new Response(status: false, description: API_MESSAGES::ACTION_UNKNOWN))->encode(print: true);

@@ -105,7 +105,7 @@ class User extends Entity
             $this->punishments = new PunishmentsArray();
             $query = $database->query("SELECT id FROM PUNISHMENT WHERE user = $id;");
             while($row = $query->fetch_array()){
-                $this->punishments[] = new Punishment($row["id"]);
+                $this->punishments->append(new Punishment($row["id"]));
             }
         }
         if($this->hasFlag(self::LOGS)){
@@ -982,7 +982,7 @@ class User extends Entity
      */
     public function removePunishment(Punishment $entity = null, int $id = null): User
     {
-        if($this->punishments == null) throw new NotInitialized("punishments");
+        if($this->punishments === null) throw new NotInitialized("punishments");
         $remove = array();
         if($entity != null){
             for ($i = 0; $i < count($this->punishments); $i++) {

@@ -37,7 +37,8 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
             ?>
             <div class="cyrus-input-group group-input-text">
                 <textarea class="cyrus-minimal group-input" data-form="<?php echo $formName; ?>"
-                          data-name="<?php echo $fieldName ?>" value='' onkeyup="this.setAttribute('value', this.value);"
+                          data-name="<?php echo $fieldName ?>" value=''
+                          onkeyup="this.setAttribute('value', this.value);"
                           autocomplete="new-password"></textarea>
                 <span class="cyrus-floating-label"><?php echo $displayName ?></span>
             </div>
@@ -170,7 +171,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
 
             <?php
             break;
-        case "sex":
+        /*case "sex":
             ?>
             <div class="cyrus-input-group group-input-text">
                 <div class="dropdown no-select">
@@ -192,8 +193,8 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
             </div>
 
             <?php
-            break;
-        case "availability":
+            break;*/
+        /*case "availability":
             ?>
             <div class="cyrus-input-group group-input-text">
                 <div class="dropdown no-select">
@@ -215,7 +216,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
             </div>
 
             <?php
-            break;
+            break;*/
         /*case "verification":
             ?>
             "<div class="cyrus-input-group group-input-text">
@@ -307,6 +308,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
             break;*/
         case "relation-full":
             ?>
+
             <div class="group-section-subitem" data-form="<?php echo $formName; ?>" data-isMultiple="true"
                  data-name="<?php echo $fieldName ?>" data-selectedSection="1">
                 <div class="group-section-subitem-header">
@@ -316,19 +318,11 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                     </button>
                 </div>
                 <div class="collapse" id="relations_<?php echo $displayName ?>">
-                    <div class = "model-existingRelations mb-4">
+                    <div class="model-existingRelations mb-4">
                         <div class="cyrus-input-group" data-form="<?php echo $formName; ?>" data-isDetailed="true"
                              data-name="<?php echo $fieldName ?>" data-object="null">
-                            <div class="model-update-details-removed cyrus-item-hidden">
-                                <div class="w-100 text-center p-3">Removido</div>
-                            </div>
-                            <div class="model-update-details-items" title="Apagar" data-childentity="<?php echo $fieldName?>">
-                                <div class = "model-update-details">
-                                    <b>ID</b>: 54; <b>Name</b>: Attack on Titan
-                                </div>
-                                <div class = "model-update-details">
-                                    <b>ID</b>: 54; <b>Name</b>: Attack on Titan
-                                </div>
+                            <div class="model-update-details-items" title="Apagar"
+                                 data-childentity="<?php echo $fieldName ?>">
                             </div>
                             <span class="cyrus-floating-label cyrus-floating-label-float-textarea">Relações Existentes</span>
                         </div>
@@ -362,7 +356,12 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                         }
                         ?>
                     </div>
-                    <button type = "button" class = "mt-4 float-end cyrus-btn cyrus-btn-type2" data-entity="<?php echo strtolower(str_replace("Objects\\", "", $relationEntity))?>" data-entityChild = "<?php echo strtolower($entity_name); ?>" data-relation = "<?php echo strtolower($displayName);?>" data-form = "<?php echo strtolower($entity_name) . "_update_relations";?>">Guardar Relação</button>
+                    <button type="button" class="mt-4 float-end cyrus-btn cyrus-btn-type2"
+                            data-entity="<?php echo strtolower(str_replace("Objects\\", "", $relationEntity)) ?>"
+                            data-entityChild="<?php echo strtolower($entity_name); ?>"
+                            data-relation="<?php echo strtolower($displayName); ?>"
+                            data-form="<?php echo strtolower($entity_name) . "_update_relations"; ?>">Guardar Relação
+                    </button>
                 </div>
             </div>
 
@@ -370,9 +369,37 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
             <?php
             break;
         default:
-            if(class_exists("Enumerators\\" . $model)){
+
+            if ($childEntity !== null) {
                 ?>
 
+
+                <div class="group-section-subitem" data-form="<?php echo $formName; ?>" data-isMultiple="true"
+                data-name="<?php echo $fieldName ?>" data-selectedSection="1">
+                <div class="group-section-subitem-header">
+                    <span class="group-section-subitem-title"><?php echo $displayName ?></span>
+                    <button class="cyrus-btn cyrus-btn-type2" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#relations_<?php echo $displayName ?>">Expandir
+                    </button>
+                </div>
+                <div class="collapse" id="relations_<?php echo $displayName ?>">
+                <div class="model-existingRelations mb-4">
+                    <div class="cyrus-input-group" data-form="<?php echo $formName; ?>" data-isDetailed="true"
+                         data-name="<?php echo $fieldName ?>" data-object="null">
+                        <div class="model-update-details-items" title="Apagar"
+                             data-childentity="<?php echo $fieldName ?>">
+                        </div>
+                        <span class="cyrus-floating-label cyrus-floating-label-float-textarea">Relações Existentes</span>
+                    </div>
+                </div>
+                <div class="model" data-model="relation-full">
+                <span class="cyrus-floating-label cyrus-floating-label-float-textarea">Adicionar Relação</span>
+
+                <?php
+            }
+
+            if (class_exists("Enumerators\\" . $model) || ($childEntity !== null && str_contains($childEntity, "EnumeratorS") && class_exists($childEntity))) {
+                ?>
                 <div class="cyrus-input-group group-input-text">
                     <div class="dropdown no-select">
                         <div class="dropdown-toggle w-100" type="button" id="dropdownMenuButton1"
@@ -384,8 +411,8 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                             <?php
 
 
-                            $entity_name = $model;
-                            $entity_enum = "Enumerators\\" . $model;
+                            $entity_name = class_exists("Enumerators\\" . $model) ? $model : str_replace("Enumerators\\", "", $childEntity);
+                            $entity_enum = class_exists("Enumerators\\" . $model) ? "Enumerators\\" . $model : $childEntity;
                             $entity = new ReflectionEnum($entity_enum);
                             $cases = $entity->getCases();
                             foreach ($cases as $item) {
@@ -400,11 +427,10 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                             ?>
                         </ul>
                     </div>
-                    <span class="cyrus-floating-label cyrus-floating-label-float">Verified</span>
+                    <span class="cyrus-floating-label cyrus-floating-label-float"><?php echo $displayName; ?></span>
                 </div>
-
                 <?php
-            } else if(class_exists("Objects\\" . $model)){
+            } else if (class_exists("Objects\\" . $model) || ($childEntity !== null && str_contains($childEntity, "Objects") && class_exists($childEntity))) {
                 ?>
                 <div class="cyrus-input-group group-input-text">
                     <div class="dropdown no-select">
@@ -415,19 +441,23 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                         </div>
                         <ul class="dropdown-menu no-select" aria-labelledby="">
                             <?php
-                            $entity_name = $model;
-                            $entity_class = "Objects\\" . $model;
+
+                            $entity_name = class_exists("Objects\\" . $model) ? $model : str_replace("Objects\\", "", $childEntity);
+                            $entity_class = class_exists("Objects\\" . $model) ? "Objects\\" . $model : $childEntity;
+
+                            /*$entity_name = $model;
+                            $entity_class = "Objects\\" . $model;*/
                             $entity = new ReflectionClass($entity_class);
                             $entities = $entity->getMethod("find")->invoke(null);
                             foreach ($entities as $item) {
                                 echo '<li data-id = "' . $item->getId() . '">';
-                                if(strtolower($entity_name) === "language") {
+                                if (strtolower($entity_name) === "language") {
                                     echo $item->getOriginalName() . " (" . $item->getCode() . ")";
-                                } else if($entity->hasMethod("getName")) {
+                                } else if ($entity->hasMethod("getName")) {
                                     echo $item->getName();
-                                } else if ($entity->hasMethod("getUsername")){
+                                } else if ($entity->hasMethod("getUsername")) {
                                     echo $item->getUsername();
-                                } else if ($entity->hasMethod("getTitle")){
+                                } else if ($entity->hasMethod("getTitle")) {
                                     echo $item->getTitle();
                                 }
                                 echo '</li>';
@@ -439,6 +469,20 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                 </div>
 
                 <?php
+            }
+            if ($childEntity !== null) {
+                ?>
+                </div>
+                <button type="button" class="mt-4 float-end cyrus-btn cyrus-btn-type2"
+                        data-entity="<?php echo strtolower(str_replace("Objects\\", "", $relationEntity)) ?>"
+                        data-entityChild="<?php echo strtolower($entity_name); ?>"
+                        data-relation="<?php echo strtolower($displayName); ?>"
+                        data-form="<?php echo strtolower($entity_name) . "_update_relations"; ?>">Guardar Relação
+                </button>
+                </div>
+                </div>
+                <?php
+
             }
             break;
     }

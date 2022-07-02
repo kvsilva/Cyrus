@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Request as API } from "../../../resources/js/Request";
-import { Availability, Language, UserFlags } from "../../../resources/js/models";
+import { Availability, flags, Language, UserFlags } from "../../../resources/js/models";
 import { cyrusAlert } from "../../../resources/js/cyrus";
 let entity;
 let rows = [];
@@ -34,6 +34,8 @@ $(document).ready(function () {
                     let id = item === null || item === void 0 ? void 0 : item.id;
                     let originalItem = result.original[i];
                     for (const index in originalItem) {
+                        if (flags[entity + "Flags"] !== undefined && (index.toUpperCase() in flags[entity + "Flags"] || index.replace("_", "").toUpperCase() in flags[entity + "Flags"]))
+                            continue;
                         let td = $("<td>").attr("class", "cyrus-scrollbar backoffice-td");
                         let value;
                         if (item[index] !== null && typeof item[index] === 'object' && !Array.isArray(item[index])) {
@@ -90,24 +92,19 @@ $(document).ready(function () {
             $(this).click(function () {
                 let id = $("#btn-details-relations").data("id");
                 $(this).data("id", id);
-                API.requestType(entity, "query", { "id": id, "available": Availability.BOTH }, [UserFlags.ALL.name]).then((result) => {
+                API.requestType(entity, "query", {
+                    "id": id,
+                    "available": Availability.BOTH
+                }, [UserFlags.ALL.name]).then((result) => {
+                    var _a;
                     if (result.status && result.data) {
                         for (let i = 0; i < result.data.length; i++) {
                             let item = result.data[i];
                             for (const index in item) {
                                 if (item[index] !== null && Array.isArray(item[index])) {
-                                    let relation = index;
-                                    let relationItems = $(".model-update-details-items[data-childentity='" + relation + "']");
+                                    let relationItems = $(".model-update-details-items[data-childentity='" + index + "']");
                                     for (let i = 0; i < item[index].length; i++) {
-                                        /*
-                                        *
-                                        * <div class = "model-update-details">
-                                    <b>ID</b>: 54; <b>Name</b>: Attack on Titan
-                                </div>
-                                        *
-                                        * */
                                         let element = $("<div>").attr("class", "model-update-details");
-                                        let isFirst = true;
                                         for (const index3 in item[index][i]) {
                                             if (item[index][i][index3] !== null) {
                                                 let item3 = item[index][i][index3];
@@ -132,11 +129,33 @@ $(document).ready(function () {
                                                     value = "(Nenhum)";
                                                 element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
                                             }
-                                            isFirst = false;
                                         }
+                                        element.data("childentity", index);
+                                        element.data("id", item === null || item === void 0 ? void 0 : item.id);
+                                        element.data("relationid", (_a = item[index][i]) === null || _a === void 0 ? void 0 : _a.id);
+                                        element.click(function () {
+                                            let childEntity = $(this).data("childentity");
+                                            let entityID = $(this).data("id");
+                                            let relationID = $(this).data("relationid");
+                                            let formData = {
+                                                "id": entityID,
+                                                "relations": {}
+                                            };
+                                            formData["relations"][childEntity] = [{
+                                                    "id": relationID
+                                                }];
+                                            API.requestType(entity, "remove", formData).then((result) => {
+                                                if (result.status) {
+                                                    cyrusAlert("success", result.description);
+                                                }
+                                                else {
+                                                    cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
+                                                    console.error(result);
+                                                }
+                                                detailsModal.hide();
+                                            });
+                                        });
                                         relationItems.append(element);
-                                        console.log(element);
-                                        console.log($(element)[0]);
                                     }
                                 }
                             }

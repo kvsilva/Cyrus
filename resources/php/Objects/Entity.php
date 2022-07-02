@@ -161,7 +161,7 @@ abstract class Entity
     /**
      * @throws ReflectionException
      */
-    public function arrayRelations(?array $relations) : void
+    public function arrayRelations(?array $relations, bool $remove = false) : void
     {
         if ($relations != null) {
             foreach ($relations as $key => $value) {
@@ -173,13 +173,20 @@ abstract class Entity
                     if (!$this->hasFlag($const)) {
                         $this->flags[] = $const;
                         if ($this->getId() != null) $this->buildRelations();
-                        $this->setRelation($const, (new ReflectionClass($array_name))->newInstanceArgs());
-
+                        //$this->setRelation($const, (new ReflectionClass($array_name))->newInstanceArgs());
                     }
-                    foreach ($value as $relation_array) {
-                        if (sizeof($relation_array) == 0) continue;
-                        $obj = static::arrayToObject(object: $object_name, array: $relation_array);
-                        $this->addRelation($const, $obj);
+                    if(!$remove) {
+                        foreach ($value as $relation_array) {
+                            if (sizeof($relation_array) == 0) continue;
+                            $obj = static::arrayToObject(object: $object_name, array: $relation_array);
+                            $this->addRelation($const, $obj);
+                        }
+                    } else {
+                        foreach ($value as $relation_array) {
+                            if (sizeof($relation_array) == 0) continue;
+                            $obj = static::arrayToObject(object: $object_name, array: $relation_array);
+                            $this->removeRelation($const, $obj);
+                        }
                     }
                 } else {
                     if (!$this->hasFlag($const)) {
@@ -234,10 +241,10 @@ abstract class Entity
     /**
      * @throws ReflectionException
      */
-    public static function arrayToRelations(Entity $object, array $array, int $id = null, array $flags = array(self::NORMAL)) : Entity
+    public static function arrayToRelations(Entity $object, array $array, int $id = null, array $flags = array(self::NORMAL), bool $remove = false) : Entity
     {
         if($array != null && sizeof($array) > 0) {
-            $object->arrayRelations($array);
+            $object->arrayRelations($array, $remove);
         }
         return $object; // is Entity
     }

@@ -1,5 +1,5 @@
 import {Request as API} from "../../../resources/js/Request";
-import {Availability, Language, UserFlags} from "../../../resources/js/models";
+import {Availability, flags, Language, UserFlags} from "../../../resources/js/models";
 import {Modal} from "bootstrap";
 import {cyrusAlert} from "../../../resources/js/cyrus";
 
@@ -18,7 +18,7 @@ $(document).ready(async function () {
     // @ts-ignore
     updateModal = new bootstrap.Modal($("#updateModal"), {});
     // @ts-ignore
-    if($("#relationsModal").length > 0) relationsModal = new bootstrap.Modal($("#relationsModal"), {});
+    if ($("#relationsModal").length > 0) relationsModal = new bootstrap.Modal($("#relationsModal"), {});
     await API.requestType(entity, "query", {"available": Availability.BOTH}).then((result: any) => {
         if (result.status && result.data) {
             for (let i = 0; i < result.data.length; i++) {
@@ -29,8 +29,10 @@ $(document).ready(async function () {
                 let originalItem = result.original[i];
 
                 for (const index in originalItem) {
+                    if(flags[entity + "Flags"] !== undefined && (index.toUpperCase() in flags[entity + "Flags"] || index.replace("_","").toUpperCase() in flags[entity + "Flags"])) continue;
                     let td = $("<td>").attr("class", "cyrus-scrollbar backoffice-td");
                     let value;
+
                     if (item[index] !== null && typeof item[index] === 'object' && !Array.isArray(item[index])) {
                         if (item[index] instanceof Language) {
                             value = item[index].original_name + " (" + item[index].code + ")";
@@ -91,60 +93,79 @@ $(document).ready(async function () {
 
         detailsModal.show();
     });
-    $("#btn-details-relations").each(function(){
-        $(this).click(function() {
+    $("#btn-details-relations").each(function () {
+        $(this).click(function () {
             let id = $("#btn-details-relations").data("id");
             $(this).data("id", id);
 
-            API.requestType(entity, "query", {"id": id, "available": Availability.BOTH}, [UserFlags.ALL.name]).then((result: any) => {
+            API.requestType(entity, "query", {
+                "id": id,
+                "available": Availability.BOTH
+            }, [UserFlags.ALL.name]).then((result: any) => {
                 if (result.status && result.data) {
                     for (let i = 0; i < result.data.length; i++) {
                         let item = result.data[i];
-                        for(const index in item){
-                            if(item[index] !== null && Array.isArray(item[index])){
-                                    let relation = index;
-                                    let relationItems = $(".model-update-details-items[data-childentity='"+ relation +"']");
-                                    for(let i = 0; i < item[index].length;i++){
-                                        /*
-                                        *
-                                        * <div class = "model-update-details">
-                                    <b>ID</b>: 54; <b>Name</b>: Attack on Titan
-                                </div>
-                                        *
-                                        * */
-                                        let element = $("<div>").attr("class","model-update-details")
-                                        let isFirst : boolean = true;
-                                        for (const index3 in item[index][i]){
-                                            if(item[index][i][index3]!== null){
-                                                let item3 = item[index][i][index3];
-                                                let value;
-                                                if(item3 !== null && item3 !== undefined && typeof item3 === 'object') {
-                                                    if ("name" in item3) {
-                                                        value = item3.name;
-                                                    }
-                                                    if ("path" in item3) {
-                                                        value = item3.path;
-                                                    }
-                                                } else value = item3;
-                                                let name : String | String[] = index3;
+                        for (const index in item) {
+                            if (item[index] !== null && Array.isArray(item[index])) {
+                                let relationItems = $(".model-update-details-items[data-childentity='" + index + "']");
+                                for (let i = 0; i < item[index].length; i++) {
+                                    let element = $("<div>").attr("class", "model-update-details")
+                                    for (const index3 in item[index][i]) {
+                                        if (item[index][i][index3] !== null) {
+                                            let item3 = item[index][i][index3];
+                                            let value;
+                                            if (item3 !== null && item3 !== undefined && typeof item3 === 'object') {
+                                                if ("name" in item3) {
+                                                    value = item3.name;
+                                                }
+                                                if ("path" in item3) {
+                                                    value = item3.path;
+                                                }
+                                            } else value = item3;
+                                            let name: String | String[] = index3;
 
-                                                name = name.replace("_", " ");
+                                            name = name.replace("_", " ");
 
-                                                name = name.split(" ");
+                                            name = name.split(" ");
 
 
-                                                name = name.map((word) => {
-                                                    return word[0].toUpperCase() + word.substring(1);
-                                                }).join(" ");
-                                                if(value === undefined || value === null) value = "(Nenhum)";
-                                                element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
-                                            }
-                                            isFirst = false;
+                                            name = name.map((word) => {
+                                                return word[0].toUpperCase() + word.substring(1);
+                                            }).join(" ");
+                                            if (value === undefined || value === null) value = "(Nenhum)";
+                                            element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
                                         }
-                                        relationItems.append(element);
-                                        console.log(element);
-                                        console.log($(element)[0]);
                                     }
+                                    element.data("childentity", index);
+                                    element.data("id", item?.id);
+                                    element.data("relationid", item[index][i]?.id);
+                                    element.click(function () {
+                                        let childEntity : string = $(this).data("childentity");
+                                        let entityID : string = $(this).data("id");
+                                        let relationID : string = $(this).data("relationid");
+
+
+                                        let formData : any[string]= {
+                                            "id": entityID,
+                                            "relations": {}
+                                        };
+                                        formData["relations"][childEntity] = [{
+                                            "id": relationID
+                                        }];
+
+                                        API.requestType(entity, "remove", formData).then((result: any) => {
+                                            if (result.status) {
+                                                cyrusAlert("success", result.description);
+                                            } else {
+                                                cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
+                                                console.error(result);
+                                            }
+                                            detailsModal.hide();
+                                        });
+
+                                    })
+                                    relationItems.append(element);
+                                }
 
                             }
                         }
@@ -184,23 +205,23 @@ $(document).ready(async function () {
                         $(this).trigger("click");
                     }
                 });
-            } else if ($(this).data("isdetailed")){
+            } else if ($(this).data("isdetailed")) {
                 let object = "null";
                 $(this).find(".model-update-details-items").removeClass("cyrus-item-hidden");
                 //$(".model-update-details-removed").addClass("cyrus-item-hidden");
-                if(rows[id].original[name] !== null) {
+                if (rows[id].original[name] !== null) {
                     object = JSON.stringify(rows[id].original[name]);
-                    for(const index in rows[id].original[name]){
-                        $(this).find("[data-item='"+ index +"']").html(rows[id].original[name][index]);
+                    for (const index in rows[id].original[name]) {
+                        $(this).find("[data-item='" + index + "']").html(rows[id].original[name][index]);
                     }
-                    $(this).click(function(){
+                    $(this).click(function () {
                         $(this).data("object", "null");
                         $(this).find(".model-update-details-removed").find("div").text("(Removido)");
                         $(this).find(".model-update-details-removed").removeClass("cyrus-item-hidden");
                         $(this).find(".model-update-details-items").addClass("cyrus-item-hidden");
                     });
                 } else {
-                        $(this).find(".model-update-details-removed").find("div").text("(Nenhum)");
+                    $(this).find(".model-update-details-removed").find("div").text("(Nenhum)");
                     $(this).find(".model-update-details-removed").removeClass("cyrus-item-hidden");
                     $(this).off("click");
                     $(this).find(".model-update-details-items").addClass("cyrus-item-hidden");
@@ -223,8 +244,8 @@ $(document).ready(async function () {
         });
     });
 
-    $("button[data-relation]").click(function(){
-        let entityID : any = $("#btn-details-relations").data("id");
+    $("button[data-relation]").click(function () {
+        let entityID: any = $("#btn-details-relations").data("id");
         let formName: string = $(this).data("form");
         //let entityChild: string = $(this).data("entitychild");
         let relation: string = $(this).data("relation");
@@ -233,9 +254,7 @@ $(document).ready(async function () {
         createDataArray(formName, formData, "").then(value => {
             formData = {
                 "id": entityID,
-                "relations": {
-
-                }
+                "relations": {}
             };
             formData["relations"][relation] = [value];
             console.log(formData);
@@ -331,8 +350,8 @@ async function createDataArray(formName: string, formData: any[string], action: 
                     }
                 } else if ($(this).data("isdropdown")) {
                     value = $(this).data("selected");
-                }else if ($(this).data("isdetailed")) {
-                    if(action === "update") {
+                } else if ($(this).data("isdetailed")) {
+                    if (action === "update") {
                         let entityId = $("#btn-update").data("id");
                         let name = $(this).data("name");
                         let item = rows[entityId].original;
@@ -394,46 +413,47 @@ async function createDataArray(formName: string, formData: any[string], action: 
     }
 
 
-    if(action === "update"){
+    if (action === "update") {
         let entityId = $("#btn-update").data("id");
         let item = rows[entityId].original;
         formData = compareRecords(item, formData);
-        for(const index in formData){
-            if(formData[index] === undefined) delete formData[index];
+        for (const index in formData) {
+            if (formData[index] === undefined) delete formData[index];
         }
-        if(formData === undefined) {
+        if (formData === undefined) {
             formData = {id: entityId};
         } else formData["id"] = entityId;
     }
-    let ret : {} = {};
-    for(const index in formData) {
+    let ret: {} = {};
+    for (const index in formData) {
         // @ts-ignore
         ret[index] = formData[index];
     }
 
     return ret;
 }
+
 // [B]efore
 // [N]ew
-function compareRecords(b: any, n: any){
+function compareRecords(b: any, n: any) {
     let data: any[string];
-    for(const index in b){
-        if(n !== undefined && b[index] !== null && typeof b[index] === 'object'){
+    for (const index in b) {
+        if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
             n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
         } else {
-            if(b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]){
+            if (b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]) {
                 n[index] = undefined;
             }
         }
-        if(data === undefined) data = [];
+        if (data === undefined) data = [];
         data[index] = n !== undefined ? (n !== null ? n[index] : null) : undefined;
     }
     let isUndefined = true;
-    for(const index in data){
-        if(data[index] !== undefined){
+    for (const index in data) {
+        if (data[index] !== undefined) {
             isUndefined = false;
         }
     }
-    if(isUndefined) return undefined;
+    if (isUndefined) return undefined;
     return data;
 }

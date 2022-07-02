@@ -96,6 +96,7 @@ class Models
             fwrite($file, $enumerator);
         }
         $models = "export const models : any = { \n";
+        $consts = "export const flags : any = { \n";
         $countObj = 0;
         foreach(self::Objects as $object){
             $countObj++;
@@ -156,10 +157,15 @@ class Models
                     if (count($reflection->getConstants()) > $count) $const .= ",\n";
                 }
                 $const .= "\n};\n";
+                $consts .= '    "'.$objectName . 'Flags" : ' . $objectName . "Flags,";
+                $consts .= "\n";
                 fwrite($file, $const);
             }
         }
         $models .= "}";
+        $consts = rtrim($consts, ",\n");
+        $consts .= "\n}\n";
+        fwrite($file, $consts);
         fwrite($file, $models);
     }
 

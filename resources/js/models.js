@@ -450,6 +450,32 @@ export class APIWebFile {
         this.web_path = (obj_.web_path !== undefined) ? obj_.web_path : null;
     }
 }
+export const flags = {
+    "GlobalSettingFlags": GlobalSettingFlags,
+    "ResourceFlags": ResourceFlags,
+    "LanguageFlags": LanguageFlags,
+    "UserFlags": UserFlags,
+    "SourceTypeFlags": SourceTypeFlags,
+    "AudienceFlags": AudienceFlags,
+    "AnimeFlags": AnimeFlags,
+    "SeasonFlags": SeasonFlags,
+    "VideoTypeFlags": VideoTypeFlags,
+    "VideoFlags": VideoFlags,
+    "SubtitleFlags": SubtitleFlags,
+    "DubbingFlags": DubbingFlags,
+    "PunishmentTypeFlags": PunishmentTypeFlags,
+    "PunishmentFlags": PunishmentFlags,
+    "GenderFlags": GenderFlags,
+    "TicketStatusFlags": TicketStatusFlags,
+    "TicketFlags": TicketFlags,
+    "TicketMessageFlags": TicketMessageFlags,
+    "RoleFlags": RoleFlags,
+    "PermissionFlags": PermissionFlags,
+    "AccountPlanFlags": AccountPlanFlags,
+    "AccountPurchaseFlags": AccountPurchaseFlags,
+    "LogActionFlags": LogActionFlags,
+    "LogFlags": LogFlags
+};
 export const models = {
     "GlobalSetting": GlobalSetting,
     "Resource": Resource,
