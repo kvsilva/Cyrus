@@ -1281,17 +1281,26 @@ class User extends Entity
                 break;
             }
         }
+        if($date === null){
+            $date = new DateTime();
+        }
         if($founded){
-            if($watched_until === null){
-                $query = $this->getDatabase()->query("SELECT watched_until FROM history where user = " . $this->getId());
-                if($query->num_rows > 0){
+            if($watched_until === null) {
+                $query = $this->getDatabase()->query("SELECT watched_until FROM history where video = " . $video . " AND user = " . $this->getId());
+                if ($query->num_rows > 0) {
                     $watched_until = $query->fetch_array()["watched_until"];
                 } else $watched_until = 0;
             }
-            if($date === null){
-                $date = new DateTime();
-            }
             unset($this->video_history[$i]);
+            $this->video_history[] = array(
+                "video" => new Video(id: $video),
+                "date"=> $date,
+                "watched_until"=> $watched_until
+            );
+        } else {
+            if($watched_until === null){
+                $watched_until = 0;
+            }
             $this->video_history[] = array(
                 "video" => new Video(id: $video),
                 "date"=> $date,

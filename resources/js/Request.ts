@@ -41,14 +41,16 @@ export class Request {
         });
     }
 
-    public static requestType(target: string, action: any, data: {} = {}, flags: string[] = []) {
-        return this.sendRequest({
+    public static requestType(target: string, action: any, data: {} = {}, flags: string[] = [], minimal: boolean | null = null) {
+        let request : any[string] = {
             "type": target,
             "action": action,
             "dataTypes": true,
             "flags": flags,
             "data": [data]
-        });
+        };
+        if(minimal !== null) request["minimal"] = minimal;
+        return this.sendRequest(request);
     }
 
     public static uploadFile(file: File) {

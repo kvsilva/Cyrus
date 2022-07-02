@@ -117,18 +117,27 @@ abstract class Entity
                         }
                         //$value_type = gettype($value) == "object" ? get_class($value) : gettype($value);
                         if (isset($type)) {
-                            if ($value == "" || $value === null) {
+                            if ($value === null || $value === "") {
                                 $this->{$key} = null;
                             } else if (str_contains(strtolower($type), "datetime")) {
-                                $value = str_replace("/","-", $value);
-                                $date = DateTime::createFromFormat(Database::DateFormat, $value);
-                                if (is_bool($date)){
-                                    $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
-                                    if(is_bool($date)){
-                                        $date = DateTime::createFromFormat(Database::TimeFormat, $value);
-                                        if(is_bool($date)) $date = null;
-                                    }
+                                preg_match_all('!\d+!', $value, $matches);
+                                $process = false;
+                                foreach($matches[0] as $m){
+                                    if($m != 0) $process = true;
                                 }
+                                if($process) {
+                                    $value = str_replace("/", "-", $value);
+                                    $date = DateTime::createFromFormat(Database::DateFormat, $value);
+                                    if (is_bool($date)) {
+                                        $date = DateTime::createFromFormat(Database::DateFormatSimplified, $value);
+                                        if (is_bool($date)) {
+                                            $date = DateTime::createFromFormat(Database::TimeFormat, $value);
+                                            if (is_bool($date)) $date = null;
+                                        }
+                                    }
+                                } else $date = null;
+
+
                                 $this->{$key} = $date;
                             } else if (str_contains(strtolower($type), "objects\\")) {
                                 $name = substr(strtolower($type), 1);

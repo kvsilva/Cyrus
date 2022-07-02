@@ -94,7 +94,10 @@ $objects = array(
         "relations" => array(
             "videos" => array(
                 "model" => "relation-full",
-                "class" => "Objects\Video"
+                "class" => "Objects\Video",
+                "ignore" => array(
+                        "anime", "season"
+                )
             ),
             "seasons" => array(
                 "model" => "relation-full",
@@ -296,7 +299,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                                     $model = $data["model"];
                                                                     $obj = $data["class"];
                                                                     //echoModelFor($model, array(strtolower($entity_name) . "_update_relations", "teste", ucfirst(strtolower($relation)), $obj));
-                                                                    echoModelFor(model: $model, formName: $entity_name . "_update_relations", fieldName: $relation, displayName: ucfirst(strtolower($relation)), relationEntity: $entity_class, childEntity: $obj);
+                                                                    echoModelFor(model: $model, formName: strtolower($entity_name) . "_update_relations", fieldName: $relation, displayName: ucfirst(strtolower($relation)), relationEntity: $entity_class, childEntity: $obj, objects: $objects);
 
                                                                 }
                                                             }

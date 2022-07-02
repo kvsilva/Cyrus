@@ -20,7 +20,7 @@ $(document).ready(function(){
                                 }
                             ]
                     }
-                }, [UserFlags.VIDEOHISTORY.name]).then((result: any) => {
+                }, [UserFlags.VIDEOHISTORY.name], false).then((result: any) => {
                     if (result.status) {
                         if ("data" in result) {
                             let loc : any[] = result.data[0].video_history?.filter((value: any) => value.video?.id == parseInt(<string>getParameter("episode")));

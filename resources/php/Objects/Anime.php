@@ -161,8 +161,8 @@ class Anime extends Entity
             $query = $database->query("SELECT gender as 'id' FROM anime_gender WHERE anime = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
-                foreach ($this->videos as $video) {
-                    if ($video->getId() == $row["id"]) {
+                foreach ($this->genders as $gender) {
+                    if ($gender->getId() == $row["id"]) {
                         $remove = false;
                         break;
                     }
@@ -224,7 +224,7 @@ class Anime extends Entity
             "launch_time" => $this->launch_time?->format(Database::TimeFormat),
             "source" => $this->source?->store()->getId(),
             "audience" => $this->audience?->store()->getId(),
-            "trailer" => $this->trailer,
+            "trailer" => $this->trailer !== null ? str_replace("watch?v=", "embed/",$this->trailer) : null,
             "available" => $this->available?->value
         );
     }
@@ -264,6 +264,11 @@ class Anime extends Entity
                 $array["genders"] = array();
                 foreach ($this->genders as $value) $array["genders"][] = $value->toArray();
             }
+            $array["seasons"] = null;
+            if ($this->seasons != null) {
+                $array["seasons"] = array();
+                foreach ($this->seasons as $value) $array["seasons"][] = $value->toArray();
+            }
         }
         return $array;
     }
@@ -298,6 +303,11 @@ class Anime extends Entity
             if ($this->genders != null) {
                 $array["genders"] = array();
                 foreach ($this->genders as $value) $array["genders"][] = $value;
+            }
+            $array["seasons"] = null;
+            if ($this->seasons != null) {
+                $array["seasons"] = array();
+                foreach ($this->seasons as $value) $array["seasons"][] = $value->toArray();
             }
         }
         return $array;

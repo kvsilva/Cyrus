@@ -17,7 +17,7 @@ $(document).ready(function () {
                             }
                         ]
                     }
-                }, [UserFlags.VIDEOHISTORY.name]).then((result) => {
+                }, [UserFlags.VIDEOHISTORY.name], false).then((result) => {
                     var _a, _b;
                     if (result.status) {
                         if ("data" in result) {

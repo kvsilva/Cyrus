@@ -219,19 +219,17 @@ class Video extends Entity
             "opening_end"=> $this->opening_end,
             "ending_start" => $this->ending_start,
             "ending_end" => $this->ending_end,
-            "path" => $this->path,
-            "available" => $this->available?->toArray(),
-            "anime" => $this->anime?->toArray(),
-            "season" => $this->season?->toArray()
+            "path" => $this->path?->toArray(),
+            "available" => $this->available?->toArray()
         );
         if(!$minimal){
             $array["anime"] = $this->anime?->toArray();
             $array["season"] = $this->season?->toArray();
+            $array["subtitles"] = $this->subtitles != null ? array() : null;
+            if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value->toArray();
+            $array["dubbing"] = $this->dubbing != null ? array() : null;
+            if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
         }
-        $array["subtitles"] = $this->subtitles != null ? array() : null;
-        if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value->toArray();
-        $array["dubbing"] = $this->dubbing != null ? array() : null;
-        if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
         return $array;
     }
 
@@ -257,17 +255,15 @@ class Video extends Entity
             "ending_end" => $this->ending_end,
             "path" => $this->path,
             "available" => $this->available,
-            "anime" => $this->anime,
-            "season" => $this->season
         );
         if(!$minimal){
             $array["anime"] = $this->anime;
             $array["season"] = $this->season;
+            $array["subtitles"] = $this->subtitles != null ? array() : null;
+            if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value;
+            $array["dubbing"] = $this->dubbing != null ? array() : null;
+            if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value;
         }
-        $array["subtitles"] = $this->subtitles != null ? array() : null;
-        if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value;
-        $array["dubbing"] = $this->dubbing != null ? array() : null;
-        if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value;
         return $array;
     }
 

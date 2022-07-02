@@ -123,7 +123,6 @@ $(document).ready(function () {
                     "relations": {}
                 };
                 formData["relations"][relation] = [value];
-                console.log(formData);
                 API.requestType(entity, "update", formData).then((result) => {
                     if (result.status) {
                         cyrusAlert("success", result.description);
@@ -395,29 +394,39 @@ function updateRelations(id) {
                             for (let i = 0; i < item[index].length; i++) {
                                 let element = $("<div>").attr("class", "model-update-details");
                                 for (const index3 in item[index][i]) {
+                                    let item3 = item[index][i][index3];
+                                    let value;
                                     if (item[index][i][index3] !== null) {
-                                        let item3 = item[index][i][index3];
-                                        let value;
                                         if (item3 !== null && item3 !== undefined && typeof item3 === 'object') {
-                                            if ("name" in item3) {
-                                                value = item3.name;
-                                            }
                                             if ("path" in item3) {
                                                 value = item3.path;
+                                            }
+                                            else if ("title" in item3) {
+                                                value = item3.title;
+                                            }
+                                            else if ("name" in item3) {
+                                                value = item3.name;
+                                            }
+                                            else if ("username" in item3) {
+                                                value = item3.username;
                                             }
                                         }
                                         else
                                             value = item3;
-                                        let name = index3;
-                                        name = name.replace("_", " ");
-                                        name = name.split(" ");
-                                        name = name.map((word) => {
-                                            return word[0].toUpperCase() + word.substring(1);
-                                        }).join(" ");
-                                        if (value === undefined || value === null)
-                                            value = "(Nenhum)";
-                                        element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
                                     }
+                                    let name = index3;
+                                    name = name.replace("_", " ");
+                                    name = name.split(" ");
+                                    name = name.map((word) => {
+                                        return word[0].toUpperCase() + word.substring(1);
+                                    }).join(" ");
+                                    let loopFlags = flags[(index.charAt(0).toUpperCase() + index.slice(1)).substr(0, index.length - 1) + "Flags"];
+                                    let entityFlags = flags[entity + "Flags"];
+                                    if ((entityFlags !== undefined && (name.toUpperCase() in entityFlags || name.replace("_", "").toUpperCase() in entityFlags)) || (loopFlags !== undefined && (name.toUpperCase() in loopFlags || name.replace("_", "").toUpperCase() in loopFlags)))
+                                        continue;
+                                    if (value === undefined || value === null)
+                                        value = "(Nenhum)";
+                                    element.append(`<b>${name}</b>: ${value}&nbsp;&nbsp;&nbsp;`);
                                 }
                                 element.data("childentity", index);
                                 element.data("id", item === null || item === void 0 ? void 0 : item.id);

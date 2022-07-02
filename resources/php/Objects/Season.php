@@ -78,7 +78,7 @@ class Season extends Entity
      * @throws UniqueKey
      */
     public function store(Anime $anime) : Season{
-        parent::__store(values: array("anime" => $anime));
+        parent::__store(values: array("anime" => $anime->getId()));
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::VIDEOS)) {
@@ -148,7 +148,7 @@ class Season extends Entity
             "numeration" => $this->numeration,
             "name" => $this->name,
             "synopsis" => $this->synopsis,
-            "release_date" => $this->release_date != null ? Database::convertDateToDatabase($this->release_date) : null,
+            "release_date" => $this->release_date?->format(Database::DateFormatSimplified),
             "available" => $this->available?->toArray()
         );
         if(!$minimal) {

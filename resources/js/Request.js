@@ -23,14 +23,17 @@ export class Request {
             "data": [data]
         });
     }
-    static requestType(target, action, data = {}, flags = []) {
-        return this.sendRequest({
+    static requestType(target, action, data = {}, flags = [], minimal = null) {
+        let request = {
             "type": target,
             "action": action,
             "dataTypes": true,
             "flags": flags,
             "data": [data]
-        });
+        };
+        if (minimal !== null)
+            request["minimal"] = minimal;
+        return this.sendRequest(request);
     }
     static uploadFile(file) {
         return new Promise(function (resolve) {

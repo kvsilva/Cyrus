@@ -8,9 +8,6 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
 {
     switch (strtolower($model)) {
         case "string":
-            // 0: Nome do Formulário
-            // 1: Nome do Campo no Formulário
-            // 2: Nome do Label
             ?>
             <div class="cyrus-input-group group-input-text">
                 <input type="text" class="cyrus-minimal group-input" data-form="<?php echo $formName; ?>"
@@ -20,10 +17,17 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
             </div>
             <?php
             break;
+        case "int":
+            ?>
+            <div class="cyrus-input-group group-input-text">
+                <input type="number" class="cyrus-minimal group-input" data-form="<?php echo $formName; ?>"
+                       data-name="<?php echo $fieldName ?>" value='' onkeyup="this.setAttribute('value', this.value);"
+                       autocomplete="new-password">
+                <span class="cyrus-floating-label"><?php echo $displayName ?></span>
+            </div>
+            <?php
+            break;
         case "password":
-            // 0: Nome do Formulário
-            // 1: Nome do Campo no Formulário
-            // 2: Nome do Label
             ?>
             <div class="cyrus-input-group group-input-text">
                 <input type="password" class="cyrus-minimal group-input" data-form="<?php echo $formName; ?>"
@@ -334,6 +338,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                         $entity_class = "Objects\\" . $entity_name;
                         $entity = new ReflectionClass($entity_class);
                         $properties = $entity->getProperties();
+
                         foreach ($properties as $property) {
                             if ($property->isProtected()) {
                                 $type = $property->getType();
@@ -345,9 +350,17 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                                 $type = str_replace("DateTime", "date", $type);
                                 $field_name = $property->getName();
                                 $display_name = ucwords(str_replace("_", " ", $field_name));
-                                if (isset($objects[$entity_class])) {
-                                    if (isset($objects[$entity_class]["forceModel"][$field_name])) {
-                                        $type = $objects[$entity_class]["forceModel"][$field_name];
+                                if (isset($objects[$relationEntity])) {
+                                    if (isset($objects[$relationEntity]["forceModel"][$field_name])) {
+                                        $type = $objects[$relationEntity]["forceModel"][$field_name];
+                                    }
+
+                                    if (isset($objects[$relationEntity]["relations"][$fieldName])) {
+                                        $c = false;
+                                        foreach ($objects[$relationEntity]["relations"][$fieldName]["ignore"] as $item) {
+                                            if (strtolower($item) === strtolower($display_name)) $c = true;
+                                        }
+                                        if ($c) continue;
                                     }
                                 }
                                 //echoModelFor($type, array(strtolower($entity_name) . "_update_relations", $field_name, $display_name));
@@ -371,6 +384,9 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
         default:
 
             if ($childEntity !== null) {
+                $formName = str_replace("Objects\\", "", $childEntity);
+                $formName = str_replace("Enumerators\\", "", $formName);
+                $formName = strtolower($formName) . "_update_relations";
                 ?>
 
 
@@ -398,14 +414,14 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                 <?php
             }
 
-            if (class_exists("Enumerators\\" . $model) || ($childEntity !== null && str_contains($childEntity, "EnumeratorS") && class_exists($childEntity))) {
+            if (class_exists("Enumerators\\" . $model) || ($childEntity !== null && str_contains($childEntity, "Enumerators") && class_exists($childEntity))) {
                 ?>
                 <div class="cyrus-input-group group-input-text">
                     <div class="dropdown no-select">
                         <div class="dropdown-toggle w-100" type="button" id="dropdownMenuButton1"
                              data-bs-toggle="dropdown" aria-expanded="false">
                         <span data-isDropdown="true" data-form="<?php echo $formName; ?>"
-                              data-name="<?php echo $fieldName ?>" data-selected="null"></span>
+                              data-name="<?php echo ($childEntity !== null && str_contains($childEntity, "Objects") && class_exists($childEntity))?'id' : $fieldName ?>" data-selected="null"></span>
                         </div>
                         <ul class="dropdown-menu no-select " aria-labelledby="dropdownMenuButton1">
                             <?php
@@ -436,8 +452,8 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                     <div class="dropdown no-select">
                         <div class="dropdown-toggle w-100" type="button"
                              data-bs-toggle="dropdown" aria-expanded="false">
-                        <span data-isDropdown="true" data-form="<?php echo $formName; ?>"
-                              data-name="<?php echo $fieldName ?>" data-selected="null"></span>
+                            <span data-isDropdown="true" data-form="<?php echo $formName; ?>"
+                              data-name="<?php echo ($childEntity !== null && str_contains($childEntity, "Objects") && class_exists($childEntity))?'id' : $fieldName ?>" data-selected="null"></span>
                         </div>
                         <ul class="dropdown-menu no-select" aria-labelledby="">
                             <?php
