@@ -113,4 +113,42 @@ class Audience extends Entity
         );
     }
 
+    /**
+     * @return String|null
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param String|null $name
+     * @return Audience
+     */
+    public function setName(?string $name): Audience
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMinimumAge(): ?int
+    {
+        return $this->minimum_age;
+    }
+
+    /**
+     * @param int|null $minimum_age
+     * @return Audience
+     */
+    public function setMinimumAge(?int $minimum_age): Audience
+    {
+        $this->minimum_age = $minimum_age;
+        return $this;
+    }
+
+
+
 }

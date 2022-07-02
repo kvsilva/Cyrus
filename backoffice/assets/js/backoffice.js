@@ -25,37 +25,8 @@ $(document).ready(function () {
         // @ts-ignore
         if ($("#relationsModal").length > 0)
             relationsModal = new bootstrap.Modal($("#relationsModal"), {});
+        configDataTable();
         yield dataQuery();
-        // @ts-ignore
-        $('#query-table').DataTable({
-            buttons: [
-                { className: 'cyrus-btn' }
-            ],
-            language: {
-                "decimal": "",
-                "emptyTable": "Nenhum registo disponível para esta tabela",
-                "info": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
-                "infoEmpty": "Showing 0 to 0 of 0 entries",
-                "infoFiltered": "(filtrado de _MAX_ total de entradas)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "Mostrando _MENU_ entradas",
-                "loadingRecords": "Carregando...",
-                "processing": "",
-                "search": "Procurar:",
-                "zeroRecords": "Nenhum registo, que atenda à sua pesquisa, foi encontrado.",
-                "paginate": {
-                    "first": "Primeira",
-                    "last": "Última",
-                    "next": "Próxima",
-                    "previous": "Anterior"
-                },
-                "aria": {
-                    "sortAscending": ": ative para classificar a coluna em ordem crescente",
-                    "sortDescending": ": ative para classificar a coluna em ordem decrescente"
-                }
-            }
-        });
         $("#btn-details-relations").each(function () {
             $(this).click(function () {
                 let id = $("#btn-details-relations").data("id");
@@ -87,11 +58,13 @@ $(document).ready(function () {
                 }
                 else if ($(this).data("isdropdown")) {
                     $(this).parent().parent().find(".dropdown-menu li").each(function () {
-                        if ("id" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["id"]) {
-                            $(this).trigger("click");
-                        }
-                        else if ("value" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["value"]) {
-                            $(this).trigger("click");
+                        if (rows[id].original[name] !== null) {
+                            if ("id" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["id"]) {
+                                $(this).trigger("click");
+                            }
+                            else if ("value" in rows[id].original[name] && $(this).data("id") == rows[id].original[name]["value"]) {
+                                $(this).trigger("click");
+                            }
                         }
                     });
                 }
@@ -344,14 +317,51 @@ function createDataArray(formName, formData, action) {
 function compareRecords(b, n) {
     let data;
     for (const index in b) {
+        /*if (typeof b[index] === 'object' && typeof n[index] === 'object') {
+            if (n !== undefined && b[index] !== null) {
+                n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
+            }
+        } else if(b !== undefined && n !== undefined && b !== null && n !== null){
+            if (typeof b[index] === 'object' && "id" in b[index]) {
+                n[index] = b[index].id === n ? undefined : n;
+            } else if (typeof n[index] === 'object' && "id" in n[index]) {
+                n[index] = n.id === b ? undefined : n;
+            } else {
+                n[index] = n === b ? undefined : n;
+            }
+        }*/
+        /*if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
+            n[index] = (n === null || n[index] === null) ? null : (typeof n[index] === 'object' ? compareRecords(b[index], n[index]) : (b[index].id === n) ? undefined : n);
+        } else {
+            if (b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]) {
+                n[index] = undefined;
+            }
+        }*/
         if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
-            n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
+            if (typeof n[index] === 'object') {
+                n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
+            }
+            else {
+                if ("id" in b[index]) {
+                    n[index] = (n === null || n[index] === null) ? null : (n[index] === b[index].id ? undefined : n[index]);
+                }
+                else {
+                    n[index] = (n === null || n[index] === null) ? null : (n[index] === b[index].value ? undefined : n[index]);
+                }
+            }
         }
         else {
             if (b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]) {
                 n[index] = undefined;
             }
         }
+        /*if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
+            n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
+        } else {
+            if (b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]) {
+                n[index] = undefined;
+            }
+        }*/
         if (data === undefined)
             data = [];
         data[index] = n !== undefined ? (n !== null ? n[index] : null) : undefined;
@@ -446,10 +456,45 @@ function updateRelations(id) {
     });
 }
 // @ts-ignore
+window.configDataTable = () => configDataTable();
+// @ts-ignore
+let datatable;
+function configDataTable() {
+    // @ts-ignore
+    datatable = $('#query-table').DataTable({
+        responsive: true,
+        language: {
+            "decimal": "",
+            "emptyTable": "Nenhum registo disponível para esta tabela",
+            "info": "Mostrando _START_ até _END_ de _TOTAL_ entradas",
+            "infoEmpty": "Showing 0 to 0 of 0 entries",
+            "infoFiltered": "(filtrado de _MAX_ total de entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrando _MENU_ entradas",
+            "loadingRecords": "Carregando...",
+            "processing": "",
+            "search": "Procurar:",
+            "zeroRecords": "Nenhum registo, que atenda à sua pesquisa, foi encontrado.",
+            "paginate": {
+                "first": "Primeira",
+                "last": "Última",
+                "next": "Próxima",
+                "previous": "Anterior"
+            },
+            "aria": {
+                "sortAscending": ": ative para classificar a coluna em ordem crescente",
+                "sortDescending": ": ative para classificar a coluna em ordem decrescente"
+            }
+        }
+    });
+}
+// @ts-ignore
 window.dataQuery = () => dataQuery();
 function dataQuery() {
     return __awaiter(this, void 0, void 0, function* () {
-        $("#query-body").html("");
+        // @ts-ignore
+        datatable.clear().draw();
         yield API.requestType(entity, "query", { "available": Availability.BOTH }).then((result) => {
             if (result.status && result.data) {
                 for (let i = 0; i < result.data.length; i++) {
@@ -490,7 +535,11 @@ function dataQuery() {
                         $(td).text(value);
                         tr.append(td);
                     }
-                    $("#query-body").append(tr);
+                    //$("#query-body").append(tr);
+                    // @ts-ignore
+                    datatable.row.add(tr).draw();
+                    // @ts-ignore
+                    datatable.responsive.recalc();
                 }
             }
         });

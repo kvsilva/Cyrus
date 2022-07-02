@@ -46,6 +46,11 @@ body {
     background-color: var(--color2_darker);
 }
 
+.menu-section-item-selected{
+    color: white;
+    background-color: var(--color2_darker);
+}
+
 input[type=text].group-input, .group-input-text, .group-input-datepicker{
 
 }
@@ -95,9 +100,14 @@ input[type=text].group-input, .group-input-text, .group-input-datepicker{
 
 .backoffice-th, .backoffice-td{
     max-width: 200px;
-    overflow-y: auto;
+    max-height: 15px;
+    overflow: auto;
     text-align: center;
+    white-space: nowrap;
 }
+
+
+
 /* Models */
 .model-update-details{
     padding: 5px;

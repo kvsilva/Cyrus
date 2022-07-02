@@ -110,6 +110,7 @@ class Punishment extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     public function toArray(bool $minimal = false): array
@@ -129,6 +130,7 @@ class Punishment extends Entity
     }
 
     /**
+     * @param bool $minimal
      * @return array
      */
     public function toOriginalArray(bool $minimal = false): array

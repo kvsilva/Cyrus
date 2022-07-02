@@ -77,11 +77,42 @@ $objects = array(
         "icon" => "fa-solid fa-users",
         "update" => true,
         "insert" => true,
-        "forceModel" => array(
-            "value_binary" => "text"
-        ),
+        "forceModel" => array(),
         "relations" => null
-    )
+    ),
+    "Objects\Anime" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(
+                "synopsis" => "text"
+        ),
+        "forceModelOnUpdate" => array(
+            "cape" => "resource_update",
+            "profile" => "resource_update",
+        ),
+        "relations" => array(
+            "videos" => array(
+                "model" => "relation-full",
+                "class" => "Objects\Video"
+            ),
+            "seasons" => array(
+                "model" => "relation-full",
+                "class" => "Objects\Season"
+            ),
+            "genders" => array(
+                "model" => "default",
+                "class" => "Objects\Gender"
+            ),
+        )
+    ),
+    "Objects\Gender" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(),
+        "relations" => null
+    ),
 );
 
 $entity_name = $_GET["entity"] ?? "User";
@@ -156,9 +187,11 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             <?php
                             foreach ($objects as $obj => $properties) {
                                 ?>
+                                <a class = "<?php echo $entity_name == str_replace("Objects\\", "", $obj) ? 'menu-section-item-selected ' : ''?>link-nodecoration" href = "?entity=<?php echo str_replace("Objects\\", "", $obj) ?>">
                                 <div class="menu-section-item">
                                     <span><?php echo str_replace("Objects\\", "", $obj); ?></span>
                                 </div>
+                                </a>
                             <?php } ?>
                         </div>
                     </div>
@@ -170,14 +203,14 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 <div class="group">
                     <div class="group-wrapper">
                         <div class="group-section">
-                            <div id="query" class="table-responsive cyrus-scrollbar">
+                            <div id="query" class="cyrus-scrollbar">
 
                                 <table class="table align-middle table-striped table-dark table-hover cyrus-scrollbar" id = "query-table">
                                     <thead>
                                     <tr class="tr">
                                         <?php
                                         $entity = new ReflectionClass($entity_class);
-                                        $array = $entity->getMethod("toArray")->invokeArgs(object: $entity->newInstanceWithoutConstructor(), args: array(true));
+                                        $array = $entity->getMethod("toOriginalArray")->invokeArgs(object: $entity->newInstanceWithoutConstructor(), args: array(true));
                                         foreach ($array as $column => $value) {
                                             if (!is_array($value)) {
                                                 $field_name = str_replace("_", " ", $column);
@@ -273,7 +306,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                 </div>
                                                 <div class="modal-footer">
                                                     <input class="cyrus-input" type="reset" data-bs-dismiss="modal"
-                                                           value="CANCELAR"
+                                                           value="FECHAR"
                                                            data-form="<?php echo strtolower($entity_name); ?>_update_relations"
                                                            data-entity="<?php echo $entity_name; ?>">
                                                 </div>
