@@ -27,10 +27,10 @@ $(document).ready(function () {
        cyrusAlert("warning", "Processando o seu pedido...");
         API.requestService("authentication", "login", formData, []).then((result: any) => {
             if (result.status) {
-                cyrusAlert("success", "Login efetuado com sucesso. Redirecionando em 3 segundos...");
+                cyrusAlert("success", "Login efetuado com sucesso. Redirecionando...");
                 setTimeout(function (){
                     location.reload();
-                }, 3000);
+                }, 1000);
             } else {
                 cyrusAlert("danger", "Credenciais incorretas.");
             }

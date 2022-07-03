@@ -358,7 +358,7 @@ class User extends Entity
             "id" => $id,
             "email" => $email,
             "username" => $username,
-            "verification" => $verification?->value,
+            "verified" => $verification?->value,
             "available" => $available?->value
         ), table: 'user', class: 'Objects\User', sql: $sql, flags: $flags);
     }

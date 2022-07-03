@@ -11,7 +11,7 @@ use Objects\Permission;
             <div class="header-content">
                 <div class="header-left">
                     <div class="logo">
-                        <img src="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" alt="icon">
+                        <a class = "link-nodecoration" href = "<?php Routing::getRouting("home") ?>"><img src="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" alt="icon"></a>
                     </div>
                 </div>
                 <div class="header-center">
@@ -24,15 +24,18 @@ use Objects\Permission;
                     </div>
                 </div>
                 <div class="header-right">
-                    <div class="header-btn">
+                    <div class="header-btn"  title = "Pesquisar">
                         <a class="link-nodecoration header-link" href="<?php echo Routing::getRouting("search"); ?>"> <i
                                     class="fa-solid fa-magnifying-glass"></i>
                         </a>
                     </div>
-                    <div class="header-btn">
+                    <div class="header-btn"  title = "Favoritos">
                         <i class="fa-solid fa-bookmark"></i>
                     </div>
-                    <div class="header-btn" id="user-menu-btn">
+                    <?php
+                    if(isset($_SESSION["user"])){
+                    ?>
+                        <div class="header-btn" id="user-menu-btn">
                         <div role="button" class="header-user dropdown-arrow">
                             <img draggable="false" class="header-user-avatar"
                                  src="https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png"
@@ -134,6 +137,11 @@ use Objects\Permission;
                             </div>
                         </div>
                     </div>
+                    <?php } else {?>
+                        <div class="header-btn"  title = "Entrar">
+                            <a class="link-nodecoration header-link" href="<?php echo Routing::getRouting("login"); ?>"><i class="fa-solid fa-user"></i></a>
+                        </div>
+                    <?php }?>
                 </div>
             </div>
         </div>
