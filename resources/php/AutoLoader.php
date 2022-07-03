@@ -17,6 +17,7 @@ class AutoLoader
                     //  it will be from this directory that the namespace will be added.
                     (dirname(__FILE__)),
                     (dirname(__FILE__) . "\\"),
+                    (dirname(__FILE__) . "\\dependencies\\PHPMailer\\1.0"),
                     (__DIR__ . "\\..\\..\\")
                 );
                 foreach (self::$directories as $directory) {

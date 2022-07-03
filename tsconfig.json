@@ -40,6 +40,8 @@
     "home/assets/js/*",
     "backoffice/assets/js/*",
     "user/account/assets/js/*",
+    "user/login/assets/js/*",
+    "user/register/assets/js/*",
     "dev/test_page/assets/js/*",
   ],
   "exclude": [

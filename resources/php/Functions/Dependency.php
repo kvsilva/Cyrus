@@ -84,6 +84,7 @@ class Dependency
 
     /**
      * @param string $extension
+     * @param bool $raw
      * @return String|null
      */
     #[Pure] public function getImport(string $extension = "js", bool $raw = false): ?String

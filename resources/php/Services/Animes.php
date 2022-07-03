@@ -107,12 +107,11 @@ class Animes
                 $bareCalendar[DayOfWeek::SATURDAY->name()] = array("day" => $days[DayOfWeek::SATURDAY->value], "animes" => $SATURDAY);
                 $bareCalendar[DayOfWeek::SUNDAY->name()] = array("day" => $days[DayOfWeek::SUNDAY->value], "animes" => $SUNDAY);
             } else {
-                if($day === "today") $day = date('w', $today->getTimestamp());
+                if($day === "today") $day = date('w', $today->getTimestamp()) + 1;
                 $dayItem = Anime::find(launch_day: DayOfWeek::getItem($day), orderBy: "launch_time");
                 $calendar[DayOfWeek::getItem($day)->name()] = array("day" => $days[DayOfWeek::getItem($day)->value]->format(Database::DateFormatSimplified), "animes" => $dayItem->toArray());
                 $bareCalendar[DayOfWeek::getItem($day)->name()] = array("day" => $days[DayOfWeek::getItem($day)->value], "animes" => $dayItem);
             }
-
         } catch (Exception $e) {
             return new Status(isError: true, message: $e->getMessage());
         }

@@ -1,0 +1,79 @@
+@import url('../../../../resources/css/cyrus.css');
+
+.page-wrapper{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 50% 50%;
+
+}
+
+#myVideo{
+    position: absolute;
+    max-height: 100%;
+    min-height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.logo-hero{
+    background-color: var(--color1);
+}
+.logo-hero-wrapper{
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.logo-img{
+    max-width: 60%;
+    max-height: 50%;
+    margin-top: 125px;
+
+}
+
+.login{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: var(--backgroundColor4);
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
+.login-wrapper{
+    margin-top: 35px;
+    padding: 50px 25px;
+    max-width: 550px;
+    min-width: 500px;
+    background-color: var(--backgroundColor5);
+    box-shadow: 0 0 1px 2px var(--backgroundColor3);
+    border-radius: 5px;
+}
+
+.login-wrapper #execute{
+    margin-top: 25px;
+}
+
+.login .title{
+    font-weight: bold;
+    font-size: 28px;
+}
+
+.login .description{
+    color: var(--color3);
+    font-weight: 600;
+}
+
+
+.redirect-page{
+    margin-top: 25px;
+}
+
+#content{
+    height: calc(100vh - 60px);
+}

@@ -69,6 +69,7 @@ class Utils
             self::$dependencies = array(
                 "JQuery" => (new Dependency("JQuery", Routing::getResource("dependencies"), "3.6.0"))->addImport(path: "jquery-3.6.0.min.js"),
                 "Popper" => (new Dependency("Popper", Routing::getResource("dependencies"), "2.9.2"))->addImport(path: "popper.min.js"),
+                "PHPMailer" => (new Dependency("PHPMailer", Routing::getResource("dependencies"), "1.0"))->addImport(path: "PHPMailer.php", extension: "phpmailer")->addImport(path: "SMTP.php", extension: "smtp")->addImport(path: "Exception.php", extension: "exception"),
                 "FontAwesome" => (new Dependency("FontAwesome", Routing::getResource("dependencies"), "6.1.1"))->addImport(path: "css/all.css", extension: "css"),
                 "Bootstrap" => (new Dependency("Bootstrap", Routing::getResource("dependencies"), "5.0.2"))->addImport(path: "js/bootstrap.bundle.min.js")->addImport(path: "css/bootstrap.css", extension: "css"),
                 "DataTables" => (new Dependency("DataTables", Routing::getResource("dependencies"), "1.12.1"))->addImport(path: "datatables.min.js")->addImport(path: "datatables.min.css", extension: "css"),
@@ -79,8 +80,11 @@ class Utils
                 "List" => (new Dependency("List", self::$BASE_URL . "animes/"))->addImport(path: "assets/js/list.js")->addImport(path: "assets/css/list.css", extension: "css"),
                 "Home" => (new Dependency("Home", self::$BASE_URL))->addImport(path: "assets/js/home.js")->addImport(path: "assets/css/home.css", extension: "css"),
                 "Account" => (new Dependency("Account", self::$BASE_URL . "user/"))->addImport(path: "assets/js/account.js")->addImport(path: "assets/css/account.css", extension: "css"),
+                "Login" => (new Dependency("Login", self::$BASE_URL . "user/"))->addImport(path: "assets/js/login.js")->addImport(path: "assets/css/login.css", extension: "css"),
+                "Verify" => (new Dependency("Verify", self::$BASE_URL . "user/"))->addImport(path: "assets/js/verify.js")->addImport(path: "assets/css/verify.css", extension: "css"),
+                "Register" => (new Dependency("Register", self::$BASE_URL . "user/"))->addImport(path: "assets/js/register.js")->addImport(path: "assets/css/register.css", extension: "css"),
                 "Backoffice" => (new Dependency("Backoffice", self::$BASE_URL))->addImport(path: "assets/js/backoffice.js")->addImport(path: "assets/css/backoffice.css", extension: "css"),
-                "Cyrus" => (new Dependency("resources", self::$BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
+                "Cyrus" => (new Dependency("resources", self::$BASE_URL))->addImport(path: "js/cyrus.js")->addImport(path: "css/cyrus.css", extension: "css")->addImport("images/logo.png", "logo")->addImport("images/logo_slogan.png", "logo_slogan")->addImport("images/icon.png", "icon")->addImport("html/header.php", "header")->addImport("html/footer.php", "footer")->addImport("html/head.php", "head")->addImport("html/alerts.php", "alerts")->addImport("js/models.js", "models")->addImport("js/request.js", "request")->addImport("js/routing.js", "routing"),
             );
         }
     }

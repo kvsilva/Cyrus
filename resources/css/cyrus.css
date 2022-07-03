@@ -23,6 +23,8 @@
 
     --backgroundColor2: #23252B;
     --backgroundColor3: #23252bb3;
+    --backgroundColor4: #1E2E3D;
+    --backgroundColor5: #273444;
     --hoverBackground: #141519;
     --hoverBackground2: #141517;
 
@@ -43,6 +45,9 @@ body {
     font-family: var(--font);
     margin: 0;
     padding: 0;
+}
+
+#content{
 }
 
 * {

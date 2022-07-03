@@ -127,15 +127,18 @@ export function cyrusAlert(alertType: string, alertHtml: string){
     switch (alertType.toLowerCase()) {
         case "success":
             $("#alert-success").find("span").html(alertHtml);
+            $("#alerts").parent().removeClass("cyrus-item-hidden");
             $("#alert-success").addClass("show").removeClass("cyrus-item-hidden");
 
             break;
         case "danger":
             $("#alert-danger").find("span").html(alertHtml);
+            $("#alerts").parent().removeClass("cyrus-item-hidden");
             $("#alert-danger").addClass("show").removeClass("cyrus-item-hidden");
             break;
         case "warning":
             $("#alert-warning").find("span").html(alertHtml);
+            $("#alerts").parent().removeClass("cyrus-item-hidden");
             $("#alert-warning").addClass("show").removeClass("cyrus-item-hidden");
             break;
         default:
@@ -145,6 +148,7 @@ export function cyrusAlert(alertType: string, alertHtml: string){
     setTimeout(function (){
         if($("#alerts").data("last-alert") == currentTimestamp){
             $("#alerts").find(".show").removeClass("show");
+            $("#alerts").parent().addClass("cyrus-item-hidden");
             //$("#modals").find("div").addClass("cyrus-item-hidden");
         }
     }, 3000);
