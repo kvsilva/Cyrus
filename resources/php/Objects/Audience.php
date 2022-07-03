@@ -87,10 +87,11 @@ class Audience extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -101,10 +102,11 @@ class Audience extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

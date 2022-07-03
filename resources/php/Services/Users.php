@@ -101,7 +101,7 @@ class Users
                 if(filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
                     $_SESSION["user"]->setEmail($newEmail);
                     $_SESSION["user"]->store();
-                    return new Status(isError: false, return: array($_SESSION["user"]->toArray()), bareReturn: array($_SESSION["user"]));
+                    return new Status(isError: false, return: array($_SESSION["user"]->toArray(false, false)), bareReturn: array($_SESSION["user"]));
                 } else return new Status(isError: true, message: "Email inválido.", return: array(), bareReturn: array());
             } else return new Status(isError: true, message: "Palavra-Passe incorreta.", return: array(), bareReturn: array());
         } else return new Status(isError: true, message: "Nenhuma sessão foi iniciada.", return: array(), bareReturn: array());

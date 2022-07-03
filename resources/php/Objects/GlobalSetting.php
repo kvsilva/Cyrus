@@ -92,10 +92,11 @@ class GlobalSetting extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "category" => "null|String", "value_binary" => "\Cassandra\Blob|null", "value" => "null|String", "data_type" => "null|String"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -109,10 +110,11 @@ class GlobalSetting extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|String", "category" => "null|String", "value_binary" => "\Cassandra\Blob|null", "value" => "null|String", "data_type" => "null|String"])]
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

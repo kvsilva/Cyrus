@@ -8,6 +8,7 @@ use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
+use Exceptions\NotInitialized;
 use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
@@ -45,7 +46,7 @@ class Video extends Entity
     // RELATIONS
 
     // Video::Subtitles
-    private ?array $subtitles = null;
+    private ?SubtitlesArray $subtitles = null;
     // Video::DubbingOld
     private ?array $dubbing = null;
 
@@ -70,7 +71,7 @@ class Video extends Entity
         $database = $this->getDatabase();
         $id = $this->getId();
         if($this->hasFlag(self::SUBTITLES)){
-            $this->subtitles = array();
+            $this->subtitles = new SubtitlesArray();
             $query = $database->query("SELECT id FROM subtitle WHERE video = $id;");
             while($row = $query->fetch_array()){
                 $this->subtitles[] = new Subtitle($row["id"]);
@@ -95,9 +96,13 @@ class Video extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store(Anime $anime, ?Season $season = null) : Video{
-        $values = array("anime" => $anime->getId());
-        if($season != null) $values["season"] = $season;
+    public function store(Anime|int|null $anime = null, Season|int|null $season = null) : Video{
+        if($anime === null) $anime = new Anime(id: $this->anime?->getId());
+        if($season === null) $season = new Season(id: $this->season?->getId());
+        $this->anime = is_int($anime) ? new Anime(id: $anime) : $anime;
+        $this->season = is_int($season) ? new Season(id: $season) : $season;
+        $values = array();
+        $values["anime"] = $anime->getId();
         parent::__store(values: $values);
         return $this;
     }
@@ -201,43 +206,49 @@ class Video extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
 
         $array = array(
             "id" => $this->getId(),
-            "video_type" => $this->video_type?->toArray(),
+            "video_type" => $this->video_type?->toArray(false, $entities),
             "numeration" => $this->numeration,
             "title"=> $this->title,
             "synopsis"=> $this->synopsis,
-            "thumbnail"=> $this->thumbnail?->toArray(),
+            "thumbnail"=> $this->thumbnail?->toArray(false, $entities),
             "release_date"=> $this->release_date?->format(Database::DateFormat),
             "duration"=> $this->duration,
             "opening_start"=> $this->opening_start,
             "opening_end"=> $this->opening_end,
             "ending_start" => $this->ending_start,
             "ending_end" => $this->ending_end,
-            "path" => $this->path?->toArray(),
+            "path" => $this->path?->toArray(false, $entities),
             "available" => $this->available?->toArray()
         );
         if(!$minimal){
-            $array["anime"] = $this->anime?->toArray();
-            $array["season"] = $this->season?->toArray();
-            $array["subtitles"] = $this->subtitles != null ? array() : null;
-            if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value->toArray();
-            $array["dubbing"] = $this->dubbing != null ? array() : null;
-            if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
+            $array["subtitles"] = $this->subtitles !== null ? array() : null;
+            if($array["subtitles"] !== null) foreach($this->subtitles as $value) {
+                $array["subtitles"][] = $value->toArray();
+            }
+            $array["dubbing"] = $this->dubbing !== null ? array() : null;
+            if($array["dubbing"] !== null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
+        }
+        if($entities){
+            $array["anime"] = $this->anime?->toArray(false, $entities);
+            $array["season"] = $this->season?->toArray(false, $entities);
         }
         return $array;
     }
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
 
         $array = array(
@@ -257,14 +268,85 @@ class Video extends Entity
             "available" => $this->available,
         );
         if(!$minimal){
-            $array["anime"] = $this->anime;
-            $array["season"] = $this->season;
             $array["subtitles"] = $this->subtitles != null ? array() : null;
             if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value;
             $array["dubbing"] = $this->dubbing != null ? array() : null;
             if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value;
         }
+        if($entities){
+            $array["anime"] = $this->anime;
+            $array["season"] = $this->season;
+        }
         return $array;
+    }
+
+
+    /**
+     * @param Subtitle|null $entity
+     * @param int|null $id
+     * @return Video
+     * @throws NotInitialized
+     */
+    public function removeSubtitle(Subtitle $entity = null, int $id = null): Video
+    {
+        if($this->subtitles == null) throw new NotInitialized("subtitles");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->subtitles); $i++) {
+                if ($this->subtitles[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->subtitles); $i++) {
+                if ($this->subtitles[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->subtitles[$item]);
+        return $this;
+    }
+
+
+    /**
+     * @throws NotInitialized
+     */
+    public function addSubtitle(Subtitle $entity): Video
+    {
+        if($this->subtitles === null) throw new NotInitialized("subtitles");
+        $this->subtitles[] = $entity;
+        return $this;
+    }
+
+
+    /**
+     * @param int $relation
+     * @param mixed $value
+     * @return Video
+     * @throws NotInitialized
+     */
+    public function addRelation(int $relation, mixed $value) : Video
+    {
+        switch ($relation) {
+            case self::SUBTITLES:
+                $this->addSubtitle($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws NotInitialized
+     */
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : Video
+    {
+        switch ($relation) {
+            case self::SUBTITLES:
+                $this->removeSubtitle($value, $id);
+                break;
+        }
+        return $this;
     }
 
     /**
@@ -485,18 +567,18 @@ class Video extends Entity
     }
 
     /**
-     * @return array
+     * @return SubtitlesArray
      */
-    public function getSubtitles(): array
+    public function getSubtitles(): SubtitlesArray
     {
         return $this->subtitles;
     }
 
     /**
-     * @param array $subtitles
+     * @param SubtitlesArray $subtitles
      * @return Video
      */
-    public function setSubtitles(array $subtitles): Video
+    public function setSubtitles(SubtitlesArray $subtitles): Video
     {
         $this->subtitles = $subtitles;
         return $this;

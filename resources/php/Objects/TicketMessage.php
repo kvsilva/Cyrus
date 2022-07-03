@@ -142,14 +142,15 @@ class TicketMessage extends Entity
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[ArrayShape(["id" => "int|mixed", "author" => "array|null", "content" => "null|String", "sent_at" => "null|string"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
-            "author" => $this->author?->toArray(),
+            "author" => $this->author?->toArray(false, $entities),
             "content" => $this->content,
             "sent_at" => $this->sent_at?->format(Database::DateFormat)
         );
@@ -161,7 +162,7 @@ class TicketMessage extends Entity
         return $array;
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),

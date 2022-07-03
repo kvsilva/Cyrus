@@ -40,6 +40,7 @@ class Request
     private bool $hasRelations = false;
 
     private ?bool $minimal = null;
+    private ?bool $entities = null;
 
     /**
      * @param array $array
@@ -58,7 +59,8 @@ class Request
         $this->raw = $array;
         $this->type = $array["type"] ?? null;
         $this->service = $array["service"] ?? null;
-        $this->minimal = isset($array["minimal"]) ? $array["minimal"] : null;
+        $this->minimal = $array["minimal"] ?? null;
+        $this->entities = $array["entities"] ?? null;
         $this->dataTypes = isset($array["dataTypes"]) && $array["dataTypes"] ? array() : null;
         $this->setAction($array["action"]);
         $this->data = isset($array["data"]) && $array["data"] != null ? $array["data"] : array();
@@ -98,9 +100,10 @@ class Request
                     $objects = $this->handleClass(object_name: $object_name, data: $this->data[$key], relations: $relations, flags: $this->flags);
                     $this->dataTypes = array();
                     $minimal = $this->minimal !== null  ? $this->minimal : ($this->getAction() !== "query");
+                    $entities = $this->minimal !== null  ? $this->minimal : ($this->getAction() !== "query");
                     foreach($objects as $object){
                         $this->dataTypes[] = $object;
-                        $success[] = $object->toArray($minimal);
+                        $success[] = $object->toArray($minimal, $entities);
                     }
                     if($this->dataTypes !== null) $this->dataTypes = self::getDataTypes($this->dataTypes);
                 } catch (Exception $e){

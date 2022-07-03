@@ -17,11 +17,11 @@ use Functions\Routing;
                         <span>Calendário</span>
                     </a>
                 </li>
-                <li>
+                <!--<li>
                     <a href = "<?php echo Routing::getRouting("news"); ?>">
                         <span>Novidades</span>
                     </a>
-                </li>
+                </li>-->
             </ul>
         </div>
         <div class = "section">

@@ -95,10 +95,11 @@ class AccountPlan extends Entity
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "duration" => "mixed", "price" => "float|int", "stack" => "int|null", "maximum" => "int|null", "available" => "int|null"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -119,7 +120,7 @@ class AccountPlan extends Entity
         );
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

@@ -75,7 +75,7 @@ class Response
             $array["errors"] = array();
             foreach ($this->errors as $key => $value) {
                 if (is_subclass_of($value, "Objects\Entity")) {
-                    $array["errors"][$key] = $value->toArray();
+                    $array["errors"][$key] = $value->toArray(false, false);
                 } else $array["errors"][$key] = $value;
             }
         }
@@ -83,7 +83,7 @@ class Response
             $array["data"] = array();
             foreach ($this->data as $key => $value) {
                 if (is_subclass_of($value, "Objects\Entity")) {
-                    $array["data"][$key] = $value->toArray();
+                    $array["data"][$key] = $value->toArray(false, false);
                 } else $array["data"][$key] = $value;
             }
         }

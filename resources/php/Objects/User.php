@@ -395,9 +395,10 @@ class User extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
@@ -407,13 +408,13 @@ class User extends Entity
             "sex" => $this->sex?->toArray(),
             "creation_date" => $this->creation_date?->format(Database::DateFormat),
             "status" => $this->status,
-            "profile_image" => $this->profile_image?->toArray(),
-            "profile_background" =>$this->profile_background?->toArray(),
+            "profile_image" => $this->profile_image?->toArray(false, $entities),
+            "profile_background" =>$this->profile_background?->toArray(false, $entities),
             "about_me" => $this->about_me,
             "verified" => $this->verified?->toArray(),
-            "display_language" => $this->display_language?->toArray(),
-            "email_communication_language" => $this->email_communication_language?->toArray(),
-            "translation_language" => $this->translation_language?->toArray(),
+            "display_language" => $this->display_language?->toArray(false, $entities),
+            "email_communication_language" => $this->email_communication_language?->toArray(false, $entities),
+            "translation_language" => $this->translation_language?->toArray(false, $entities),
             "available" => $this->available?->toArray()
         );
         if(!$minimal) {
@@ -484,7 +485,7 @@ class User extends Entity
         return $array;
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),

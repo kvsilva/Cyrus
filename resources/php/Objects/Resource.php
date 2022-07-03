@@ -91,10 +91,11 @@ class Resource extends Entity
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "array|null"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -107,7 +108,7 @@ class Resource extends Entity
     }
 
     #[Pure] #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "array|null"])]
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

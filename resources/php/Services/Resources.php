@@ -52,7 +52,7 @@ class Resources
         $webPath = Routing::getRouting("root") . self::RESOURCES_DIRECTORY . "/" . $resource->getId() . "." . $resource->getExtension();
         $resource->setPath($webPath);
         $resource->store();
-        return new Status(isError: false,return: array($resource->toArray()), bareReturn: array($resource));
+        return new Status(isError: false,return: array($resource->toArray(false, false)), bareReturn: array($resource));
     }
 
     /**
@@ -71,7 +71,7 @@ class Resources
         $resource->setDescription($description);
         $resource->setExtension($extension);
         $resource->store();
-        return new Status(isError: false, return: array($resource->toArray()), bareReturn: array($resource));
+        return new Status(isError: false, return: array($resource->toArray(false, false)), bareReturn: array($resource));
     }
 
     /**
@@ -102,6 +102,6 @@ class Resources
         $resource->store();
         $video->setPath($resource);
         $video->store($video->getAnime());
-        return new Status(isError: false, return: array($resource->toArray()), bareReturn: array($resource));
+        return new Status(isError: false, return: array($resource->toArray(false, false)), bareReturn: array($resource));
     }
 }

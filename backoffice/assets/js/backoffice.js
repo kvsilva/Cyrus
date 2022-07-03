@@ -13,6 +13,8 @@ import { cyrusAlert } from "../../../resources/js/cyrus";
 let entity;
 let rows = [];
 let detailsModal;
+// @ts-ignore
+let insertModal;
 let updateModal;
 let relationsModal = null;
 $(document).ready(function () {
@@ -21,12 +23,67 @@ $(document).ready(function () {
         // @ts-ignore
         detailsModal = new bootstrap.Modal($("#detailsModal"), {});
         // @ts-ignore
-        updateModal = new bootstrap.Modal($("#updateModal"), {});
+        if ($("#updateModal").length > 0)
+            updateModal = new bootstrap.Modal($("#updateModal"), {});
         // @ts-ignore
         if ($("#relationsModal").length > 0)
             relationsModal = new bootstrap.Modal($("#relationsModal"), {});
+        // @ts-ignore
+        if ($("#insertModal").length > 0)
+            insertModal = new bootstrap.Modal($("#insertModal"), {});
         configDataTable();
         yield dataQuery();
+        $("[data-upload]").each(function () {
+            let name = $(this).data("name");
+            let relation = $(this).data("form").length > 0 ? $(this).data("form").replace("_update_relations", "") : null;
+            console.log("RELATION: " + relation);
+            $(this).find(".group-section-subitem-items").each(function () {
+                $(this).find("input[type=file]").each(function () {
+                    console.log(name);
+                    let accept = null;
+                    // Relations Modal
+                    if (relation !== null) {
+                        switch (relation) {
+                            case "video":
+                                switch (name.toLowerCase()) {
+                                    case "path":
+                                        accept = ".mp4";
+                                        break;
+                                }
+                                break;
+                            case "subtitle":
+                                switch (name.toLowerCase()) {
+                                    case "path":
+                                        accept = ".vtt";
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                    // Insert & Update
+                    if (accept === null) {
+                        switch (entity.toLowerCase()) {
+                            case "anime":
+                                switch (name.toLowerCase()) {
+                                    case "path":
+                                        accept = ".mp4";
+                                        break;
+                                }
+                                break;
+                            case "season":
+                                switch (name.toLowerCase()) {
+                                    case "path":
+                                        accept = ".mp4";
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                    accept = accept === null ? ".jpg, .jpged, .png" : accept;
+                    $(this).attr("accept", accept);
+                });
+            });
+        });
         $("#btn-details-relations").each(function () {
             $(this).click(function () {
                 let id = $("#btn-details-relations").data("id");
@@ -93,7 +150,7 @@ $(document).ready(function () {
                     $(this).data("object", object);
                 }
             });
-            updateModal.show();
+            updateModal === null || updateModal === void 0 ? void 0 : updateModal.show();
         });
         $("#btn-details-remove").click(function () {
             API.requestType(entity, "remove", { "id": $(this).data("id") }).then((result) => {

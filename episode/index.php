@@ -1,13 +1,15 @@
 <?php
 require_once(dirname(__DIR__) . '\\resources\\php\\settings.php');
 
+use Enumerators\Availability;
 use Enumerators\Month;
 use Functions\Routing;
 use Functions\Utils;
+use Objects\Entity;
 use Objects\Video;
 
 try {
-    $episodes = isset($_GET["episode"]) ? Video::find(id: $_GET["episode"]) : null;
+    $episodes = isset($_GET["episode"]) ? Video::find(id: $_GET["episode"], flags: [Entity::ALL]) : null;
 } catch (ReflectionException $e) {
     Utils::goTo("animes");
 }
@@ -40,7 +42,19 @@ include(Utils::getDependencies("Cyrus", "header", true));
 
         <video id="player0" playsinline="" controls>
             <source src="<?php echo $episode->getPath()?->getPath() ?>" type="video/mp4">
-
+            <?php
+            if($episode->getSubtitles() !== null){
+              foreach($episode->getSubtitles() as $subtitle){
+                  if($subtitle->getAvailable()->value === Availability::AVAILABLE->value){
+                      $path = $subtitle->getPath()?->getPath();
+                      $code = $subtitle?->getLanguage()?->getCode();
+                      $language = $subtitle?->getLanguage()?->getOriginalName(); ?>
+                        <track src="<?php echo $path?>" kind="subtitles" srclang="<?php echo $code?>" label="<?php echo $language?>" />
+                <?php
+                  }
+              }
+            }
+            ?>
         </video>
     </div>
 

@@ -173,18 +173,19 @@ class Ticket extends Entity {
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[ArrayShape(["id" => "int|mixed", "attended_by" => "array", "status" => "array", "created_at" => "null|string", "closed_at" => "null|string", "closed_by" => "array|null", "evaluation" => "int|null"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
-            "attended_by" => $this->attended_by->toArray(),
-            "status" => $this->status->toArray(),
+            "attended_by" => $this->attended_by->toArray(false, $entities),
+            "status" => $this->status->toArray(false, $entities),
             "created_at" => $this->created_at?->format(Database::DateFormat),
             "closed_at" => $this->closed_at?->format(Database::DateFormat),
-            "closed_by" => $this->closed_by?->toArray(),
+            "closed_by" => $this->closed_by?->toArray(false, $entities),
             "evaluation" => $this->evaluation
         );
         if(!$minimal) {
@@ -195,7 +196,7 @@ class Ticket extends Entity {
         return $array;
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),

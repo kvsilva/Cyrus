@@ -3,14 +3,14 @@ import {User, UserFlags} from "../../../resources/js/models";
 
 let user : User|null = null;
 
-$(document).ready(function(){
-    API.requestService("session", "getSession", {}, []).then((result: any) => {
+$(document).ready(async function () {
+    await API.requestService("session", "getSession", {}, []).then(async (result: any) => {
         if (result.status) {
             if ("data" in result) {
                 user = result.data[0];
                 API.requestType("User", "update", {
                     "id": user?.id,
-                    "relations":{
+                    "relations": {
                         "VideoHistory":
                             [
                                 {
@@ -23,8 +23,8 @@ $(document).ready(function(){
                 }, [UserFlags.VIDEOHISTORY.name], false).then((result: any) => {
                     if (result.status) {
                         if ("data" in result) {
-                            let loc : any[] = result.data[0].video_history?.filter((value: any) => value.video?.id == parseInt(<string>getParameter("episode")));
-                            if(loc.length > 0){
+                            let loc: any[] = result.data[0].video_history?.filter((value: any) => value.video?.id == parseInt(<string>getParameter("episode")));
+                            if (loc.length > 0) {
                                 // @ts-ignore
                                 document.getElementById("player0")?.currentTime = loc[0].watched_until;
                             }

@@ -111,18 +111,19 @@ class Punishment extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
-            "punishment_type" => $this->punishment_type?->toArray(),
+            "punishment_type" => $this->punishment_type?->toArray(false, $entities),
             "reason" => $this->reason,
             "lasts_until" => $this->lasts_until?->format(Database::DateFormat),
-            "performed_by" => $this->performed_by?->toArray(),
+            "performed_by" => $this->performed_by?->toArray(false, $entities),
             "performed_date" => $this->performed_date?->format(Database::DateFormat),
-            "revoked_by" => $this->revoked_by?->toArray(),
+            "revoked_by" => $this->revoked_by?->toArray(false, $entities),
             "revoked_date" => $this->revoked_date?->format(Database::DateFormat),
             "revoked_reason" => $this->revoked_reason,
             "available" => $this->available?->toArray()
@@ -131,9 +132,10 @@ class Punishment extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

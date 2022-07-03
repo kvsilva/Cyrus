@@ -133,10 +133,11 @@ class Role extends Entity
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String"])]
-    public function toArray(bool $minimal = true): array
+    public function toArray(bool $minimal = true, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
@@ -153,7 +154,7 @@ class Role extends Entity
     }
 
     #[Pure] #[ArrayShape(["id" => "int|null", "name" => "null|string", "permissions" => "array|null"])]
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),

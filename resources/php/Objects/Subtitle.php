@@ -23,7 +23,7 @@ class Subtitle extends Entity
     // DEFAULT STRUCTURE
 
     protected ?Language $language = null;
-    protected ?String $path = null;
+    protected ?Resource $path = null;
     protected ?Availability $available = null;
 
     // RELATIONS
@@ -83,28 +83,29 @@ class Subtitle extends Entity
         return array(
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("subtitle"),
             "language" => $this->language?->getId(),
-            "path" => $this->path,
+            "path" => $this->path?->getId(),
             "available" => $this->available?->value
         );
     }
 
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "language" => "null|\Objects\Language", "path" => "null|String", "available" => "array|null"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
-            "language" => $this->language,
-            "path" => $this->path,
+            "language" => $this->language?->toArray(),
+            "path" => $this->path?->toArray(),
             "available" => $this->available?->toArray()
         );
     }
 
     #[Pure] #[ArrayShape(["id" => "int|mixed", "language" => "null|\Objects\Language", "path" => "null|String", "available" => "array|null"])]
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -135,7 +136,7 @@ class Subtitle extends Entity
     /**
      * @return String|null
      */
-    public function getPath(): ?string
+    public function getPath(): ?Resource
     {
         return $this->path;
     }
@@ -144,7 +145,7 @@ class Subtitle extends Entity
      * @param String|null $path
      * @return Subtitle
      */
-    public function setPath(?string $path): Subtitle
+    public function setPath(?Resource $path): Subtitle
     {
         $this->path = $path;
         return $this;

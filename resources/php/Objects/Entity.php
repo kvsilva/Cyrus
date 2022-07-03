@@ -445,14 +445,16 @@ abstract class Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
-    public abstract function toArray(bool $minimal = false): array;
+    public abstract function toArray(bool $minimal = false, bool $entities = false): array;
 
     /**
+     * @param bool $entities
      * @return array
      */
-    public abstract function toOriginalArray(bool $minimal = false): array;
+    public abstract function toOriginalArray(bool $minimal = false, bool $entities = false): array;
 
     /**
      * @return array

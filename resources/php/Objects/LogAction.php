@@ -85,11 +85,12 @@ class LogAction extends Entity
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[Pure]
     #[ArrayShape(["id" => "int|null", "name" => "null|String", "description" => "null|String"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -98,7 +99,7 @@ class LogAction extends Entity
         );
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

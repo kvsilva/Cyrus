@@ -113,6 +113,9 @@ $(document).ready(function() {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+    $("input[type=file]").each(function(){
+
+    });
 });
 
 

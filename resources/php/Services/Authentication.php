@@ -48,7 +48,7 @@ class Authentication
         $user->setEmail($email);
         $user->setPassword($password);
         $user->store();
-        return new Status(isError: false, return: array($user->toArray()), bareReturn: array($user));
+        return new Status(isError: false, return: array($user->toArray(false, false)), bareReturn: array($user));
     }
 
 }

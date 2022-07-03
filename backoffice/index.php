@@ -50,6 +50,36 @@ $objects = array(
             ),
         )
     ),
+    "Objects\Role" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "ignoreUpdate" => array(
+
+        ),
+        "forceModel" => array(
+
+        ),
+        "forceModelOnUpdate" => array(
+
+        ),
+        "relations" => array(
+            "permissions" => array(
+                "model" => "default",
+                "class" => "Objects\Permission",
+                "ignore" => array(
+
+                )
+            )
+        )
+    ),
+    "Objects\Permission" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(),
+        "relations" => null
+    ),
     "Objects\Language" => array(
         "icon" => "fa-solid fa-users",
         "update" => true,
@@ -62,15 +92,6 @@ $objects = array(
         "update" => true,
         "insert" => false,
         "forceModel" => array(),
-        "relations" => null
-    ),
-    "Objects\GlobalSetting" => array(
-        "icon" => "fa-solid fa-users",
-        "update" => true,
-        "insert" => true,
-        "forceModel" => array(
-            "value_binary" => "text"
-        ),
         "relations" => null
     ),
     "Objects\PunishmentType" => array(
@@ -101,19 +122,104 @@ $objects = array(
             ),
             "seasons" => array(
                 "model" => "relation-full",
-                "class" => "Objects\Season"
+                "class" => "Objects\Season",
+                "ignore" => array("anime")
             ),
             "genders" => array(
                 "model" => "default",
-                "class" => "Objects\Gender"
+                "class" => "Objects\Gender",
+                "ignore" => array()
             ),
         )
+    ),
+    "Objects\Season" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => false,
+        "forceModel" => array(
+            "synopsis" => "text"
+        ),
+        "forceModelOnUpdate" => array(
+
+        ),
+        "relations" => array(
+            "videos" => array(
+                "model" => "relation-full",
+                "class" => "Objects\Video",
+                "ignore" => array(
+                    "anime", "season"
+                )
+            )
+        )
+    ),
+    "Objects\Video" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => false,
+        "ignoreUpdate" => array(
+            "anime", "season", "release_date"
+        ),
+        "forceModel" => array(
+            "synopsis" => "text"
+        ),
+        "forceModelOnUpdate" => array(
+            "thumbnail" => "resource_update",
+            "path" => "resource_update",
+        ),
+        "relations" => array(
+            "subtitles" => array(
+                "model" => "relation-full",
+                "class" => "Objects\Subtitle",
+                "ignore" => array(
+                    "anime", "season"
+                )
+            )
+        )
+    ),
+    "Objects\VideoType" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(),
+        "relations" => null
+    ),
+    "Objects\Subtitle" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => false,
+        "forceModel" => array(
+
+        ),
+        "relations" => null
     ),
     "Objects\Gender" => array(
         "icon" => "fa-solid fa-users",
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
+        "relations" => null
+    ),
+    "Objects\Audience" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(),
+        "relations" => null
+    ),
+    "Objects\Resource" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => false,
+        "forceModel" => array(),
+        "relations" => null
+    ),
+    "Objects\GlobalSetting" => array(
+        "icon" => "fa-solid fa-users",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(
+            "value_binary" => "text"
+        ),
         "relations" => null
     ),
 );
@@ -266,11 +372,15 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                                     RELAÇÕES
                                                 </button>
                                                 <?php } ?>
+
+                                                <?php if (isset($objects[$entity_class]) && (!isset($objects[$entity_class]["update"]) || $objects[$entity_class]["update"])){
+                                                ?>
                                                 <button class="cyrus-btn cyrus-btn-type2"
                                                         data-form="<?php echo strtolower($entity_name); ?>_details"
                                                         data-entity="<?php echo $entity_name; ?>" id="btn-details-edit">
                                                     EDITAR
                                                 </button>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </div>
@@ -323,15 +433,15 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 if (isset($objects[$entity_class]) && $objects[$entity_class]["insert"]) {
                                     ?>
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#exampleModal">
+                                            data-bs-target="#insertModal">
                                         Adicionar
                                     </button>
-                                    <div class="modal fade" id="exampleModal" tabindex="-1"
+                                    <div class="modal fade" id="insertModal" tabindex="-1"
                                          aria-labelledby="exampleModalLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-xl">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalLabel">Adicionar</h5>
+                                                    <h5 class="modal-title">Adicionar</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                 </div>
@@ -466,9 +576,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
     </div>
 </div>
 <?php
-include(Utils::getDependencies("Cyrus", "footer", true));
 
-$entity = new Audience();
 
 ?>
 </body>

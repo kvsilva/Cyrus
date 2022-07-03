@@ -8,6 +8,8 @@ let entity: string;
 let rows: any[number] = [];
 
 let detailsModal: Modal;
+// @ts-ignore
+let insertModal: Modal;
 let updateModal: Modal;
 let relationsModal: Modal | null = null;
 
@@ -16,15 +18,69 @@ $(document).ready(async function () {
     // @ts-ignore
     detailsModal = new bootstrap.Modal($("#detailsModal"), {});
     // @ts-ignore
-    updateModal = new bootstrap.Modal($("#updateModal"), {});
+    if ($("#updateModal").length > 0) updateModal = new bootstrap.Modal($("#updateModal"), {});
     // @ts-ignore
     if ($("#relationsModal").length > 0) relationsModal = new bootstrap.Modal($("#relationsModal"), {});
+    // @ts-ignore
+    if ($("#insertModal").length > 0) insertModal = new bootstrap.Modal($("#insertModal"), {});
 
     configDataTable();
 
     await dataQuery();
 
+    $("[data-upload]").each(function(){
+        let name : string = $(this).data("name");
+        let relation : null|string = $(this).data("form").length > 0 ? $(this).data("form").replace("_update_relations", "") : null;
+        console.log("RELATION: "  + relation)
+        $(this).find(".group-section-subitem-items").each(function(){
+            $(this).find("input[type=file]").each(function(){
+                console.log(name);
+                let accept : null|string = null;
+                // Relations Modal
+                if(relation !== null) {
+                    switch (relation) {
+                        case "video":
+                            switch (name.toLowerCase()) {
+                                case "path":
+                                    accept = ".mp4";
+                                    break;
+                            }
+                            break;
+                        case "subtitle":
+                            switch (name.toLowerCase()) {
+                                case "path":
+                                    accept = ".vtt";
+                                    break;
+                            }
+                            break;
+                    }
+                }
+                // Insert & Update
+                if(accept === null) {
+                    switch (entity.toLowerCase()) {
+                        case "anime":
+                            switch (name.toLowerCase()) {
+                                case "path":
+                                    accept = ".mp4";
+                                    break;
+                            }
+                            break;
+                        case "season":
+                            switch (name.toLowerCase()) {
+                                case "path":
+                                    accept = ".mp4";
+                                    break;
+                            }
+                            break;
+                    }
+                }
 
+                accept = accept === null ? ".jpg, .jpged, .png" : accept;
+
+                $(this).attr("accept",accept);
+            });
+        });
+    });
 
     $("#btn-details-relations").each(function () {
         $(this).click(function () {
@@ -91,7 +147,7 @@ $(document).ready(async function () {
                 $(this).data("object", object);
             }
         })
-        updateModal.show();
+        updateModal?.show();
     });
 
     $("#btn-details-remove").click(function () {
@@ -513,7 +569,6 @@ async function dataQuery() {
                 $(tr).data("id", item?.id);
                 let id = item?.id;
                 let originalItem = result.original[i];
-
                 for (const index in originalItem) {
                     if (flags[entity + "Flags"] !== undefined && (index.toUpperCase() in flags[entity + "Flags"] || index.replace("_", "").toUpperCase() in flags[entity + "Flags"])) continue;
                     let td = $("<td>").attr("class", "cyrus-scrollbar backoffice-td");

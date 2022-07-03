@@ -90,10 +90,11 @@ class Dubbing extends Entity
 
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "language" => "null|\Objects\Language", "path" => "null|String", "available" => "array|null"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -103,7 +104,7 @@ class Dubbing extends Entity
         );
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

@@ -108,6 +108,8 @@ $(document).ready(function () {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
+    $("input[type=file]").each(function () {
+    });
 });
 export function cyrusAlert(alertType, alertHtml) {
     $("#alerts").find(".show").removeClass("show");

@@ -153,7 +153,7 @@ DELETE FROM example_object_relation where object = $id AND relation = $row[id];"
     /**
      * @return array
      */
-    public function toArray(): array
+    public function toArray(bool $minimal): array
     {
         $array = array(
             "id" => $this->getId()

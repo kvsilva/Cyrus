@@ -86,10 +86,11 @@ class Permission extends Entity
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
     #[Pure] #[ArrayShape(["id" => "int|mixed", "tag" => "null|String", "name" => "null|String", "description" => "null|String"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
@@ -100,7 +101,7 @@ class Permission extends Entity
     }
 
     #[Pure] #[ArrayShape(["id" => "int|null", "tag" => "null|String", "name" => "null|String", "description" => "null|String"])]
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

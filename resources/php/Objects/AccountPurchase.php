@@ -106,17 +106,18 @@ class AccountPurchase extends Entity
     }
 
     /**
+     * @param bool $entities
      * @return array
      */
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
-            "plan" => $this->plan?->toArray(),
+            "plan" => $this->plan?->toArray(false, $entities),
             "price" => $this->price,
             "purchased_on" => $this->purchased_on?->format(Database::DateFormat),
             "duration" => $this->duration,
-            "revoked_by" => $this->revoked_by?->toArray(),
+            "revoked_by" => $this->revoked_by?->toArray(false, $entities),
             "revoked_reason" => $this->revoked_reason,
             "revoked_at" => $this->revoked_at?->format(Database::DateFormat),
             "rescued_at" => $this->rescued_at?->format(Database::DateFormat),
@@ -124,7 +125,7 @@ class AccountPurchase extends Entity
         );
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),

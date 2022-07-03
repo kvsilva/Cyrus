@@ -8,6 +8,7 @@ use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
+use Exceptions\NotInitialized;
 use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
@@ -31,10 +32,14 @@ class Season extends Entity
     protected ?DateTime $release_date = null;
     protected ?Availability $available = null;
 
+
+
+    protected ?int $anime = null;
+
     // RELATIONS
 
     // SEASON::VIDEOS
-    private ?array $videos = null;
+    private ?VideosArray $videos = null;
 
     /**
      * @param int|null $id
@@ -57,28 +62,18 @@ class Season extends Entity
         $database = $this->getDatabase();
         $id = $this->getId();
         if($this->hasFlag(self::VIDEOS)){
-            $this->videos = array();
+            $this->videos = new VideosArray();
             $query = $database->query("SELECT id FROM video WHERE season = $id;");
             while($row = $query->fetch_array()){
                 $this->videos[] = new Video($row["id"]);
             }
         }
+        parent::buildRelations();
     }
 
-    /**
-     * @param Anime $anime
-     * @return $this
-     * @throws ColumnNotFound
-     * @throws IOException
-     * @throws InvalidSize
-     * @throws NotNullable
-     * @throws RecordNotFound
-     * @throws ReflectionException
-     * @throws TableNotFound
-     * @throws UniqueKey
-     */
-    public function store(Anime $anime) : Season{
-        parent::__store(values: array("anime" => $anime->getId()));
+    protected function updateRelations()
+    {
+        parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
         if ($this->hasFlag(self::VIDEOS)) {
@@ -94,9 +89,28 @@ class Season extends Entity
                 if ($remove) (new Video($row["id"]))->remove();
             }
             foreach ($this->videos as $video) {
-                $video->store(anime: $anime, season: $this);
+                $video->store(anime: new Anime($this->anime), season: $this);
             }
         }
+    }
+
+
+    /**
+     * @param Anime|null $anime
+     * @return $this
+     * @throws ColumnNotFound
+     * @throws IOException
+     * @throws InvalidSize
+     * @throws NotNullable
+     * @throws RecordNotFound
+     * @throws ReflectionException
+     * @throws TableNotFound
+     * @throws UniqueKey
+     */
+    public function store(?Anime $anime = null) : Season{
+        if($anime === null) $anime = new Anime(id: $this->anime);
+        $this->anime = $anime->getId();
+        parent::__store(values: array("anime" => $anime->getId()));
         return $this;
     }
 
@@ -138,10 +152,11 @@ class Season extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
     #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "array|null", "videos" => "array|null"])]
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
@@ -153,13 +168,13 @@ class Season extends Entity
         );
         if(!$minimal) {
             $array["videos"] = $this->videos != null ? array() : null;
-            if ($array["videos"] != null) foreach ($this->videos as $value) $array["videos"][] = $value->toArray();
+            if ($array["videos"] !== null) foreach ($this->videos as $value) $array["videos"][] = $value->toArray();
         }
         return $array;
     }
 
     #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "array|null", "videos" => "array|null"])]
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
@@ -174,6 +189,72 @@ class Season extends Entity
             if ($array["videos"] != null) foreach ($this->videos as $value) $array["videos"][] = $value;
         }
         return $array;
+    }
+
+    /**
+     * @param Video|null $entity
+     * @param int|null $id
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeVideos(Video $entity = null, int $id = null): Season
+    {
+        if($this->videos == null) throw new NotInitialized("videos");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->videos); $i++) {
+                if ($this->videos[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->videos); $i++) {
+                if ($this->videos[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->videos[$item]);
+        return $this;
+    }
+
+
+    public function addVideo(Video $entity): Season
+    {
+        if($this->videos === null) throw new NotInitialized("videos");
+        $this->videos[] = $entity;
+        return $this;
+    }
+
+
+    /**
+     * @param int $relation
+     * @param mixed $value
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function addRelation(int $relation, mixed $value) : Season
+    {
+        switch ($relation) {
+            case self::VIDEOS:
+                $this->addVideo($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws NotInitialized
+     * @noinspection PhpParamsInspection
+     */
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : Season
+    {
+        switch ($relation) {
+            case self::VIDEOS:
+                $this->removeVideos($value, $id);
+                break;
+        }
+        return $this;
     }
 
     /**

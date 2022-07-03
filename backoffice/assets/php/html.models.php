@@ -80,7 +80,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
         case "resource":
             ?>
             <div class="group-section-subitem" data-form="<?php echo $formName; ?>" data-isMultiple="true"
-                 data-name="<?php echo $fieldName ?>" data-selectedSection="1">
+                 data-name="<?php echo $fieldName ?>" data-selectedSection="1" data-upload = "true">
                 <div class="group-section-subitem-title"><?php echo $displayName ?></div>
 
                 <!-- Upload File -->
@@ -311,6 +311,10 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
             <?php
             break;*/
         case "relation-full":
+            $entity_name = str_replace("Objects\\", "", $childEntity);
+            $entity_class = "Objects\\" . $entity_name;
+            $entity = new ReflectionClass($entity_class);
+            $properties = $entity->getProperties();
             ?>
 
             <div class="group-section-subitem" data-form="<?php echo $formName; ?>" data-isMultiple="true"
@@ -325,7 +329,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                     <div class="model-existingRelations mb-4">
                         <div class="cyrus-input-group" data-form="<?php echo $formName; ?>" data-isDetailed="true"
                              data-name="<?php echo $fieldName ?>" data-object="null">
-                            <div class="model-update-details-items" title="Apagar"
+                            <div class="model-update-details-items" title="<?php echo $entity->hasProperty("available") ? 'Trocar Disponibilidade' : 'Remover'?>"
                                  data-childentity="<?php echo $fieldName ?>">
                             </div>
                             <span class="cyrus-floating-label cyrus-floating-label-float-textarea">Relações Existentes</span>
@@ -334,10 +338,6 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                     <div class="model" data-model="relation-full">
                         <span class="cyrus-floating-label cyrus-floating-label-float-textarea">Adicionar Relação</span>
                         <?php
-                        $entity_name = str_replace("Objects\\", "", $childEntity);
-                        $entity_class = "Objects\\" . $entity_name;
-                        $entity = new ReflectionClass($entity_class);
-                        $properties = $entity->getProperties();
 
                         foreach ($properties as $property) {
                             if ($property->isProtected()) {

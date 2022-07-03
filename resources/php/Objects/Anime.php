@@ -231,24 +231,25 @@ class Anime extends Entity
 
     /**
      * @param bool $minimal
+     * @param bool $entities
      * @return array
      */
-    public function toArray(bool $minimal = false): array
+    public function toArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
             "title" => $this->title,
             "original_title" => $this->original_title,
             "synopsis" => $this->synopsis,
-            "cape" => $this->cape?->toArray(),
-            "profile" => $this->profile?->toArray(),
+            "cape" => $this->cape?->toArray(false, $entities),
+            "profile" => $this->profile?->toArray(false, $entities),
             "start_date" => $this->start_date?->format(Database::DateFormat),
             "end_date" => $this->end_date?->format(Database::DateFormat),
             "mature" => $this->mature?->toArray(),
             "launch_day" => $this->launch_day?->toArray(),
             "launch_time" => $this->launch_time?->format(Database::TimeFormat),
-            "source" => $this->source?->toArray(),
-            "audience" => $this->audience?->toArray(),
+            "source" => $this->source?->toArray(false, $entities),
+            "audience" => $this->audience?->toArray(false, $entities),
             "trailer" => $this->trailer,
             "available" => $this->available?->toArray()
         );
@@ -273,7 +274,7 @@ class Anime extends Entity
         return $array;
     }
 
-    public function toOriginalArray(bool $minimal = false): array
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
@@ -399,6 +400,9 @@ class Anime extends Entity
         foreach($remove as $item) unset($this->videos[$item]);
         return $this;
     }
+
+
+
 
     /**
      * @param Season|null $entity
