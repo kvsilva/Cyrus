@@ -35,7 +35,7 @@
 
 }
 
-.login{
+.verify{
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -45,7 +45,7 @@
     flex-direction: column;
 }
 
-.login-wrapper{
+.verify-wrapper{
     margin-top: 35px;
     padding: 50px 25px;
     max-width: 550px;
@@ -53,25 +53,19 @@
     background-color: var(--backgroundColor5);
     box-shadow: 0 0 1px 2px var(--backgroundColor3);
     border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.login-wrapper #execute{
-    margin-top: 25px;
-}
-
-.login .title{
+.verify .title{
     font-weight: bold;
     font-size: 28px;
 }
 
-.login .description{
+.verify .description{
     color: var(--color3);
     font-weight: 600;
-}
-
-
-.redirect-page{
-    margin-top: 25px;
 }
 
 #content{

@@ -352,12 +352,13 @@ class User extends Entity
      * @return EntityArray|UsersArray
      * @throws ReflectionException
      */
-    public static function find(int $id = null, string $email = null, string $username = null, Availability $available = Availability::AVAILABLE,  string $sql = null, array $flags = [self::NORMAL]): EntityArray|UsersArray
+    public static function find(int $id = null, string $email = null, string $username = null, Availability $available = Availability::AVAILABLE, Verification $verification = Verification::VERIFIED, string $sql = null, array $flags = [self::NORMAL]): EntityArray|UsersArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "email" => $email,
             "username" => $username,
+            "verification" => $verification?->value,
             "available" => $available?->value
         ), table: 'user', class: 'Objects\User', sql: $sql, flags: $flags);
     }
