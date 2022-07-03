@@ -11,7 +11,7 @@ use Objects\Permission;
             <div class="header-content">
                 <div class="header-left">
                     <div class="logo">
-                        <a class = "link-nodecoration" href = "<?php Routing::getRouting("home") ?>"><img src="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" alt="icon"></a>
+                        <a class = "link-nodecoration" href = "<?php echo Routing::getRouting("home") ?>"><img src="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" alt="icon"></a>
                     </div>
                 </div>
                 <div class="header-center">
@@ -38,7 +38,7 @@ use Objects\Permission;
                         <div class="header-btn" id="user-menu-btn">
                         <div role="button" class="header-user dropdown-arrow">
                             <img draggable="false" class="header-user-avatar"
-                                 src="https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png"
+                                 src="<?php echo $_SESSION["user"]?->getProfileImage()?->getPath()?>"
                                  alt="Icon">
                         </div>
                         <div class="list-menu" id="user-menu-list">
@@ -48,12 +48,12 @@ use Objects\Permission;
                                         <div class="col-3">
                                             <div class="pe-1">
                                                 <img draggable="false" class="list-avatar"
-                                                     src="https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png"
+                                                     src="<?php echo $_SESSION["user"]?->getProfileImage()?->getPath()?>"
                                                      alt="Icon">
                                             </div>
                                         </div>
                                         <div class="col-9">
-                                            <div>Kurookami</div>
+                                            <div><?php echo $_SESSION["user"]?->getUsername()?></div>
                                             <div class="user-role-text">
                                                 <i class="fa-solid fa-user-group"></i>
                                                 <span class="ps-2">

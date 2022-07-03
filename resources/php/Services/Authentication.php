@@ -36,6 +36,9 @@ class Authentication
         if($users->size() > 0){
             if($users[0]->isPassword($password)){
                 $_SESSION["user"] = $users[0]->addFlag(User::ROLES);
+                if($_SESSION["user"]?->getProfileImage() === null){
+
+                }
                 return new Status(isError: false, message: "Welcome back, " . $users[0]->getUsername());
             } else {
                 return new Status(isError: true, message: "The credentials entered do not match.");

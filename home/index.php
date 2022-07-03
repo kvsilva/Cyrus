@@ -110,7 +110,8 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             <?php
                             $videos = Users::getKeepWatchingVideos()->getBareReturn();
                             foreach ($videos as $item) {
-                                $video = $item[0]["video"];
+                                if(count($item) === 0) continue;
+                                    $video = $item[0]["video"];
                                 $remaining = $item[0]["remaining"];
                                 ?>
                                 <div class="cyrus-card cyrus-carousel-items-card">
