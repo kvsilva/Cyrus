@@ -89,80 +89,81 @@ include(Utils::getDependencies("Cyrus", "header", true));
             if (count($item) === 0) continue;
             ++$total;
         }
-        if($total > 0){
-        ?>
-        <div id="keepWatchingVideos" class="section content-wrapper">
-            <div class="content-wrapper">
-                <div class="section-list">
-                    <div class="section-list-title">
-                        <span class="h2">Continue Assistindo</span>
-                        <div class="float-end cyrus-feed-view-link">
-                            <a class="link-nodecoration" href="#">Ver Histórico <i
-                                        class="fa-solid fa-chevron-right"></i></a>
+        if ($total > 0) {
+            ?>
+            <div id="keepWatchingVideos" class="section content-wrapper">
+                <div class="content-wrapper">
+                    <div class="section-list">
+                        <div class="section-list-title">
+                            <span class="h2">Continue Assistindo</span>
+                            <div class="float-end cyrus-feed-view-link">
+                                <a class="link-nodecoration" href="#">Ver Histórico <i
+                                            class="fa-solid fa-chevron-right"></i></a>
+                            </div>
                         </div>
+                        <div class="cyrus-feed-divider cyrus-feed-divider-1"></div>
                     </div>
-                    <div class="cyrus-feed-divider cyrus-feed-divider-1"></div>
                 </div>
-            </div>
-            <div class="cyrus-carousel cyrus-carousel-cards">
-                <div class="content-wrapper cyrus-carousel-wrapper">
-                    <div class="cyrus-carousel-arrow-wrapper cyrus-carousel-cards-arrow-wrapper cyrus-carousel-arrow-hidden"
-                         data-arrow="previous">
-                        <div role="button" class="cyrus-carousel-previous cyrus-carousel-arrow">
-                            <i class="fa-solid fa-chevron-left"></i>
+                <div class="cyrus-carousel cyrus-carousel-cards">
+                    <div class="content-wrapper cyrus-carousel-wrapper">
+                        <div class="cyrus-carousel-arrow-wrapper cyrus-carousel-cards-arrow-wrapper cyrus-carousel-arrow-hidden"
+                             data-arrow="previous">
+                            <div role="button" class="cyrus-carousel-previous cyrus-carousel-arrow">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="cyrus-carousel-items">
-                        <div class="cyrus-carousel-items-wrapper">
-                            <?php
-                            foreach ($videos as $item) {
-                                if(count($item) === 0) continue;
+                        <div class="cyrus-carousel-items">
+                            <div class="cyrus-carousel-items-wrapper">
+                                <?php
+                                foreach ($videos as $item) {
+                                    if (count($item) === 0) continue;
                                     $video = $item[0]["video"];
-                                $remaining = $item[0]["remaining"];
-                                ?>
-                                <div class="cyrus-card cyrus-carousel-items-card">
-                                    <a class="cyrus-card-link"
-                                       href="<?php echo Routing::getRouting("episode") . "?episode=" . $video?->getId() ?>"
-                                       title="<?php echo $video?->getTitle() ?>"></a>
-                                    <div class="cyrus-card-image-cape">
-                                        <img class="c-opacity-70"
-                                             src="<?php echo $video?->getThumbnail()?->getPath() ?>">
-                                        <div class="cyrus-card-duration">
-                                            <span><?php echo floor($remaining / 60) . "m para terminar" ?></span></div>
-                                        <i class="fa-solid fa-play cyrus-card-center"></i></div>
-                                    <div class="cyrus-card-body">
-                                        <div class="cyrus-card-description">
-                                            <div class="cyrus-card-description-info">
-                                                <span><?php echo $video?->getAnime()?->getTitle() ?> </span></div>
-                                        </div>
-                                        <div class="m-0 cyrus-card-title">
-                                            <h4 class="cyrus-card-title">
-                                                <?php
-                                                echo ($video?->getSeason() !== null ? $video?->getSeason()?->getName() . " " : "") . $video?->getVideoType()?->getName() . " " . $video?->getNumeration() . " - " . $video?->getTitle();
-                                                ?>
-                                            </h4>
-                                        </div>
-                                        <div class="m-0 cyrus-card-description">
-                                            <div class="cyrus-card-description-type">
-                                                <span><?php echo $video?->getVideoType()?->getName() ?></span></div>
+                                    $remaining = $item[0]["remaining"];
+                                    ?>
+                                    <div class="cyrus-card cyrus-carousel-items-card">
+                                        <a class="cyrus-card-link"
+                                           href="<?php echo Routing::getRouting("episode") . "?episode=" . $video?->getId() ?>"
+                                           title="<?php echo $video?->getTitle() ?>"></a>
+                                        <div class="cyrus-card-image-cape">
+                                            <img class="c-opacity-70"
+                                                 src="<?php echo $video?->getThumbnail()?->getPath() ?>">
+                                            <div class="cyrus-card-duration">
+                                                <span><?php echo floor($remaining / 60) . "m para terminar" ?></span>
+                                            </div>
+                                            <i class="fa-solid fa-play cyrus-card-center"></i></div>
+                                        <div class="cyrus-card-body">
+                                            <div class="cyrus-card-description">
+                                                <div class="cyrus-card-description-info">
+                                                    <span><?php echo $video?->getAnime()?->getTitle() ?> </span></div>
+                                            </div>
+                                            <div class="m-0 cyrus-card-title">
+                                                <h4 class="cyrus-card-title">
+                                                    <?php
+                                                    echo ($video?->getSeason() !== null ? $video?->getSeason()?->getName() . " " : "") . $video?->getVideoType()?->getName() . " " . $video?->getNumeration() . " - " . $video?->getTitle();
+                                                    ?>
+                                                </h4>
+                                            </div>
+                                            <div class="m-0 cyrus-card-description">
+                                                <div class="cyrus-card-description-type">
+                                                    <span><?php echo $video?->getVideoType()?->getName() ?></span></div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <?php
-                            }
-                            ?>
+                                    <?php
+                                }
+                                ?>
+                            </div>
                         </div>
-                    </div>
-                    <div class="cyrus-carousel-arrow-wrapper cyrus-carousel-cards-arrow-wrapper cyrus-carousel-arrow-hidden"
-                         data-arrow="next">
-                        <div role="button" class="cyrus-carousel-next cyrus-carousel-arrow">
-                            <i class="fa-solid fa-chevron-right"></i>
+                        <div class="cyrus-carousel-arrow-wrapper cyrus-carousel-cards-arrow-wrapper cyrus-carousel-arrow-hidden"
+                             data-arrow="next">
+                            <div role="button" class="cyrus-carousel-next cyrus-carousel-arrow">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <?php
+            <?php
         }
     } ?>
     <div id="lastReleasedVideos" class="section content-wrapper">
@@ -238,10 +239,17 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 <div class="cyrus-feed-divider cyrus-feed-divider-1"></div>
             </div>
         </div>
+        <?php
+        $size = 0;
+        $calendar = Animes::getCalendar("today")->getBareReturn();
+        foreach ($calendar as $day => $dayInfo) {
+            $size = count($dayInfo["animes"]);
+        }
+        if ($size > 0){
+        ?>
         <div class="cyrus-grid cyrus-grid-3">
             <?php
-            $calendar = Animes::getCalendar("today")->getBareReturn();
-            foreach ($calendar as $day => $dayInfo)
+            foreach ($calendar as $day => $dayInfo) {
                 foreach ($dayInfo["animes"] as $anime) {
                     ?>
                     <div class="cyrus-card cyrus-card-flex cyrus-carousel-items-card">
@@ -256,7 +264,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                         class="cyrus-card-title"><?php echo $anime?->getTitle() ?></h4>
                             </div>
                             <div class="cyrus-card-description ">
-                                <div class="cyrus-card-description-info"><span>Episódio <?php echo Animes::getNumberOfNextEpisode($anime->getId())->getBareReturn()["numeration"];?></span></div>
+                                <div class="cyrus-card-description-info">
+                                    <span>Episódio <?php echo Animes::getNumberOfNextEpisode($anime->getId())->getBareReturn()["numeration"]; ?></span>
+                                </div>
                                 <div class="cyrus-card-description-type float-end">
                                     <span><?php echo $anime?->getLaunchTime()?->format("H:i"); ?></span></div>
                             </div>
@@ -264,6 +274,16 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     </div>
                     <?php
                 }
+            }
+            } else {
+                ?>
+                <div style="display: flex; align-items: center; width: 100%; justify-content: center; flex-direction: column; margin-top: 18px;">
+                    <img draggable="false" width="200px" height="150px"
+                         src="<?php echo Utils::getDependencies("Cyrus", "nothing_to_see") ?>">
+                    <span style = "font-weight: bold; font-size: 22px; margin-top: 5px;">Não tem nada por aqui hoje o((>ω< ))o</span>
+                </div>
+                <?php
+            }
             ?>
         </div>
     </div>
