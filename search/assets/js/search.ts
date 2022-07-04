@@ -72,7 +72,7 @@ $(document).ready(function(){
                                     } else if (item instanceof Video) {
 
                                         let duration = Math.round(item.duration / 60);
-                                        let title = (item.season !== null ? "Temporada " + item.season?.numeration : "") + (item.numeration !== null ? "Episódio " + item.numeration : "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title
+                                        let title = (item.season !== null ? "Temporada " + item.season?.numeration : "") + (item.numeration !== null ? "Episódio " + item.numeration + " ": "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title
                                         card.append(
                                             $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.episode + "?episode=" + item.id).attr("title", item.title)
                                         ).append(
@@ -159,6 +159,10 @@ $(document).ready(function(){
 
                             let videos: Video[] = result.data.filter((value: any) => value instanceof Video);
                             let videosType: (VideoType | null)[] = videos.map(value => value.video_type);
+
+                            // NÃO REPETIR OS VALORES
+
+
                             if (videosType !== null && videos.length > 0) {
                                 let videos_global = $("<div>").attr("id", "videos");
                                 for(let t = 0; t < videosType.length; t++) {
@@ -172,7 +176,7 @@ $(document).ready(function(){
                                         let item : Video = videosByType[i];
                                         let card = $("<div>").attr("class", "cyrus-card  cyrus-card-flex");
                                         let duration = Math.round(item.duration / 60);
-                                        let title = (item.season !== null ? "Temporada " + item.season?.numeration : "") + (item.numeration !== null ? "Episódio " + item.numeration : "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title
+                                        let title = (item.season !== null ? "Temporada " + item.season?.numeration : "") + (item.numeration !== null ? "Episódio " + item.numeration + " " : "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title
                                         card.append(
                                             $("<a>").attr("class", "cyrus-card-link").attr("href", Routing?.episode + "?episode=" + item.id).attr("title", item.title)
                                         ).append(

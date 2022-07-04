@@ -96,7 +96,7 @@ $(document).ready(function () {
     $(".dropdown").find(".dropdown-menu li").click(function () {
         $(this).parent().find(".selected").removeClass("selected");
         $(this).addClass("selected");
-        $(this).parent().parent().find(".dropdown-toggle").find("span").data("selected", $(this).data("id")).text($(this).html()).trigger("change");
+        $(this).parent().parent().find(".dropdown-toggle").first().find("span").first().data("selected", $(this).data("id")).text($(this).html()).trigger("change");
     });
     $("#cyrus-logout").click(function () {
         API.requestService("Authentication", "logout", {}, []).then((result) => {

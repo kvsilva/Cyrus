@@ -8,119 +8,132 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Request as API } from "../../../../resources/js/Request";
-import { cyrusAlert } from "../../../../resources/js/cyrus";
+//import {cyrusAlert} from "../../../../resources/js/cyrus";
 import { AnimeFlags } from "../../../../resources/js/models";
 $(document).ready(function () {
-    $("#comment-rating i").each(function () {
-        $(this).click(function () {
-            $(this).addClass("star-selected");
-            $(this).nextAll("i").addClass("star-selected");
-            $(this).prevAll("i").removeClass("star-selected");
-            $(this).parent().find(".reviews-classified-as").data("rating", $(this).data("star")).text("Classificaste como " + $(this).data("star") + " " + ($(this).data("star") == 1 ? "Estrela" : "Estrelas")).trigger("datachange");
-        });
-        $(this).hover(function () {
-            $(this).addClass("star-selected");
-            $(this).nextAll("i").addClass("star-selected");
-            $(this).prevAll("i").removeClass("star-selected");
-        }, function () {
-            let rating = $(this).parent().find(".reviews-classified-as").data("rating");
-            $(this).removeClass("star-selected");
-            $(this).parent().find("i").each(function () {
-                if ($(this).data("star") <= rating) {
-                    $(this).addClass("star-selected");
-                }
-                else {
-                    $(this).removeClass("star-selected");
-                }
+    return __awaiter(this, void 0, void 0, function* () {
+        $("#comment-rating i").each(function () {
+            $(this).click(function () {
+                $(this).addClass("star-selected");
+                $(this).nextAll("i").addClass("star-selected");
+                $(this).prevAll("i").removeClass("star-selected");
+                $(this).parent().find(".reviews-classified-as").data("rating", $(this).data("star")).text("Classificaste como " + $(this).data("star") + " " + ($(this).data("star") == 1 ? "Estrela" : "Estrelas")).trigger("datachange");
+            });
+            $(this).hover(function () {
+                $(this).addClass("star-selected");
+                $(this).nextAll("i").addClass("star-selected");
+                $(this).prevAll("i").removeClass("star-selected");
+            }, function () {
+                let rating = $(this).parent().find(".reviews-classified-as").data("rating");
+                $(this).removeClass("star-selected");
+                $(this).parent().find("i").each(function () {
+                    if ($(this).data("star") <= rating) {
+                        $(this).addClass("star-selected");
+                    }
+                    else {
+                        $(this).removeClass("star-selected");
+                    }
+                });
             });
         });
-    });
-    $("#form0-description").on("input", function () {
-        // @ts-ignore
-        $(this).parent().nextAll(".reviews-self-char-notification").html($(this).val().length + "/" + $(this).attr("maxlength") + " caracteres.");
-    });
-    $("#form0-title").on("input", function () {
-        if ($.trim($("#form0-title").val()).length > 0 && $.trim($("#form0-description").val()).length > 0 && $("#comment-rating [data-rating]").data("rating") > 0) {
-            $("#form0-submit").prop("disabled", false);
-        }
-        else {
-            $("#form0-submit").prop("disabled", true);
-        }
-    });
-    $("#form0-description").on("input", function () {
-        if ($.trim($("#form0-title").val()).length > 0 && $.trim($("#form0-description").val()).length > 0 && $("#comment-rating [data-rating]").data("rating") > 0) {
-            $("#form0-submit").prop("disabled", false);
-        }
-        else {
-            $("#form0-submit").prop("disabled", true);
-        }
-    });
-    $("#comment-rating [data-rating]").on("datachange", function () {
-        if ($.trim($("#form0-title").val()).length > 0 && $.trim($("#form0-description").val()).length > 0 && $("#comment-rating [data-rating]").data("rating") > 0) {
-            $("#form0-submit").prop("disabled", false);
-        }
-        else {
-            $("#form0-submit").prop("disabled", true);
-        }
-    });
-    $("#form0").submit(function (e) {
-        e.preventDefault();
-    });
-    $("#form0-submit").click(function (e) {
-        return __awaiter(this, void 0, void 0, function* () {
-            e.preventDefault();
-            let title = $("#form0-title").val();
-            let description = $("#form0-description").val();
-            let rating = $("#comment-rating [data-rating]").data("rating");
-            let spoiler = $("#form0-spoiler").prop("checked");
-            yield API.requestService("session", "getSession", {}, []).then((result) => __awaiter(this, void 0, void 0, function* () {
-                if (result.status) {
-                    if ("data" in result) {
-                        let user = result.data[0];
-                        cyrusAlert("warning", "Processando o seu pedido...");
-                        API.requestType("Anime", "update", {
-                            "id": getParameter("anime"),
-                            "relations": {
-                                "COMMENTANIMES": [
-                                    {
-                                        "user": user === null || user === void 0 ? void 0 : user.id,
-                                        "post_date": null,
-                                        "title": title,
-                                        "description": description,
-                                        "spoiler": spoiler,
-                                        "classification": rating
-                                    }
-                                ]
-                            }
-                        }, [], false).then((result) => {
-                            if (result.status) {
-                                cyrusAlert("success", result.description);
-                                dataQuery();
-                            }
-                            else {
-                                cyrusAlert("danger", "Ocorreu um erro ao processar o seu pedido!");
-                            }
-                        });
-                    }
-                }
-            }));
+        $("#form0-description").on("input", function () {
+            // @ts-ignore
+            $(this).parent().nextAll(".reviews-self-char-notification").html($(this).val().length + "/" + $(this).attr("maxlength") + " caracteres.");
         });
-    });
-    $("#currentReviewOrder").change(function () {
-        console.log("called");
-        dataQuery();
-    });
-    $("[data-collapse]").click(function () {
-        if ($(this).data("collapse") === true) {
-            $(this).parent().parent().find("[data-collapsible]").addClass("expanded");
-            $(this).text("MOSTRAR MENOS");
-            $(this).data("collapse", false);
-        }
-        else {
-            $(this).data("collapse", true);
-            $(this).parent().parent().find("[data-collapsible]").removeClass("expanded");
-            $(this).text("MOSTRAR MAIS");
-        }
+        $("#form0-title").on("input", function () {
+            if ($.trim($("#form0-title").val()).length > 0 && $.trim($("#form0-description").val()).length > 0 && $("#comment-rating [data-rating]").data("rating") > 0) {
+                $("#form0-submit").prop("disabled", false);
+            }
+            else {
+                $("#form0-submit").prop("disabled", true);
+            }
+        });
+        $("#form0-description").on("input", function () {
+            if ($.trim($("#form0-title").val()).length > 0 && $.trim($("#form0-description").val()).length > 0 && $("#comment-rating [data-rating]").data("rating") > 0) {
+                $("#form0-submit").prop("disabled", false);
+            }
+            else {
+                $("#form0-submit").prop("disabled", true);
+            }
+        });
+        $("#comment-rating [data-rating]").on("datachange", function () {
+            if ($.trim($("#form0-title").val()).length > 0 && $.trim($("#form0-description").val()).length > 0 && $("#comment-rating [data-rating]").data("rating") > 0) {
+                $("#form0-submit").prop("disabled", false);
+            }
+            else {
+                $("#form0-submit").prop("disabled", true);
+            }
+        });
+        $("#form0").submit(function (e) {
+            e.preventDefault();
+        });
+        $("#form0-submit").click(function (e) {
+            return __awaiter(this, void 0, void 0, function* () {
+                e.preventDefault();
+                let title = $("#form0-title").val();
+                let description = $("#form0-description").val();
+                let rating = $("#comment-rating [data-rating]").data("rating");
+                let spoiler = $("#form0-spoiler").prop("checked");
+                yield API.requestService("session", "getSession", {}, []).then((result) => __awaiter(this, void 0, void 0, function* () {
+                    if (result.status) {
+                        if ("data" in result) {
+                            let user = result.data[0];
+                            // @ts-ignore
+                            cyrusAlert("warning", "Processando o seu pedido...");
+                            API.requestType("Anime", "update", {
+                                "id": getParameter("anime"),
+                                "relations": {
+                                    "COMMENTANIMES": [
+                                        {
+                                            "user": user === null || user === void 0 ? void 0 : user.id,
+                                            "post_date": null,
+                                            "title": title,
+                                            "description": description,
+                                            "spoiler": spoiler,
+                                            "classification": rating
+                                        }
+                                    ]
+                                }
+                            }, [], false).then((result) => {
+                                if (result.status) {
+                                    // @ts-ignore
+                                    cyrusAlert("success", result.description);
+                                    dataQuery();
+                                }
+                                else {
+                                    // @ts-ignore
+                                    cyrusAlert("danger", "Ocorreu um erro ao processar o seu pedido!");
+                                }
+                            });
+                        }
+                    }
+                }));
+            });
+        });
+        yield dataQuery();
+        $("#currentReviewOrder").change(function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                yield dataQuery();
+            });
+        });
+        $("[data-collapse]").click(function () {
+            if ($(this).data("collapse") === true) {
+                $(this).parent().parent().find("[data-collapsible]").addClass("expanded");
+                $(this).text("MOSTRAR MENOS");
+                $(this).data("collapse", false);
+            }
+            else {
+                $(this).data("collapse", true);
+                $(this).parent().parent().find("[data-collapsible]").removeClass("expanded");
+                $(this).text("MOSTRAR MAIS");
+            }
+        });
+        $("#currentSeason").change(function () {
+            console.log("2");
+            $("[data-seasonlist]").addClass("cyrus-item-hidden");
+            let currentSeason = $(this).data("selected");
+            $("[data-seasonlist='" + currentSeason + "']").removeClass("cyrus-item-hidden");
+        });
     });
 });
 // @ts-ignore
@@ -176,6 +189,7 @@ function dataQuery() {
                 }
             }
             else {
+                // @ts-ignore
                 cyrusAlert("danger", "Ocorreu um erro ao processar o seu pedido!");
                 console.error(result);
             }

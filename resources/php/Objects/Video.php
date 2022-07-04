@@ -103,6 +103,7 @@ class Video extends Entity
         $this->season = is_int($season) ? new Season(id: $season) : $season;
         $values = array();
         $values["anime"] = $anime->getId();
+        $values["season"] = $season->getId();
         parent::__store(values: $values);
         return $this;
     }

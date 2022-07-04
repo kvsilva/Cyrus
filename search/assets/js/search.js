@@ -45,7 +45,7 @@ $(document).ready(function () {
                                 }
                                 else if (item instanceof Video) {
                                     let duration = Math.round(item.duration / 60);
-                                    let title = (item.season !== null ? "Temporada " + ((_b = item.season) === null || _b === void 0 ? void 0 : _b.numeration) : "") + (item.numeration !== null ? "Episódio " + item.numeration : "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title;
+                                    let title = (item.season !== null ? "Temporada " + ((_b = item.season) === null || _b === void 0 ? void 0 : _b.numeration) : "") + (item.numeration !== null ? "Episódio " + item.numeration + " " : "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title;
                                     card.append($("<a>").attr("class", "cyrus-card-link").attr("href", (Routing === null || Routing === void 0 ? void 0 : Routing.episode) + "?episode=" + item.id).attr("title", item.title)).append($("<div>").attr("class", "cyrus-card-image").append($("<img>").attr("class", "c-opacity-70").attr("src", item.thumbnail === null ? "" : (_c = item.thumbnail) === null || _c === void 0 ? void 0 : _c.path)).append($("<div>").attr("class", "cyrus-card-duration").append($("<span>").html(duration + "m"))).append($("<i>").attr("class", "fa-solid fa-play cyrus-card-center"))).append($("<div>").attr("class", "cyrus-card-body").append($("<div>").attr("class", "cyrus-card-description").append($("<div>").attr("class", "cyrus-card-description-info").append($("<span>").html(item.anime === null ? "<Título não encontrado>" : (_d = item.anime) === null || _d === void 0 ? void 0 : _d.title)))).append($("<div>").attr("class", "m-0 cyrus-card-title").append($("<h4>").attr("class", "cyrus-card-title").html(title))).append($("<div>").attr("class", "m-0 cyrus-card-description").append($("<div>").attr("class", "cyrus-card-description-type").append($("<span>").html("Episódio")))));
                                 }
                                 else {
@@ -76,6 +76,7 @@ $(document).ready(function () {
                         }
                         let videos = result.data.filter((value) => value instanceof Video);
                         let videosType = videos.map(value => value.video_type);
+                        videosType = remove_duplicates_es6(videosType);
                         if (videosType !== null && videos.length > 0) {
                             let videos_global = $("<div>").attr("id", "videos");
                             for (let t = 0; t < videosType.length; t++) {
@@ -87,7 +88,7 @@ $(document).ready(function () {
                                     let item = videosByType[i];
                                     let card = $("<div>").attr("class", "cyrus-card  cyrus-card-flex");
                                     let duration = Math.round(item.duration / 60);
-                                    let title = (item.season !== null ? "Temporada " + ((_f = item.season) === null || _f === void 0 ? void 0 : _f.numeration) : "") + (item.numeration !== null ? "Episódio " + item.numeration : "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title;
+                                    let title = (item.season !== null ? "Temporada " + ((_f = item.season) === null || _f === void 0 ? void 0 : _f.numeration) : "") + (item.numeration !== null ? "Episódio " + item.numeration + " " : "") + ((item.season !== null || item.anime !== null) ? " - " : "") + item.title;
                                     card.append($("<a>").attr("class", "cyrus-card-link").attr("href", (Routing === null || Routing === void 0 ? void 0 : Routing.episode) + "?episode=" + item.id).attr("title", item.title)).append($("<div>").attr("class", "cyrus-card-image-flex").append($("<img>").attr("class", "c-opacity-70").attr("src", item.thumbnail === null ? "" : (_g = item.thumbnail) === null || _g === void 0 ? void 0 : _g.path)).append($("<div>").attr("class", "cyrus-card-duration").append($("<span>").html(duration + "m"))).append($("<i>").attr("class", "fa-solid fa-play cyrus-card-center"))).append($("<div>").attr("class", "cyrus-card-body").append($("<div>").attr("class", "cyrus-card-description").append($("<div>").attr("class", "cyrus-card-description-info").append($("<span>").html(item.anime === null ? "" : (_h = item.anime) === null || _h === void 0 ? void 0 : _h.title)))).append($("<div>").attr("class", "m-0 cyrus-card-title").append($("<h4>").attr("class", "cyrus-card-title").html(title))).append($("<div>").attr("class", "m-0 cyrus-card-description").append($("<div>").attr("class", "cyrus-card-description-type").append($("<span>").html("Episódio")))));
                                     videos_wrapper.append(card);
                                 }
@@ -105,6 +106,11 @@ $(document).ready(function () {
         //pageLoaded();
     });
 });
+function remove_duplicates_es6(arr) {
+    let s = new Set(arr);
+    let it = s.values();
+    return Array.from(it);
+}
 /*function pageLoaded(){
     $("html").css({visibility: "visible"});
 }*/ 

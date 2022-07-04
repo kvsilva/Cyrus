@@ -31,10 +31,8 @@ $(document).ready(async function () {
     $("[data-upload]").each(function(){
         let name : string = $(this).data("name");
         let relation : null|string = $(this).data("form").length > 0 ? $(this).data("form").replace("_update_relations", "") : null;
-        console.log("RELATION: "  + relation)
         $(this).find(".group-section-subitem-items").each(function(){
             $(this).find("input[type=file]").each(function(){
-                console.log(name);
                 let accept : null|string = null;
                 // Relations Modal
                 if(relation !== null) {
@@ -184,6 +182,7 @@ $(document).ready(async function () {
                     updateRelations(entityID);
                 } else {
                     cyrusAlert("danger", result.description + " Consulte a consola para mais detalhes.");
+                    console.error(result);
                 }
             });
         });

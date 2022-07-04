@@ -1,9 +1,9 @@
 import {Request as API} from "../../../../resources/js/Request";
-import {cyrusAlert} from "../../../../resources/js/cyrus";
+//import {cyrusAlert} from "../../../../resources/js/cyrus";
 import {AnimeFlags} from "../../../../resources/js/models";
 
 
-$(document).ready(function () {
+$(document).ready(async function () {
 
     $("#comment-rating i").each(function () {
         $(this).click(function () {
@@ -76,6 +76,7 @@ $(document).ready(function () {
             if (result.status) {
                 if ("data" in result) {
                     let user = result.data[0];
+                    // @ts-ignore
                     cyrusAlert("warning", "Processando o seu pedido...");
                     API.requestType("Anime", "update", {
                         "id": getParameter("anime"),
@@ -94,9 +95,11 @@ $(document).ready(function () {
                         }
                     }, [], false).then((result: any) => {
                         if (result.status) {
+                            // @ts-ignore
                             cyrusAlert("success", result.description);
                             dataQuery();
                         } else {
+                            // @ts-ignore
                             cyrusAlert("danger", "Ocorreu um erro ao processar o seu pedido!");
                         }
                     });
@@ -106,8 +109,9 @@ $(document).ready(function () {
 
     });
 
+    await dataQuery();
+
     $("#currentReviewOrder").change(async function () {
-        console.log("called");
         await dataQuery();
     });
 
@@ -122,6 +126,13 @@ $(document).ready(function () {
             $(this).text("MOSTRAR MAIS");
         }
     })
+
+    $("#currentSeason").change(function () {
+        console.log("2");
+        $("[data-seasonlist]").addClass("cyrus-item-hidden");
+        let currentSeason = $(this).data("selected");
+        $("[data-seasonlist='" + currentSeason + "']").removeClass("cyrus-item-hidden");
+    });
 
 
 });
@@ -215,6 +226,7 @@ async function dataQuery() {
                 }
             }
         } else {
+            // @ts-ignore
             cyrusAlert("danger", "Ocorreu um erro ao processar o seu pedido!");
             console.error(result);
         }
