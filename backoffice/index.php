@@ -42,11 +42,13 @@ $objects = array(
         "relations" => array(
             "roles" => array(
                 "model" => "relation-dropdown",
-                "class" => "Objects\Role"
+                "class" => "Objects\Role",
+                "ignore" => array()
             ),
             "punishments" => array(
                 "model" => "relation-full",
-                "class" => "Objects\Punishment"
+                "class" => "Objects\Punishment",
+                "ignore" => array()
             ),
         )
     ),
@@ -67,9 +69,7 @@ $objects = array(
             "permissions" => array(
                 "model" => "default",
                 "class" => "Objects\Permission",
-                "ignore" => array(
-
-                )
+                "ignore" => array()
             )
         )
     ),
