@@ -31,14 +31,26 @@ include(Utils::getDependencies("Cyrus", "header", true));
             <div class="col-2">
                 <div class="pe-1">
                     <img draggable="false" class="user-info-avatar"
-                         src="https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png"
+                         src="<?php echo $_SESSION["user"]?->getProfileImage()?->getPath()?>"
                          alt="Icon">
                 </div>
             </div>
             <div class="col-8 user-info-data">
-                <div class="user-info-username">Kurookami</div>
+                <div class="user-info-username"><?php echo $_SESSION["user"]?->getUsername()?></div>
                 <div class="user-info-role-text"><i class="fa-solid fa-user-group"></i><span
-                            class="ps-2">Administrador</span></div>
+                            class="ps-2"><?php if (isset($_SESSION["user"]) && $_SESSION["user"]->getRoles() !== null && count($_SESSION["user"]->getRoles()) > 0) {
+                            $rolesText = "";
+                            $userRoles = $_SESSION["user"]->getRoles();
+                            $i = 0;
+                            foreach ($userRoles as $role) {
+                                $i++;
+                                $rolesText .= $role?->getName();
+                                if ($i < $userRoles->size()) $rolesText .= ", ";
+                            }
+                            echo $rolesText;
+                        } else {
+                            echo "Membro";
+                        }?></span></div>
             </div>
         </div>
         <div class="row">
@@ -64,14 +76,14 @@ include(Utils::getDependencies("Cyrus", "header", true));
                         </div>
                     </div>
                     <div class="user-options-section">
-                        <div class="user-options-section-title">
+                        <!--<div class="user-options-section-title">
                             <span>Compras</span>
                         </div>
                         <div class="user-options-section-items">
                             <div class="user-options-section-item">
                                 <span>Histórico de Pedidos</span>
                             </div>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
             </div>

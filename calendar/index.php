@@ -31,7 +31,6 @@ include(Utils::getDependencies("Cyrus", "header", true));
 <div id="content">
     <!-- CONTENT HERE -->
     <div class = "content-wrapper">
-        <h1>Meter o número do Episódio Dinâmico</h1>
         <div class = "calendar">
         <?php
         foreach($calendar as $day => $dayInfo){?>
@@ -49,7 +48,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 foreach($dayInfo["animes"] as $anime){?>
                 <div class = "calendar-item">
                     <div class = "calendar-item-hour">
-                        <span><?php echo $anime?->getLaunchTime()?->format("H:i");?></span>
+                        <span class = "no-select"><?php echo $anime?->getLaunchTime()?->format("H:i");?></span>
                     </div>
                     <div class = "calendar-item-title">
                         <a href = "<?php echo Routing::getRouting("animes") . "?anime=" . $anime->getId(); ?>"><span><?php echo $anime->getTitle(); ?></span></a>
@@ -67,7 +66,8 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                     echo '<a href = "#">';
                                 }
                             }
-                        ?><span <?php echo !$isAvailable ? 'class = "not-available"' : ''?>>Episódio 12 Disponível <?php echo !$isAvailable ? " em Breve" : ""?></span><?php echo $isAvailable ? "</a>" : ""?>
+                            $numeration = Animes::getNumberOfNextEpisode($anime->getId())->getBareReturn()["numeration"];
+                        ?><span <?php echo !$isAvailable ? 'class = "not-available"' : ''?>>Episódio <?php echo $numeration?> Disponível <?php echo !$isAvailable ? " em Breve" : ""?></span><?php echo $isAvailable ? "</a>" : ""?>
                     </div>
                     <div class = "calendar-item-anime-cape">
                         <img src = "<?php echo $anime->getProfile()?->getPath();?>">

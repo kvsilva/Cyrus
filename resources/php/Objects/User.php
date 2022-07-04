@@ -726,9 +726,9 @@ class User extends Entity
     }
 
     /**
-     * @return Resource
+     * @return Resource|null
      */
-    public function getProfileImage() : Resource
+    public function getProfileImage() : ?Resource
     {
         return $this->profile_image;
     }
@@ -744,9 +744,9 @@ class User extends Entity
     }
 
     /**
-     * @return Resource
+     * @return Resource|null
      */
-    public function getProfileBackground() : Resource
+    public function getProfileBackground() : ?Resource
     {
         return $this->profile_background;
     }

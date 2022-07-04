@@ -125,6 +125,7 @@ abstract class Entity
                                 foreach($matches[0] as $m){
                                     if($m != 0) $process = true;
                                 }
+                                $process = true;
                                 if($process) {
                                     $value = str_replace("/", "-", $value);
                                     $date = DateTime::createFromFormat(Database::DateFormat, $value);

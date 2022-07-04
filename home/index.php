@@ -83,6 +83,13 @@ include(Utils::getDependencies("Cyrus", "header", true));
     </div>
     <?php
     if (isset($_SESSION["user"])) {
+        $total = 0;
+        $videos = Users::getKeepWatchingVideos()->getBareReturn();
+        foreach ($videos as $item) {
+            if (count($item) === 0) continue;
+            ++$total;
+        }
+        if($total > 0){
         ?>
         <div id="keepWatchingVideos" class="section content-wrapper">
             <div class="content-wrapper">
@@ -108,7 +115,6 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     <div class="cyrus-carousel-items">
                         <div class="cyrus-carousel-items-wrapper">
                             <?php
-                            $videos = Users::getKeepWatchingVideos()->getBareReturn();
                             foreach ($videos as $item) {
                                 if(count($item) === 0) continue;
                                     $video = $item[0]["video"];
@@ -157,6 +163,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
             </div>
         </div>
         <?php
+        }
     } ?>
     <div id="lastReleasedVideos" class="section content-wrapper">
         <div class="content-wrapper">
@@ -249,7 +256,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                         class="cyrus-card-title"><?php echo $anime?->getTitle() ?></h4>
                             </div>
                             <div class="cyrus-card-description ">
-                                <div class="cyrus-card-description-info"><span>Episódio 255</span></div>
+                                <div class="cyrus-card-description-info"><span>Episódio <?php echo Animes::getNumberOfNextEpisode($anime->getId())->getBareReturn()["numeration"];?></span></div>
                                 <div class="cyrus-card-description-type float-end">
                                     <span><?php echo $anime?->getLaunchTime()?->format("H:i"); ?></span></div>
                             </div>

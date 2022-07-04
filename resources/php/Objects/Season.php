@@ -30,6 +30,7 @@ class Season extends Entity
     protected ?String $name = null;
     protected ?String $synopsis = null;
     protected ?DateTime $release_date = null;
+    protected ?DateTime $end_date = null;
     protected ?Availability $available = null;
 
 
@@ -137,7 +138,7 @@ class Season extends Entity
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "int|null"])]
+    #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "end_date" => "bool|\DateTime|null", "available" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
@@ -146,6 +147,7 @@ class Season extends Entity
             "name" => $this->name,
             "synopsis" => $this->synopsis,
             "release_date" => $this->release_date != null ? Database::convertDateToDatabase($this->release_date) : null,
+            "end_date" => $this->end_date != null ? Database::convertDateToDatabase($this->end_date) : null,
             "available" => $this->available?->value
         );
     }
@@ -155,7 +157,7 @@ class Season extends Entity
      * @param bool $entities
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "array|null", "videos" => "array|null"])]
+    #[ArrayShape(["id" => "int|null", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "null|string", "end_date" => "null|string", "available" => "array|null", "videos" => "array|null"])]
     public function toArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
@@ -164,6 +166,7 @@ class Season extends Entity
             "name" => $this->name,
             "synopsis" => $this->synopsis,
             "release_date" => $this->release_date?->format(Database::DateFormatSimplified),
+            "end_date" => $this->end_date?->format(Database::DateFormatSimplified),
             "available" => $this->available?->toArray()
         );
         if(!$minimal) {
@@ -173,7 +176,7 @@ class Season extends Entity
         return $array;
     }
 
-    #[ArrayShape(["id" => "int|mixed", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "available" => "array|null", "videos" => "array|null"])]
+    #[ArrayShape(["id" => "int|null", "numeration" => "int|null", "name" => "null|String", "synopsis" => "null|String", "release_date" => "bool|\DateTime|null", "end_date" => "bool|\DateTime|null", "available" => "\Enumerators\Availability|null", "videos" => "array|null"])]
     public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
@@ -182,6 +185,7 @@ class Season extends Entity
             "name" => $this->name,
             "synopsis" => $this->synopsis,
             "release_date" => $this->release_date != null ? Database::convertDateToDatabase($this->release_date) : null,
+            "end_date" => $this->end_date != null ? Database::convertDateToDatabase($this->end_date) : null,
             "available" => $this->available
         );
         if(!$minimal) {
@@ -354,7 +358,7 @@ class Season extends Entity
     /**
      * @return array|null
      */
-    public function getVideos(): ?array
+    public function getVideos(): ?VideosArray
     {
         return $this->videos;
     }
@@ -363,11 +367,49 @@ class Season extends Entity
      * @param array|null $videos
      * @return Season
      */
-    public function setVideos(?array $videos): Season
+    public function setVideos(?VideosArray $videos): Season
     {
         $this->videos = $videos;
         return $this;
     }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getEndDate(): ?DateTime
+    {
+        return $this->end_date;
+    }
+
+    /**
+     * @param DateTime|null $end_date
+     * @return Season
+     */
+    public function setEndDate(?DateTime $end_date): Season
+    {
+        $this->end_date = $end_date;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getAnime(): ?int
+    {
+        return $this->anime;
+    }
+
+    /**
+     * @param int|null $anime
+     * @return Season
+     */
+    public function setAnime(?int $anime): Season
+    {
+        $this->anime = $anime;
+        return $this;
+    }
+
+
 
 
 
