@@ -254,7 +254,11 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                     </div>
                 </div>
                 <div class="reviews-section">
-                    <div class="review-post mt-3">
+                    <?php
+
+                    if(isset($_SESSION["user"])){
+                    ?>
+                        <div class="review-post mt-3">
                         <div class="row">
                             <div class="col-2 review-post-user no select">
                                 <img draggable="false" class="img-fluid mx-auto"
@@ -310,14 +314,9 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                             </div>
                         </div>
                     </div>
+                    <?php }?>
                     <div id="reviews-list" class="mt-3">
-                        <?php
-                        for ($x = 0;
-                             $x < 5;
-                             $x++) {
-
-                            ?>
-                            <div class="review">
+                            <!--<div class="review">
                                 <div class="row">
                                     <div class="col-2 review-post-user no-select">
                                         <img draggable="false" class="mx-auto"
@@ -334,14 +333,11 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                                                 class="fa-solid fa-share-nodes"></i></button>
                                 </span>
                                         <div class="review-star mt-3">
-                                            <?php
-                                            for ($i = 0;
-                                                 $i < 5;
-                                                 $i++) { ?>
                                                 <i class="fa-solid fa-star star static filled"></i>
-                                                <?php
-                                            }
-                                            ?>
+                                                <i class="fa-solid fa-star star static filled"></i>
+                                                <i class="fa-solid fa-star star static filled"></i>
+                                                <i class="fa-solid fa-star star static filled"></i>
+                                                <i class="fa-solid fa-star star static filled"></i>
                                         </div>
                                         <div class="mt-3">
                                             <h3 class="review-title">Lorem ipsum dolor sit amet</h3>
@@ -363,56 +359,6 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                                                     mi,
                                                     sed finibus nulla.
                                                     Curabitur sodales viverra dapibus. Aenean fermentum dui turpis, non
-                                                    consectetur sapien posuere in. Duis gravida vitae arcu sed rhoncus.
-                                                    Integer
-                                                    vel ex dapibus, dapibus dolor vel, tincidunt mi. Nullam eget
-                                                    suscipit
-                                                    lorem.
-                                                    Integer a nibh non purus aliquam efficitur. Nullam consequat
-                                                    condimentum
-                                                    nulla, vitae mollis ipsum dignissim sit amet. Suspendisse potenti.
-                                                    Praesent
-                                                    tristique dolor mauris, a suscipit sem ultricies ut.
-                                                    Suspendisse fermentum erat nunc, consequat mattis dolor posuere nec.
-                                                    Vivamus
-                                                    pretium in ligula in dapibus. Nulla facilisi. Donec lectus ligula,
-                                                    sagittis
-                                                    eu tincidunt eget, aliquam a mauris. Maecenas et purus luctus,
-                                                    pretium
-                                                    tellus ac, aliquet augue. Phasellus sollicitudin justo sit amet
-                                                    ligula
-                                                    vulputate, eget vehicula orci rutrum. Phasellus placerat rhoncus
-                                                    convallis.
-                                                    Curabitur eleifend, justo sed tempus finibus, neque nulla varius
-                                                    urna,
-                                                    sit
-                                                    amet ultrices urna metus in nibh. Sed sed sodales urna, nec pretium
-                                                    orci.
-                                                    Phasellus rhoncus ac nisl id lobortis. Morbi sit amet elit laoreet,
-                                                    viverra
-                                                    dui sit amet, efficitur nunc. Nulla cursus ante id tempor sodales.
-                                                    Fusce luctus lacus libero. Integer bibendum lacinia urna, id
-                                                    faucibus
-                                                    ipsum
-                                                    hendrerit ut. Fusce bibendum tellus sit amet accumsan malesuada. Nam
-                                                    facilisis nibh vestibulum ex condimentum, ut lobortis ex pharetra.
-                                                    Mauris
-                                                    porta tristique cursus. Duis cursus magna id iaculis ornare. Duis
-                                                    ultrices
-                                                    nunc nisl, nec porttitor est volutpat ut. Vestibulum non congue
-                                                    metus,
-                                                    tempor consequat tellus. Proin vitae ex a nisi volutpat fringilla.
-                                                    Vivamus
-                                                    sit amet consequat ante, in dignissim magna. Nullam vitae lobortis
-                                                    ligula, a
-                                                    sodales tellus. Sed luctus risus id interdum efficitur.
-                                                    Vivamus euismod ipsum quis facilisis congue. Proin et tincidunt
-                                                    velit.
-                                                    Quisque sit amet porta metus. Sed non eros ut diam consectetur
-                                                    rhoncus.
-                                                    Nam
-                                                    at dui lacus. Quisque nibh mi, bibendum sit amet nunc nec, imperdiet
-                                                    euismod
                                                     leo. Mauris blandit odio eleifend nisi aliquet maximus laoreet non
                                                     arcu.
                                                 </p>
@@ -422,17 +368,9 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                                             <button data-collapse="true" class="cyrus-btn cyrus-btn-simple">MOSTRAR MAIS
                                             </button>
                                         </div>
-                                        <!--<div class ="evaluate-review mt-2">
-                                            <span data-positive="86">86</span> de <span data-total = "100">100</span> pessoas consideraram esta crítica útil. É útil para si? <button class = "cyrus-btn cyrus-btn-simple evaluate-review-button">SIM</button> | <button class = "cyrus-btn cyrus-btn-simple">NÃO</button>
-                                        </div>-->
                                     </div>
                                 </div>
-                                <!--<hr class = "w-25 mx-auto">-->
-                            </div>
-                            <?php
-                        }
-                        ?>
-
+                            </div>-->
                     </div>
                 </div>
             </div>

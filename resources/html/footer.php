@@ -45,6 +45,8 @@ use Functions\Routing;
                 ?>
             </ul>
         </div>
+        <?php
+        if(false){?>
         <div class = "section">
             <h4 class = "section-title">Cyrus</h4>
             <ul class = "list">
@@ -75,6 +77,7 @@ use Functions\Routing;
                 </li>
             </ul>
         </div>
+        <?php }?>
     </div>
     <div class = "content-wrapper ">
         <hr>
