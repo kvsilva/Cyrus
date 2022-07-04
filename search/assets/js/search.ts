@@ -14,6 +14,7 @@ $(document).ready(function(){
         }
         $("#reset-query-form").click(function(){
                 $("#form-query").trigger("reset");
+                $("#field-query").trigger("input");
             })
 
         $("#field-query").on('input',function(){
@@ -158,16 +159,19 @@ $(document).ready(function(){
 
 
                             let videos: Video[] = result.data.filter((value: any) => value instanceof Video);
-                            let videosType: (VideoType | null)[] = videos.map(value => value.video_type);
+                            let videosTypeAvailable: (VideoType | null)[] = videos.map(value => value.video_type);
+                            if (videosTypeAvailable !== null && videosTypeAvailable.length > 0) {
+                                let videosType: (VideoType | null)[] = [];
+                                for(let z = 0; z < videosTypeAvailable.length; z++){
+                                    let add : boolean = videosType.every(value => value?.id != videosTypeAvailable[z]?.id);
+                                    if(add) videosType.push( videosTypeAvailable[z])
+                                }
 
-                            // NÃO REPETIR OS VALORES
 
-
-                            if (videosType !== null && videos.length > 0) {
                                 let videos_global = $("<div>").attr("id", "videos");
                                 for(let t = 0; t < videosType.length; t++) {
                                     let type : VideoType | null = videosType[t];
-                                    let videosByType : Video[] = videos.filter(value => value.video_type == type);
+                                    let videosByType : Video[] = videos.filter(value => value.video_type?.id == type?.id);
                                     let video_results = $("<div>").attr("class", "results").attr("id", "series").append(
                                         $("<h4>").html(type !== null ? type.name : "Desconhecido")
                                     );

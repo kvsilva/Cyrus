@@ -19,7 +19,7 @@ if ($animes == null || $animes?->size() == 0) {
     Utils::goTo("animes");
 }
 $anime = $animes[0];
-$videos = Video::find(anime: $anime->getId());
+$videos = Video::find(sql: "anime = " . $anime->getId() . " AND season IS NULL");
 $seasons = Season::find(anime: $anime->getId(), flags: [Season::VIDEOS]);
 $genders = $anime->getGenders() === null ? new EntityArray(null) : $anime->getGenders();
 
@@ -125,12 +125,12 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                         </div>
                     <?php } ?>
                 </div>
-                <div class="col">
-                    <div class="order">
+                <!--<div class="col">
+                    <dv class="order">
                         <i class="fa-solid fa-arrow-down-short-wide"></i>
                         <span id="currentOrder" data-order="recent">MAIS RECENTE</span>
-                    </div>
-                </div>
+                    </dv>
+                </div>-->
             </div>
             <?php
             if ($seasons->size() > 0) {
@@ -206,13 +206,13 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
 
             </div>
             <hr>
-            <div class="seasons-switch no-select">
+            <!--<div class="seasons-switch no-select">
                 <div class="previous-season disable" id="previousSeason"><i class="fa-solid fa-angle-left"></i> <span>TEMPORADA ANTERIOR</span>
                 </div>
                 <div class="next-season <?php echo $seasons->size() < 2 ? 'disable' : '' ?>>" id="nextSeason"><span>PRÓXIMA TEMPORADA</span>
                     <i
                             class="fa-solid fa-angle-right"></i></div>
-            </div>
+            </div>-->
             <div class="row" id="reviews">
                 <div class="controller">
                     <div class="reviews-average-rating">
@@ -240,15 +240,15 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                             <div class="dropdown-toggle" id="dropdown-filter" data-bs-toggle="dropdown"
                                  aria-expanded="false">
                                 <i class="fa-solid fa-sliders"></i>
-                                <span class="reviews-filters-filter-title">Filtro</span>
+                                <span class="reviews-filters-filter-title" id = "review-current-filter" data-selected="all">Todos</span>
                             </div>
                             <ul class="dropdown-menu" aria-labelledby="dropdown-filter" id="review-filters">
-                                <li data-filter="all" class="selected">Todos</li>
-                                <li data-filter="1">1 Estrela</li>
-                                <li data-filter="2">2 Estrelas</li>
-                                <li data-filter="3">3 Estrelas</li>
-                                <li data-filter="4">4 Estrelas</li>
-                                <li data-filter="5">5 Estrelas</li>
+                                <li data-id="all" class="selected">Todos</li>
+                                <li data-id="1">1 Estrela</li>
+                                <li data-id="2">2 Estrelas</li>
+                                <li data-id="3">3 Estrelas</li>
+                                <li data-id="4">4 Estrelas</li>
+                                <li data-id="5">5 Estrelas</li>
                             </ul>
                         </div>
                     </div>

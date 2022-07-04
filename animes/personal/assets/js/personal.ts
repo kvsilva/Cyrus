@@ -114,6 +114,9 @@ $(document).ready(async function () {
     $("#currentReviewOrder").change(async function () {
         await dataQuery();
     });
+    $("#review-current-filter").change(async function () {
+        await dataQuery();
+    });
 
     $("[data-collapse]").click(function () {
         if ($(this).data("collapse") === true) {
@@ -127,12 +130,12 @@ $(document).ready(async function () {
         }
     })
 
-    $("#currentSeason").change(function () {
+    /*$("#currentSeason").change(function () {
         console.log("2");
         $("[data-seasonlist]").addClass("cyrus-item-hidden");
         let currentSeason = $(this).data("selected");
         $("[data-seasonlist='" + currentSeason + "']").removeClass("cyrus-item-hidden");
-    });
+    });*/
 
 
 });
@@ -143,9 +146,11 @@ async function dataQuery() {
 
     $("#reviews-list").html("");
 
-    await API.requestType("Anime", "query", {
+    let formData : any[string] = {
         "id": getParameter("anime"),
-    }, [AnimeFlags.COMMENTANIMES.name], false, true).then((result: any) => {
+    };
+
+    await API.requestType("Anime", "query", formData, [AnimeFlags.COMMENTANIMES.name], false, true).then((result: any) => {
         if (result.status) {
             if(result.data){
                 let results = result.data[0];
@@ -157,6 +162,12 @@ async function dataQuery() {
                     } else {
                         item = results.comments[i];
                     }
+
+                    if($("#review-current-filter").data("selected") !== "all"){
+                        if(item.classification != $("#review-current-filter").data("selected")) continue;
+                    }
+
+
                     let ye = new Intl.DateTimeFormat('pt', { year: 'numeric' }).format(item?.date);
                     let mo = new Intl.DateTimeFormat('pt', { month: 'long' }).format(item?.date);
                     let da = new Intl.DateTimeFormat('pt', { day: '2-digit' }).format(item?.date);

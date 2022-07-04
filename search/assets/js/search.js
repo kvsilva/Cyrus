@@ -11,6 +11,7 @@ $(document).ready(function () {
         }
         $("#reset-query-form").click(function () {
             $("#form-query").trigger("reset");
+            $("#field-query").trigger("input");
         });
         $("#field-query").on('input', function () {
             let title = String($("#field-query").val());
@@ -75,13 +76,18 @@ $(document).ready(function () {
                             $("#content-results").append(series_wrapper);
                         }
                         let videos = result.data.filter((value) => value instanceof Video);
-                        let videosType = videos.map(value => value.video_type);
-                        videosType = remove_duplicates_es6(videosType);
-                        if (videosType !== null && videos.length > 0) {
+                        let videosTypeAvailable = videos.map(value => value.video_type);
+                        if (videosTypeAvailable !== null && videosTypeAvailable.length > 0) {
+                            let videosType = [];
+                            for (let z = 0; z < videosTypeAvailable.length; z++) {
+                                let add = videosType.every(value => { var _a; return (value === null || value === void 0 ? void 0 : value.id) != ((_a = videosTypeAvailable[z]) === null || _a === void 0 ? void 0 : _a.id); });
+                                if (add)
+                                    videosType.push(videosTypeAvailable[z]);
+                            }
                             let videos_global = $("<div>").attr("id", "videos");
                             for (let t = 0; t < videosType.length; t++) {
                                 let type = videosType[t];
-                                let videosByType = videos.filter(value => value.video_type == type);
+                                let videosByType = videos.filter(value => { var _a; return ((_a = value.video_type) === null || _a === void 0 ? void 0 : _a.id) == (type === null || type === void 0 ? void 0 : type.id); });
                                 let video_results = $("<div>").attr("class", "results").attr("id", "series").append($("<h4>").html(type !== null ? type.name : "Desconhecido"));
                                 let videos_wrapper = $("<div>").attr("class", "results-wrapper results-wrapper-videos");
                                 for (let i = 0; i < videosByType.length; i++) {
@@ -106,11 +112,6 @@ $(document).ready(function () {
         //pageLoaded();
     });
 });
-function remove_duplicates_es6(arr) {
-    let s = new Set(arr);
-    let it = s.values();
-    return Array.from(it);
-}
 /*function pageLoaded(){
     $("html").css({visibility: "visible"});
 }*/ 

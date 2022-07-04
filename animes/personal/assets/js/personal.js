@@ -116,6 +116,11 @@ $(document).ready(function () {
                 yield dataQuery();
             });
         });
+        $("#review-current-filter").change(function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                yield dataQuery();
+            });
+        });
         $("[data-collapse]").click(function () {
             if ($(this).data("collapse") === true) {
                 $(this).parent().parent().find("[data-collapsible]").addClass("expanded");
@@ -128,12 +133,12 @@ $(document).ready(function () {
                 $(this).text("MOSTRAR MAIS");
             }
         });
-        $("#currentSeason").change(function () {
+        /*$("#currentSeason").change(function () {
             console.log("2");
             $("[data-seasonlist]").addClass("cyrus-item-hidden");
             let currentSeason = $(this).data("selected");
             $("[data-seasonlist='" + currentSeason + "']").removeClass("cyrus-item-hidden");
-        });
+        });*/
     });
 });
 // @ts-ignore
@@ -141,9 +146,10 @@ window.dataQueryPeronal = () => dataQuery();
 function dataQuery() {
     return __awaiter(this, void 0, void 0, function* () {
         $("#reviews-list").html("");
-        yield API.requestType("Anime", "query", {
+        let formData = {
             "id": getParameter("anime"),
-        }, [AnimeFlags.COMMENTANIMES.name], false, true).then((result) => {
+        };
+        yield API.requestType("Anime", "query", formData, [AnimeFlags.COMMENTANIMES.name], false, true).then((result) => {
             var _a, _b, _c;
             if (result.status) {
                 if (result.data) {
@@ -155,6 +161,10 @@ function dataQuery() {
                         }
                         else {
                             item = results.comments[i];
+                        }
+                        if ($("#review-current-filter").data("selected") !== "all") {
+                            if (item.classification != $("#review-current-filter").data("selected"))
+                                continue;
                         }
                         let ye = new Intl.DateTimeFormat('pt', { year: 'numeric' }).format(item === null || item === void 0 ? void 0 : item.date);
                         let mo = new Intl.DateTimeFormat('pt', { month: 'long' }).format(item === null || item === void 0 ? void 0 : item.date);
