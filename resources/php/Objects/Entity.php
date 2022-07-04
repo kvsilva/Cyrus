@@ -284,7 +284,7 @@ abstract class Entity
             if(is_array($values)){
                 $query_keys_values = $this->valuesArray();
                 foreach($values as $key => $v) {
-                    if ($v == null) throw new NotNullable(argument: $key);
+                    //if ($v == null) throw new NotNullable(argument: $key);
                     $query_keys_values[$key] = $v;
                 }
             } else $query_keys_values = $this->valuesArray();
@@ -321,6 +321,7 @@ abstract class Entity
             $update_sql = substr($update_sql,0,-1);
             $sql = "UPDATE $table SET $update_sql WHERE id = $this->id";
         }
+
         $database->query($sql);
         $database->query("COMMIT");
         $this->id = $query_keys_values["id"];

@@ -98,6 +98,8 @@ $(document).ready(function () {
                                 if (result.status) {
                                     // @ts-ignore
                                     cyrusAlert("success", result.description);
+                                    $("#form0").trigger("reset");
+                                    $("#form0-description").parent().nextAll(".reviews-self-char-notification").html("0/" + $("#form0-description").attr("maxlength") + " caracteres.");
                                     dataQuery();
                                 }
                                 else {

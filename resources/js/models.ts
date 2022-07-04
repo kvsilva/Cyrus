@@ -303,6 +303,7 @@ export class Video {
     anime: Anime | null;
     season: Season | null;
     subtitles: Subtitle[];
+    comments: CommentVideo[];
     dubbing: any[];
 
     public constructor(obj?: any){ 
@@ -324,12 +325,14 @@ export class Video {
         this.anime = (obj_.anime !== undefined) ? (obj_.anime !== null ? new Anime(obj_.anime): null) : null;
         this.season = (obj_.season !== undefined) ? (obj_.season !== null ? new Season(obj_.season): null) : null;
         this.subtitles = (obj_.subtitles !== undefined) ? obj_.subtitles : [];
+        this.comments = (obj_.comments !== undefined) ? obj_.comments : [];
         this.dubbing = (obj_.dubbing !== undefined) ? obj_.dubbing : [];
     }
 }
 export const VideoFlags = {
     SUBTITLES: {name: "SUBTITLES", value: 2},
     DUBBING: {name: "DUBBING", value: 3},
+    COMMENTVIDEOS: {name: "COMMENTVIDEOS", value: 3},
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
@@ -640,6 +643,28 @@ export const CommentAnimeFlags = {
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
+export class CommentVideo {
+    id: number;
+    post_date: Date;
+    description: string;
+    spoiler: boolean;
+    video: Video | null;
+    user: User | null;
+
+    public constructor(obj?: any){ 
+        const obj_: any = obj || {};
+        this.id = (obj_.id !== undefined) ? obj_.id : null;
+        this.post_date = (obj_.post_date !== undefined) ? obj_.post_date : null;
+        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.spoiler = (obj_.spoiler !== undefined) ? obj_.spoiler : null;
+        this.video = (obj_.video !== undefined) ? (obj_.video !== null ? new Video(obj_.video): null) : null;
+        this.user = (obj_.user !== undefined) ? (obj_.user !== null ? new User(obj_.user): null) : null;
+    }
+}
+export const CommentVideoFlags = {
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
+};
 export class APIWebFile {
     id: number;
     name: string;
@@ -691,7 +716,8 @@ export const flags : any = {
     "AccountPurchaseFlags" : AccountPurchaseFlags,
     "LogActionFlags" : LogActionFlags,
     "LogFlags" : LogFlags,
-    "CommentAnimeFlags" : CommentAnimeFlags
+    "CommentAnimeFlags" : CommentAnimeFlags,
+    "CommentVideoFlags" : CommentVideoFlags
 }
 export const models : any = { 
     "GlobalSetting" : GlobalSetting,
@@ -719,5 +745,6 @@ export const models : any = {
     "LogAction" : LogAction,
     "Log" : Log,
     "CommentAnime" : CommentAnime,
+    "CommentVideo" : CommentVideo,
     "APIWebFile" : APIWebFile
 }

@@ -17,19 +17,17 @@ use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 
-class CommentAnime extends Entity
+class CommentVideo extends Entity
 {
     // FLAGS
 
     // DEFAULT STRUCTURE
 
     protected ?DateTime $post_date = null;
-    protected ?String $title = null;
     protected ?String $description = null;
     protected ?bool $spoiler = null;
-    protected ?int $classification = null;
 
-    protected ?Anime $anime = null;
+    protected ?Video $video = null;
     protected ?User $user = null;
 
     // RELATIONS
@@ -42,7 +40,7 @@ class CommentAnime extends Entity
      */
     public function __construct(int $id = null, array $flags = array(self::NORMAL))
     {
-        parent::__construct(table: "commentanime", id: $id, flags: $flags);
+        parent::__construct(table: "commentvideo", id: $id, flags: $flags);
     }
 
     /**
@@ -54,13 +52,13 @@ class CommentAnime extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store(Anime|int|null $anime = null, User|int|null $user = null) : CommentAnime{
-        if($anime === null) $anime = new Anime(id: $this->anime?->getId());
+    public function store(Video|int|null $video = null, User|int|null $user = null) : CommentVideo{
+        if($video === null) $video = new Video(id: $this->video?->getId());
         if($user === null) $user = new User(id: $this->user?->getId());
-        $this->anime = is_int($anime) ? new Anime(id: $anime) : $anime;
+        $this->video = is_int($video) ? new Video(id: $video) : $video;
         $this->user = is_int($user) ? new User(id: $user) : $user;
         $values = array();
-        $values["anime"] = $this->anime?->getId();
+        $values["video"] = $this->video?->getId();
         $values["user"] = $this->user?->getId();
         parent::__store(values: $values);
         return $this;
@@ -69,7 +67,7 @@ class CommentAnime extends Entity
     /**
      * @throws IOException
      */
-    public function remove() : CommentAnime{
+    public function remove() : CommentVideo{
         parent::__remove();
         return $this;
     }
@@ -77,13 +75,13 @@ class CommentAnime extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $user = null, int $anime = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, int $user = null, int $video = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
-            "anime" => $anime,
+            "video" => $video,
             "user" => $user,
-        ), table: 'commentanime', class: 'Objects\CommentAnime', sql: $sql, flags: $flags);
+        ), table: 'commentvideo', class: 'Objects\CommentVideo', sql: $sql, flags: $flags);
     }
 
     /**
@@ -94,12 +92,10 @@ class CommentAnime extends Entity
     protected function valuesArray(): array
     {
         return array(
-            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("commentanime"),
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("commentvideo"),
             "post_date" => $this->post_date?->format(Database::DateFormat),
-            "title" => $this->title,
             "description" => $this->description,
             "spoiler" => $this->spoiler,
-            "classification" => $this->classification,
         );
     }
 
@@ -114,13 +110,11 @@ class CommentAnime extends Entity
         $array = array(
             "id" => $this->getId(),
             "post_date" => $this->post_date?->format(Database::DateFormat),
-            "title" => $this->title,
             "description" => $this->description,
-            "spoiler" => $this->spoiler,
-            "classification" => $this->classification,
+            "spoiler" => $this->spoiler
         );
         if($entities){
-            $array["anime"] = $this->anime?->toArray();
+            $array["video"] = $this->video?->toArray();
             $array["user"] = $this->user?->toArray();
         }
         return $array;
@@ -133,13 +127,11 @@ class CommentAnime extends Entity
         $array = array(
             "id" => $this->getId(),
             "post_date" => $this->post_date?->format(Database::DateFormat),
-            "title" => $this->title,
             "description" => $this->description,
             "spoiler" => $this->spoiler,
-            "classification" => $this->classification,
         );
         if($entities){
-            $array["anime"] = $this->anime;
+            $array["video"] = $this->video;
             $array["user"] = $this->user;
         }
         return $array;
@@ -155,29 +147,11 @@ class CommentAnime extends Entity
 
     /**
      * @param DateTime|null $post_date
-     * @return CommentAnime
+     * @return CommentVideo
      */
-    public function setPostDate(?DateTime $post_date): CommentAnime
+    public function setPostDate(?DateTime $post_date): CommentVideo
     {
         $this->post_date = $post_date;
-        return $this;
-    }
-
-    /**
-     * @return String|null
-     */
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param String|null $title
-     * @return CommentAnime
-     */
-    public function setTitle(?string $title): CommentAnime
-    {
-        $this->title = $title;
         return $this;
     }
 
@@ -191,9 +165,9 @@ class CommentAnime extends Entity
 
     /**
      * @param String|null $description
-     * @return CommentAnime
+     * @return CommentVideo
      */
-    public function setDescription(?string $description): CommentAnime
+    public function setDescription(?string $description): CommentVideo
     {
         $this->description = $description;
         return $this;
@@ -209,47 +183,29 @@ class CommentAnime extends Entity
 
     /**
      * @param bool|null $spoiler
-     * @return CommentAnime
+     * @return CommentVideo
      */
-    public function setSpoiler(?bool $spoiler): CommentAnime
+    public function setSpoiler(?bool $spoiler): CommentVideo
     {
         $this->spoiler = $spoiler;
         return $this;
     }
 
     /**
-     * @return int|null
+     * @return Video|null
      */
-    public function getClassification(): ?int
+    public function getVideo(): ?Video
     {
-        return $this->classification;
+        return $this->video;
     }
 
     /**
-     * @param int|null $classification
-     * @return CommentAnime
+     * @param Video|null $video
+     * @return CommentVideo
      */
-    public function setClassification(?int $classification): CommentAnime
+    public function setVideo(?Video $video): CommentVideo
     {
-        $this->classification = $classification;
-        return $this;
-    }
-
-    /**
-     * @return Anime|null
-     */
-    public function getAnime(): ?Anime
-    {
-        return $this->anime;
-    }
-
-    /**
-     * @param Anime|null $anime
-     * @return CommentAnime
-     */
-    public function setAnime(?Anime $anime): CommentAnime
-    {
-        $this->anime = $anime;
+        $this->video = $video;
         return $this;
     }
 
@@ -263,9 +219,9 @@ class CommentAnime extends Entity
 
     /**
      * @param User|null $user
-     * @return CommentAnime
+     * @return CommentVideo
      */
-    public function setUser(?User $user): CommentAnime
+    public function setUser(?User $user): CommentVideo
     {
         $this->user = $user;
         return $this;

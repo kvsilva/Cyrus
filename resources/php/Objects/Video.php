@@ -23,6 +23,7 @@ class Video extends Entity
 
     public const SUBTITLES = 2;
     public const DUBBING = 3;
+    public const COMMENTVIDEOS = 3;
 
     // DEFAULT STRUCTURE
 
@@ -47,6 +48,8 @@ class Video extends Entity
 
     // Video::Subtitles
     private ?SubtitlesArray $subtitles = null;
+    // Video::CommentVideos
+    private ?CommentVideosArray $comments = null;
     // Video::DubbingOld
     private ?array $dubbing = null;
 
@@ -82,6 +85,13 @@ class Video extends Entity
             $query = $database->query("SELECT id FROM dubbing WHERE video = $id;");
             while($row = $query->fetch_array()){
                 $this->dubbing[] = new Dubbing($row["id"]);
+            }
+        }
+        if($this->hasFlag(self::COMMENTVIDEOS)){
+            $this->comments = new CommentVideosArray();
+            $query = $database->query("SELECT id FROM commentvideo WHERE video = $id;");
+            while($row = $query->fetch_array()){
+                $this->comments[] = new CommentVideo($row["id"]);
             }
         }
         parent::buildRelations();
@@ -150,6 +160,24 @@ class Video extends Entity
             }
             foreach ($this->dubbing as $value) {
                 $value->store(video: $this);
+            }
+        }
+        if ($this->hasFlag(self::COMMENTVIDEOS)) {
+            $query = $database->query("SELECT id FROM commentvideo WHERE video = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->comments as $comment) {
+                    if ($comment->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    $database->query("DELETE FROM commentvideo where video = $id");
+                }
+            }
+            foreach ($this->comments as $comment) {
+                $comment->store(video: $this->getId());
             }
         }
     }
@@ -236,6 +264,11 @@ class Video extends Entity
             }
             $array["dubbing"] = $this->dubbing !== null ? array() : null;
             if($array["dubbing"] !== null) foreach($this->dubbing as $value) $array["dubbing"][] = $value->toArray();
+            $array["comments"] = null;
+            if ($this->comments !== null) {
+                $array["comments"] = array();
+                foreach ($this->comments as $value) $array["comments"][] = $value->toArray(entities: $entities);
+            }
         }
         if($entities){
             $array["anime"] = $this->anime?->toArray(false, $entities);
@@ -273,6 +306,11 @@ class Video extends Entity
             if($array["subtitles"] != null) foreach($this->subtitles as $value) $array["subtitles"][] = $value;
             $array["dubbing"] = $this->dubbing != null ? array() : null;
             if($array["dubbing"] != null) foreach($this->dubbing as $value) $array["dubbing"][] = $value;
+            $array["comments"] = null;
+            if ($this->comments !== null) {
+                $array["comments"] = array();
+                foreach ($this->comments as $value) $array["comments"][] = $value;
+            }
         }
         if($entities){
             $array["anime"] = $this->anime;
@@ -313,10 +351,46 @@ class Video extends Entity
     /**
      * @throws NotInitialized
      */
+    public function removeComment(CommentVideo $entity = null, int $id = null): Video
+    {
+        if($this->comments == null) throw new NotInitialized("comments");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->comments); $i++) {
+                if ($this->comments[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->comments); $i++) {
+                if ($this->comments[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->comments[$item]);
+        return $this;
+    }
+
+    /**
+     * @throws NotInitialized
+     */
     public function addSubtitle(Subtitle $entity): Video
     {
         if($this->subtitles === null) throw new NotInitialized("subtitles");
         $this->subtitles[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param CommentVideo $entity
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function addComment(CommentVideo $entity): Video
+    {
+        if($this->comments == null) throw new NotInitialized("comments");
+        $this->comments[] = $entity;
         return $this;
     }
 
@@ -333,6 +407,9 @@ class Video extends Entity
             case self::SUBTITLES:
                 $this->addSubtitle($value);
                 break;
+            case self::COMMENTVIDEOS:
+                $this->addComment($value);
+                break;
         }
         return $this;
     }
@@ -345,6 +422,9 @@ class Video extends Entity
         switch ($relation) {
             case self::SUBTITLES:
                 $this->removeSubtitle($value, $id);
+                break;
+            case self::COMMENTVIDEOS:
+                $this->removeComment($value, $id);
                 break;
         }
         return $this;
@@ -656,6 +736,26 @@ class Video extends Entity
         $this->season = $season;
         return $this;
     }
+
+    /**
+     * @return CommentVideosArray|null
+     */
+    public function getComments(): ?CommentVideosArray
+    {
+        return $this->comments;
+    }
+
+    /**
+     * @param CommentVideosArray|null $comments
+     * @return Video
+     */
+    public function setComments(?CommentVideosArray $comments): Video
+    {
+        $this->comments = $comments;
+        return $this;
+    }
+
+
 
 
 }

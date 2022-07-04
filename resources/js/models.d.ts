@@ -292,6 +292,7 @@ export declare class Video {
     anime: Anime | null;
     season: Season | null;
     subtitles: Subtitle[];
+    comments: CommentVideo[];
     dubbing: any[];
     constructor(obj?: any);
 }
@@ -301,6 +302,10 @@ export declare const VideoFlags: {
         value: number;
     };
     DUBBING: {
+        name: string;
+        value: number;
+    };
+    COMMENTVIDEOS: {
         name: string;
         value: number;
     };
@@ -588,6 +593,25 @@ export declare class CommentAnime {
     constructor(obj?: any);
 }
 export declare const CommentAnimeFlags: {
+    NORMAL: {
+        name: string;
+        value: number;
+    };
+    ALL: {
+        name: string;
+        value: number;
+    };
+};
+export declare class CommentVideo {
+    id: number;
+    post_date: Date;
+    description: string;
+    spoiler: boolean;
+    video: Video | null;
+    user: User | null;
+    constructor(obj?: any);
+}
+export declare const CommentVideoFlags: {
     NORMAL: {
         name: string;
         value: number;

@@ -62,7 +62,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
         <div class = "information">
            <div class = "anime-information">
                <span><a href = "<?php echo Routing::getRouting("animes") . "?anime=" . $episode->getAnime()?->getId() ?>"><?php echo $episode->getAnime()?->getTitle() ?></a></span>
-               <span>4.8 <i class="fa-solid fa-star"></i> (54.3k) </span>
+               <!--<span>4.8 <i class="fa-solid fa-star"></i> (54.3k) </span>-->
            </div>
         </div>
         <div class = "episode-information">
@@ -77,28 +77,31 @@ include(Utils::getDependencies("Cyrus", "header", true));
             <div class="row" id="reviews">
                 <div class = "controller">
                     <div class = "reviews-average-rating">
-                        <span id="reviews-average-rating_value">12 Comentários </span>
+                        <span id="reviews-average-rating_value"><?php echo $episode->getComments()->size()?> Comentários </span>
                     </div>
                 </div>
                 <div class = "reviews-section">
-                    <div class = "review-post mt-3">
+                    <?php
+                    if(isset($_SESSION["user"])){
+                    ?>
+                        <div class = "review-post mt-3">
                         <div class = "row">
                             <div class = "col-2 review-post-user no select">
-                                <img draggable="false" class = "img-fluid mx-auto" src = "https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
-                                <div class = "review-post-username">Kurookami</div>
+                                <img draggable="false" class = "img-fluid mx-auto" src = "<?php echo $_SESSION["user"]?->getProfileImage()?->getPath()?>">
+                                <div class = "review-post-username"><?php echo $_SESSION["user"]?->getUsername()?></div>
                             </div>
                             <div class = "col-9">
                                 <div class = "review-post-rating">
                                 </div>
-                                <form class = "cyrus-form">
+                                <form class = "cyrus-form" id = "form0">
                                     <div class = "cyrus-form-inputs">
                                         <label class = "cyrus-label">
-                                            <textarea class = "cyrus-input reviews-self-textarea" placeholder="Comentário"></textarea>
+                                            <textarea id = "form0-description" class = "cyrus-input reviews-self-textarea" placeholder="Comentário" maxlength="500"></textarea>
                                         </label>
-                                        <div class = "reviews-self-char-notification"><span>0/200 caracteres</span></div>
+                                        <div class = "reviews-self-char-notification"><span>0/500 caracteres</span></div>
                                         <label class = "cyrus-label-checkbox mt-2">
                                         <span class = "cyrus-hover-pointer">
-                                            <input class = "cyrus-input-checkbox-null" type = "checkbox">
+                                            <input id = "form0-spoiler" class = "cyrus-input-checkbox-null" type = "checkbox">
                                             <span class="cyrus-input-checkbox-checkmark"></span>
                                             <span>Marcar como Spoiler</span>
                                         </span>
@@ -106,18 +109,17 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                     </div>
                                     <div class = "cyrus-form-buttons">
                                         <input data-toggle="tooltip" data-placement="top" title="Tooltip on top" class = "cyrus-input" type = "reset" value="CANCELAR">
-                                        <input class = "cyrus-input" type = "submit" value = "PUBLICAR">
+                                        <input class = "cyrus-input" type = "submit" id = "form0-submit" value = "PUBLICAR">
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
+                    <?php
+                    }
+                    ?>
                     <div id = "reviews-list" class = "mt-3">
-                        <?php
-                        for($x = 0; $x < 5; $x++){
-
-                            ?>
-                            <div class = "review">
+                            <!--<div class = "review">
                                 <div class = "row">
                                     <div class = "col-2 review-post-user no-select">
                                         <img draggable="false" class = "mx-auto" src = "https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
@@ -145,16 +147,13 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                         <div>
                                             <button class = "cyrus-btn cyrus-btn-simple">MOSTRAR MAIS</button>
                                         </div>
-                                        <!--<div class ="evaluate-review mt-2">
+                                        <div class ="evaluate-review mt-2">
                                             <span data-positive="86">86</span> de <span data-total = "100">100</span> pessoas consideraram esta crítica útil. É útil para si? <button class = "cyrus-btn cyrus-btn-simple evaluate-review-button">SIM</button> | <button class = "cyrus-btn cyrus-btn-simple">NÃO</button>
-                                        </div>-->
+                                        </div>
                                     </div>
                                 </div>
-                                <!--<hr class = "w-25 mx-auto">-->
-                            </div>
-                            <?php
-                        }
-                        ?>
+                                <hr class = "w-25 mx-auto">
+                            </div>-->
                     </div>
                 </div>
             </div>
