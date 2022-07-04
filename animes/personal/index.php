@@ -36,6 +36,7 @@ $genders = $anime->getGenders() === null ? new EntityArray(null) : $anime->getGe
 <body>
 <?php
 include(Utils::getDependencies("Cyrus", "header", true));
+include(Utils::getDependencies("Cyrus", "alerts", true));
 ?>
 
 <div id="content">
@@ -148,7 +149,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
         <div class="row" id="reviews">
             <div class = "controller">
                 <div class = "reviews-average-rating">
-                    <span id="reviews-average-rating_value">12 Críticas </span>
+                    <span id="reviews-average-rating_value"><?php echo $anime?->getComments()->size()  ?> Críticas </span>
                 </div>
                 <div class = "reviews-count">
                     <span id="reviews-average-count_value">4.9 <i class="fa-solid fa-star"></i> (45.2k)</span>
@@ -157,12 +158,12 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     <div class="dropdown">
                         <div class="dropdown-toggle" type="button" id="dropdown-sort" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-arrow-down-short-wide"></i>
-                            <span class = "reviews-filters-filter-title" id = "currentReviewOrder" data-order = "older">Mais Antigo</span>
+                            <span class = "reviews-filters-filter-title" id = "currentReviewOrder" data-selected = "older">Mais Antigo</span>
                         </div>
                         <ul class="dropdown-menu" aria-labelledby="dropdown-sort" id = "review-order">
-                            <li class = "selected" data-order = "older">Mais Antigo</li>
-                            <li data-order = "recent">Mais Recente</li>
-                            <li data-order = "useful">Mais Útil</li>
+                            <li class = "selected" data-id = "older">Mais Antigo</li>
+                            <li data-id = "recent">Mais Recente</li>
+                            <li data-id = "useful">Mais Útil</li>
                         </ul>
                     </div>
                     <div class="dropdown">
@@ -185,17 +186,17 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 <div class = "review-post mt-3">
                     <div class = "row">
                         <div class = "col-2 review-post-user no select">
-                            <img draggable="false" class = "img-fluid mx-auto" src = "https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
-                            <div class = "review-post-username">Kurookami</div>
+                            <img draggable="false" class = "img-fluid mx-auto" src = "<?php echo $_SESSION["user"]?->getProfileImage()?->getPath()?>">
+                            <div class = "review-post-username"><?php echo $_SESSION["user"]?->getUsername()?></div>
                         </div>
                         <div class = "col-9">
                             <div class = "review-post-rating">
-                                <div class = "rating" style = "position: relative;" >
-                                    <span class = "reviews-classified-as">Classificaste como 0 Estrelas</span><?php
+                                <div class = "rating" id = "comment-rating" style = "position: relative;" >
+                                    <span class = "reviews-classified-as" data-rating = "0">Classificaste como 0 Estrelas</span><?php
                                     for($i = 5; $i > 0; $i--){
                                         $text = "Classificar com " . $i . ($i == 1 ? " estrela" : " estrelas");
                                         ?>
-                                        <i data-bs-toggle="tooltip" data-bs-placement="bottom" title="<?php echo $text?>" class="fa-solid fa-star star"></i>
+                                        <i data-star="<?php echo $i?>" data-bs-toggle="tooltip" data-bs-placement="bottom" title="<?php echo $text?>" class="fa-solid fa-star star"></i>
                                     <?php
                                     }
                                     ?>
@@ -204,13 +205,13 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             <form class = "cyrus-form" id = "form0">
                                 <div class = "cyrus-form-inputs">
                                     <label class = "cyrus-label">
-                                        <input class = "cyrus-input" id = "form0-title" type ="text" placeholder="Título">
+                                        <input class = "cyrus-input" id = "form0-title" type ="text" placeholder="Título" maxlength="50">
                                     </label>
                                     <div class = "reviews-self-char-notification"><span>Mínimo de 8 caracteres</span></div>
                                     <label class = "cyrus-label">
-                                        <textarea class = "cyrus-input reviews-self-textarea" id = "form0-description"  placeholder="Descrição"></textarea>
+                                        <textarea maxlength="800" class = "cyrus-input reviews-self-textarea" id = "form0-description"  placeholder="Descrição"></textarea>
                                     </label>
-                                    <div class = "reviews-self-char-notification"><span>0/200 caracteres</span></div>
+                                    <div class = "reviews-self-char-notification"><span>0/800 caracteres</span></div>
                                     <label class = "cyrus-label-checkbox mt-2">
                                         <span class = "cyrus-hover-pointer">
                                             <input class = "cyrus-input-checkbox-null" type = "checkbox" id = "form0-spoiler" >
@@ -220,8 +221,8 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                     </label>
                                 </div>
                                 <div class = "cyrus-form-buttons">
-                                    <input data-toggle="tooltip" data-placement="top" title="Tooltip on top" class = "cyrus-input" type = "reset" value="CANCELAR">
-                                    <input class = "cyrus-input" type = "submit" value = "PUBLICAR">
+                                    <input data-toggle="tooltip" id = "form0-reset" data-placement="top" title="Tooltip on top" class = "cyrus-input" type = "reset" value="CANCELAR">
+                                    <input disabled class = "cyrus-input" id = "form0-submit" type = "submit" value = "PUBLICAR">
                                 </div>
                             </form>
                         </div>
@@ -239,7 +240,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             </div>
                             <div class = "col-9">
                                 <span>
-                                    <span class = "review-username">Kurookami</span>
+                                    <span class = "review-username"><?php echo $_SESSION["user"]?->getUsername()?></span>
                                     <span class = "review-date float-right">10 de Janeiro de 2021</span>
                                 </span>
                                 <span class = "review-options">
@@ -256,7 +257,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                 </div>
                                 <div class = "mt-3">
                                     <h3 class = "review-title">Lorem ipsum dolor sit amet</h3>
-                                    <div class = "review-description ">
+                                    <div class = "review-description" data-collapsible = "true">
                                         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris fringilla nunc at arcu rhoncus facilisis. Donec at justo eget eros auctor porttitor ut in magna. Etiam porta commodo dolor. Sed a enim dapibus, placerat erat sit amet, rhoncus ipsum. Fusce ut lobortis turpis, a hendrerit leo. Vivamus dui ipsum, tristique vulputate vulputate nec, cursus non enim. Proin molestie ante a lorem congue, quis tincidunt ligula consectetur. Sed id tempus mi, sed finibus nulla.
                                             Curabitur sodales viverra dapibus. Aenean fermentum dui turpis, non consectetur sapien posuere in. Duis gravida vitae arcu sed rhoncus. Integer vel ex dapibus, dapibus dolor vel, tincidunt mi. Nullam eget suscipit lorem. Integer a nibh non purus aliquam efficitur. Nullam consequat condimentum nulla, vitae mollis ipsum dignissim sit amet. Suspendisse potenti. Praesent tristique dolor mauris, a suscipit sem ultricies ut.
                                             Suspendisse fermentum erat nunc, consequat mattis dolor posuere nec. Vivamus pretium in ligula in dapibus. Nulla facilisi. Donec lectus ligula, sagittis eu tincidunt eget, aliquam a mauris. Maecenas et purus luctus, pretium tellus ac, aliquet augue. Phasellus sollicitudin justo sit amet ligula vulputate, eget vehicula orci rutrum. Phasellus placerat rhoncus convallis. Curabitur eleifend, justo sed tempus finibus, neque nulla varius urna, sit amet ultrices urna metus in nibh. Sed sed sodales urna, nec pretium orci. Phasellus rhoncus ac nisl id lobortis. Morbi sit amet elit laoreet, viverra dui sit amet, efficitur nunc. Nulla cursus ante id tempor sodales.
@@ -266,11 +267,11 @@ include(Utils::getDependencies("Cyrus", "header", true));
                                     </div>
                                 </div>
                                 <div>
-                                    <button class = "cyrus-btn cyrus-btn-simple">MOSTRAR MAIS</button>
+                                    <button data-collapse = "true" class = "cyrus-btn cyrus-btn-simple">MOSTRAR MAIS</button>
                                 </div>
-                                <div class ="evaluate-review mt-2">
+                                <!--<div class ="evaluate-review mt-2">
                                     <span data-positive="86">86</span> de <span data-total = "100">100</span> pessoas consideraram esta crítica útil. É útil para si? <button class = "cyrus-btn cyrus-btn-simple evaluate-review-button">SIM</button> | <button class = "cyrus-btn cyrus-btn-simple">NÃO</button>
-                                </div>
+                                </div>-->
                             </div>
                         </div>
                         <!--<hr class = "w-25 mx-auto">-->

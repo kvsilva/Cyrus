@@ -209,6 +209,7 @@ export class Anime {
     videos: Video[];
     seasons: Season[];
     genders: Gender[];
+    comments: CommentAnime[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
@@ -230,12 +231,14 @@ export class Anime {
         this.videos = (obj_.videos !== undefined) ? obj_.videos : [];
         this.seasons = (obj_.seasons !== undefined) ? obj_.seasons : [];
         this.genders = (obj_.genders !== undefined) ? obj_.genders : [];
+        this.comments = (obj_.comments !== undefined) ? obj_.comments : [];
     }
 }
 export const AnimeFlags = {
     VIDEOS: {name: "VIDEOS", value: 2},
     SEASONS: {name: "SEASONS", value: 3},
     GENDERS: {name: "GENDERS", value: 4},
+    COMMENTANIMES: {name: "COMMENTANIMES", value: 5},
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
@@ -245,8 +248,10 @@ export class Season {
     name: string;
     synopsis: string;
     release_date: Date;
+    end_date: Date;
     available: number;
-    videos: any[];
+    anime: number;
+    videos: Video[];
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
@@ -255,7 +260,9 @@ export class Season {
         this.name = (obj_.name !== undefined) ? obj_.name : null;
         this.synopsis = (obj_.synopsis !== undefined) ? obj_.synopsis : null;
         this.release_date = (obj_.release_date !== undefined) ? obj_.release_date : null;
+        this.end_date = (obj_.end_date !== undefined) ? obj_.end_date : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.anime = (obj_.anime !== undefined) ? obj_.anime : null;
         this.videos = (obj_.videos !== undefined) ? obj_.videos : [];
     }
 }
@@ -295,7 +302,7 @@ export class Video {
     available: number;
     anime: Anime | null;
     season: Season | null;
-    subtitles: any[];
+    subtitles: Subtitle[];
     dubbing: any[];
 
     public constructor(obj?: any){ 
@@ -329,14 +336,14 @@ export const VideoFlags = {
 export class Subtitle {
     id: number;
     language: Language | null;
-    path: string;
+    path: Resource | null;
     available: number;
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
         this.language = (obj_.language !== undefined) ? (obj_.language !== null ? new Language(obj_.language): null) : null;
-        this.path = (obj_.path !== undefined) ? obj_.path : null;
+        this.path = (obj_.path !== undefined) ? (obj_.path !== null ? new Resource(obj_.path): null) : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
     }
 }
@@ -607,22 +614,32 @@ export const LogFlags = {
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
-export class Paginator {
+export class CommentAnime {
     id: number;
-    page: number;
-    items: number;
-    totalItems: number;
-    totalPages: number;
+    post_date: Date;
+    title: string;
+    description: string;
+    spoiler: boolean;
+    classification: number;
+    anime: Anime | null;
+    user: User | null;
 
     public constructor(obj?: any){ 
         const obj_: any = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.page = (obj_.page !== undefined) ? obj_.page : null;
-        this.items = (obj_.items !== undefined) ? obj_.items : null;
-        this.totalItems = (obj_.totalItems !== undefined) ? obj_.totalItems : null;
-        this.totalPages = (obj_.totalPages !== undefined) ? obj_.totalPages : null;
+        this.post_date = (obj_.post_date !== undefined) ? obj_.post_date : null;
+        this.title = (obj_.title !== undefined) ? obj_.title : null;
+        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.spoiler = (obj_.spoiler !== undefined) ? obj_.spoiler : null;
+        this.classification = (obj_.classification !== undefined) ? obj_.classification : null;
+        this.anime = (obj_.anime !== undefined) ? (obj_.anime !== null ? new Anime(obj_.anime): null) : null;
+        this.user = (obj_.user !== undefined) ? (obj_.user !== null ? new User(obj_.user): null) : null;
     }
 }
+export const CommentAnimeFlags = {
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
+};
 export class APIWebFile {
     id: number;
     name: string;
@@ -673,7 +690,8 @@ export const flags : any = {
     "AccountPlanFlags" : AccountPlanFlags,
     "AccountPurchaseFlags" : AccountPurchaseFlags,
     "LogActionFlags" : LogActionFlags,
-    "LogFlags" : LogFlags
+    "LogFlags" : LogFlags,
+    "CommentAnimeFlags" : CommentAnimeFlags
 }
 export const models : any = { 
     "GlobalSetting" : GlobalSetting,
@@ -700,6 +718,6 @@ export const models : any = {
     "AccountPurchase" : AccountPurchase,
     "LogAction" : LogAction,
     "Log" : Log,
-    "Paginator" : Paginator,
+    "CommentAnime" : CommentAnime,
     "APIWebFile" : APIWebFile
 }

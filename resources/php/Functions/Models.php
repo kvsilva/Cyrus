@@ -56,7 +56,7 @@ class Models
         "Objects\\AccountPurchase",
         "Objects\\LogAction",
         "Objects\\Log",
-        "Objects\\Paginator",
+        "Objects\\CommentAnime",
         "APIObjects\\WebFile",
     );
 
@@ -70,6 +70,7 @@ class Models
         "DateTime" => array("value" => "Date", "isArray" => false),
         "double" => array("value" => "number", "isArray" => false),
         "float" => array("value" => "number", "isArray" => false),
+        "bool" => array("value" => "boolean", "isArray" => false),
     );
 
     /**

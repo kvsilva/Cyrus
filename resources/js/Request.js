@@ -23,7 +23,7 @@ export class Request {
             "data": [data]
         });
     }
-    static requestType(target, action, data = {}, flags = [], minimal = null) {
+    static requestType(target, action, data = {}, flags = [], minimal = null, entities = null) {
         let request = {
             "type": target,
             "action": action,
@@ -33,6 +33,8 @@ export class Request {
         };
         if (minimal !== null)
             request["minimal"] = minimal;
+        if (entities !== null)
+            request["entities"] = entities;
         return this.sendRequest(request);
     }
     static uploadFile(file) {

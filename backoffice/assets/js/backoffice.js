@@ -79,7 +79,7 @@ $(document).ready(function () {
                                 break;
                         }
                     }
-                    accept = accept === null ? ".jpg, .jpged, .png" : accept;
+                    accept = accept === null ? ".jpg, .jpeg, .png" : accept;
                     $(this).attr("accept", accept);
                 });
             });

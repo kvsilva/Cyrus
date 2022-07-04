@@ -26,6 +26,7 @@ class Anime extends Entity
     public const VIDEOS = 2;
     public const SEASONS = 3;
     public const GENDERS = 4;
+    public const COMMENTANIMES = 5;
 
     // DEFAULT STRUCTURE
 
@@ -54,6 +55,8 @@ class Anime extends Entity
     private ?SeasonsArray $seasons = null;
     // Anime::Genders
     private ?GendersArray $genders = null;
+    // Anime::Genders
+    private ?CommentAnimesArray $comments = null;
 
     /**
      * @param int|null $id
@@ -94,6 +97,13 @@ class Anime extends Entity
             $query = $database->query("SELECT gender as id FROM anime_gender WHERE anime = $id;");
             while($row = $query->fetch_array()){
                 $this->genders[] = new Gender($row["id"]);
+            }
+        }
+        if($this->hasFlag(self::COMMENTANIMES)){
+            $this->comments = new CommentAnimesArray();
+            $query = $database->query("SELECT id FROM commentanime WHERE anime = $id;");
+            while($row = $query->fetch_array()){
+                $this->comments[] = new CommentAnime($row["id"]);
             }
         }
         parent::buildRelations();
@@ -174,6 +184,24 @@ class Anime extends Entity
             foreach ($this->genders as $gender) {
                 $gender->store();
                 $database->query("INSERT IGNORE INTO ANIME_GENDER (anime, gender) VALUES ($id, " . $gender->getId() . ")");
+            }
+        }
+        if ($this->hasFlag(self::COMMENTANIMES)) {
+            $query = $database->query("SELECT id FROM commentanime WHERE anime = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->comments as $comment) {
+                    if ($comment->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) {
+                    $database->query("DELETE FROM commentanime where anime = $id");
+                }
+            }
+            foreach ($this->comments as $comment) {
+                $comment->store(anime: $this->getId());
             }
         }
     }
@@ -270,6 +298,11 @@ class Anime extends Entity
                 $array["seasons"] = array();
                 foreach ($this->seasons as $value) $array["seasons"][] = $value->toArray();
             }
+            $array["comments"] = null;
+            if ($this->comments !== null) {
+                $array["comments"] = array();
+                foreach ($this->comments as $value) $array["comments"][] = $value->toArray(entities: $entities);
+            }
         }
         return $array;
     }
@@ -296,19 +329,24 @@ class Anime extends Entity
         if (!$minimal) {
             // Relations
             $array["videos"] = null;
-            if ($this->videos != null) {
+            if ($this->videos !== null) {
                 $array["videos"] = array();
                 foreach ($this->videos as $value) $array["videos"][] = $value;
             }
             $array["genders"] = null;
-            if ($this->genders != null) {
+            if ($this->genders !== null) {
                 $array["genders"] = array();
                 foreach ($this->genders as $value) $array["genders"][] = $value;
             }
             $array["seasons"] = null;
-            if ($this->seasons != null) {
+            if ($this->seasons !== null) {
                 $array["seasons"] = array();
-                foreach ($this->seasons as $value) $array["seasons"][] = $value->toArray();
+                foreach ($this->seasons as $value) $array["seasons"][] = $value;
+            }
+            $array["comments"] = null;
+            if ($this->comments !== null) {
+                $array["comments"] = array();
+                foreach ($this->comments as $value) $array["comments"][] = $value;
             }
         }
         return $array;
@@ -350,6 +388,9 @@ class Anime extends Entity
             case self::GENDERS:
                 $this->addGender($value);
                 break;
+            case self::COMMENTANIMES:
+                $this->addComment($value);
+                break;
         }
         return $this;
     }
@@ -369,6 +410,9 @@ class Anime extends Entity
                 break;
             case self::GENDERS:
                 $this->removeGender($value, $id);
+                break;
+            case self::COMMENTANIMES:
+                $this->removeComment($value, $id);
                 break;
         }
         return $this;
@@ -458,6 +502,27 @@ class Anime extends Entity
         return $this;
     }
 
+    public function removeComment(CommentAnime $entity = null, int $id = null): Anime
+    {
+        if($this->comments == null) throw new NotInitialized("comments");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->comments); $i++) {
+                if ($this->comments[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->comments); $i++) {
+                if ($this->comments[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->comments[$item]);
+        return $this;
+    }
+
     /**
      * @param Video $entity
      * @return $this
@@ -491,6 +556,18 @@ class Anime extends Entity
     {
         if($this->genders == null) throw new NotInitialized("genders");
         $this->genders[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param CommentAnime $entity
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function addComment(CommentAnime $entity): Anime
+    {
+        if($this->comments == null) throw new NotInitialized("comments");
+        $this->comments[] = $entity;
         return $this;
     }
 
@@ -809,4 +886,25 @@ class Anime extends Entity
         $this->launch_time = $launch_time;
         return $this;
     }
+
+    /**
+     * @return CommentAnimesArray|null
+     */
+    public function getComments(): ?CommentAnimesArray
+    {
+        return $this->comments;
+    }
+
+    /**
+     * @param CommentAnimesArray|null $comments
+     * @return Anime
+     */
+    public function setComments(?CommentAnimesArray $comments): Anime
+    {
+        $this->comments = $comments;
+        return $this;
+    }
+
+
+
 }

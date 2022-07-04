@@ -53,7 +53,7 @@ $objects = array(
         )
     ),
     "Objects\Role" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-user-tag",
         "update" => true,
         "insert" => true,
         "ignoreUpdate" => array(
@@ -74,35 +74,35 @@ $objects = array(
         )
     ),
     "Objects\Permission" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-person-circle-exclamation",
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\Language" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-earth-europe",
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\Punishment" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-gavel",
         "update" => true,
         "insert" => false,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\PunishmentType" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-hammer",
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\Anime" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-dragon",
         "update" => true,
         "insert" => true,
         "forceModel" => array(
@@ -133,7 +133,7 @@ $objects = array(
         )
     ),
     "Objects\Season" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-tv",
         "update" => true,
         "insert" => false,
         "forceModel" => array(
@@ -153,7 +153,7 @@ $objects = array(
         )
     ),
     "Objects\Video" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-video",
         "update" => true,
         "insert" => false,
         "ignoreUpdate" => array(
@@ -177,14 +177,14 @@ $objects = array(
         )
     ),
     "Objects\VideoType" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-photo-film",
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\Subtitle" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-brands fa-vimeo",
         "update" => true,
         "insert" => false,
         "forceModel" => array(
@@ -193,28 +193,28 @@ $objects = array(
         "relations" => null
     ),
     "Objects\Gender" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-book-open",
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\Audience" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-children",
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\Resource" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-file",
         "update" => true,
         "insert" => false,
         "forceModel" => array(),
         "relations" => null
     ),
     "Objects\GlobalSetting" => array(
-        "icon" => "fa-solid fa-users",
+        "icon" => "fa-solid fa-code",
         "update" => true,
         "insert" => true,
         "forceModel" => array(
@@ -252,7 +252,7 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
 <div id="content">
     <div class="">
         <div class="row" style="--bs-gutter-x: 0">
-            <div class="col-1">
+            <div class="col-2 sidebar">
                 <div class="menu">
                     <div class="menu-section">
                         <div class="menu-section-title">
@@ -262,9 +262,10 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                             <?php
                             foreach ($objects as $obj => $properties) {
                                 ?>
-                                <a class = "<?php echo $entity_name == str_replace("Objects\\", "", $obj) ? 'menu-section-item-selected ' : ''?>link-nodecoration" href = "?entity=<?php echo str_replace("Objects\\", "", $obj) ?>">
+                                <a title="<?php echo str_replace("Objects\\", "", $obj); ?>" class = "<?php echo $entity_name == str_replace("Objects\\", "", $obj) ? 'menu-section-item-selected ' : ''?>link-nodecoration" href = "?entity=<?php echo str_replace("Objects\\", "", $obj) ?>">
                                 <div class="menu-section-item">
-                                    <span><?php echo str_replace("Objects\\", "", $obj); ?></span>
+                                    <i class = "<?php echo $properties["icon"]?>"></i>
+                                    <div class = "entity-menu"><?php echo str_replace("Objects\\", "", $obj); ?></div>
                                 </div>
                                 </a>
                             <?php } ?>
@@ -273,7 +274,7 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
 
                 </div>
             </div>
-            <div class="col-10 me-auto ms-auto">
+            <div class="col-9 me-auto ms-auto">
                 <span class="cyrus-item-hidden" id="entity-data" data-entity="<?php echo $entity_name ?>"></span>
                 <div class="group">
                     <div class="group-wrapper">

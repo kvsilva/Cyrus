@@ -41,7 +41,7 @@ export class Request {
         });
     }
 
-    public static requestType(target: string, action: any, data: {} = {}, flags: string[] = [], minimal: boolean | null = null) {
+    public static requestType(target: string, action: any, data: {} = {}, flags: string[] = [], minimal: boolean | null = null, entities: boolean | null = null) {
         let request : any[string] = {
             "type": target,
             "action": action,
@@ -50,6 +50,7 @@ export class Request {
             "data": [data]
         };
         if(minimal !== null) request["minimal"] = minimal;
+        if(entities !== null) request["entities"] = entities;
         return this.sendRequest(request);
     }
 

@@ -204,6 +204,7 @@ export declare class Anime {
     videos: Video[];
     seasons: Season[];
     genders: Gender[];
+    comments: CommentAnime[];
     constructor(obj?: any);
 }
 export declare const AnimeFlags: {
@@ -216,6 +217,10 @@ export declare const AnimeFlags: {
         value: number;
     };
     GENDERS: {
+        name: string;
+        value: number;
+    };
+    COMMENTANIMES: {
         name: string;
         value: number;
     };
@@ -234,8 +239,10 @@ export declare class Season {
     name: string;
     synopsis: string;
     release_date: Date;
+    end_date: Date;
     available: number;
-    videos: any[];
+    anime: number;
+    videos: Video[];
     constructor(obj?: any);
 }
 export declare const SeasonFlags: {
@@ -284,7 +291,7 @@ export declare class Video {
     available: number;
     anime: Anime | null;
     season: Season | null;
-    subtitles: any[];
+    subtitles: Subtitle[];
     dubbing: any[];
     constructor(obj?: any);
 }
@@ -309,7 +316,7 @@ export declare const VideoFlags: {
 export declare class Subtitle {
     id: number;
     language: Language | null;
-    path: string;
+    path: Resource | null;
     available: number;
     constructor(obj?: any);
 }
@@ -569,14 +576,27 @@ export declare const LogFlags: {
         value: number;
     };
 };
-export declare class Paginator {
+export declare class CommentAnime {
     id: number;
-    page: number;
-    items: number;
-    totalItems: number;
-    totalPages: number;
+    post_date: Date;
+    title: string;
+    description: string;
+    spoiler: boolean;
+    classification: number;
+    anime: Anime | null;
+    user: User | null;
     constructor(obj?: any);
 }
+export declare const CommentAnimeFlags: {
+    NORMAL: {
+        name: string;
+        value: number;
+    };
+    ALL: {
+        name: string;
+        value: number;
+    };
+};
 export declare class APIWebFile {
     id: number;
     name: string;
