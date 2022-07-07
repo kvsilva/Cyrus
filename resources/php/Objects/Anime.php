@@ -80,7 +80,7 @@ class Anime extends Entity
         $id = $this->getId();
         if($this->hasFlag(self::SEASONS)){
             $this->seasons = new SeasonsArray();
-            $query = $database->query("SELECT numeration as id FROM season WHERE anime = $id AND available = '" . Availability::AVAILABLE->value . "';");
+            $query = $database->query("SELECT id FROM season WHERE anime = $id AND available = '" . Availability::AVAILABLE->value . "';");
             while($row = $query->fetch_array()){
                 $this->seasons[] = new Season($row["id"], array(Entity::ALL));
             }

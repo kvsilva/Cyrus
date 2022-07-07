@@ -183,6 +183,13 @@ $objects = array(
         "forceModel" => array(),
         "relations" => null
     ),
+    "Objects\SourceType" => array(
+        "icon" => "fa-solid fa-photo-film",
+        "update" => true,
+        "insert" => true,
+        "forceModel" => array(),
+        "relations" => null
+    ),
     "Objects\Subtitle" => array(
         "icon" => "fa-brands fa-vimeo",
         "update" => true,

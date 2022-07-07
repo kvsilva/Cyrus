@@ -7,6 +7,7 @@ use Exceptions\IOException;
 use Exceptions\TableNotFound;
 use mysqli;
 use mysqli_sql_exception;
+use PHPMailer\PHPMailer\Exception;
 
 class Database
 {
@@ -94,7 +95,7 @@ class Database
         try {
             $row = self::getConnection()->query("SELECT column_name,COLUMN_KEY FROM information_schema.columns WHERE table_schema = '$schema' AND table_name = '$table' AND column_name = '$column' ")->fetch_array();
             return (strtolower($row["COLUMN_KEY"]) == "uni");
-        } catch (IOException $e){
+        } catch (IOException | Exception $e){
             return false;
         }
     }

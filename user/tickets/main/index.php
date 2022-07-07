@@ -1,5 +1,4 @@
 <?php
-require_once(dirname(__DIR__) . '\\..\\resources\\php\\settings.php');
 
 use Functions\Routing;
 use Functions\Utils;

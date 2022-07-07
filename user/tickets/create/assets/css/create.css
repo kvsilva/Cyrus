@@ -1,0 +1,35 @@
+@import url('../../../../../resources/css/cyrus.css');
+
+
+.ticket-wrapper{
+    display: flex;
+    margin-top: 15px;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+.ticket-wrapper > div:not(:first-child){
+    margin-top: 50px;
+}
+
+.cyrus-group-file{
+    height: 70px;
+    margin-top: 15px;
+}
+
+.ticket-send-information{
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.ticket-send-information h1{
+    font-size: 35px;
+}
+
+.ticket-send-information div{
+    font-size: 22px;
+}

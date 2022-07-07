@@ -85,12 +85,13 @@ use Objects\Permission;
                                         </div>
                                     </div>
                                     <div class="list-menu-section-item list-menu-btn">
-                                        <div>
+                                        <a href="<?php echo Routing::getRouting("history"); ?>"
+                                           class="link-nodecoration">
                                             <div>
                                                 <i class="list-icon fa-solid fa-clock-rotate-left"></i>
                                                 <span>Histórico</span>
                                             </div>
-                                        </div>
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="list-menu-section">

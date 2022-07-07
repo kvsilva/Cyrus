@@ -1,11 +1,11 @@
 <?php
-require_once (dirname(__DIR__, 1)).'\\resources\\php\\settings.php';
+require_once(dirname(__DIR__) . '\\..\\resources\\php\\settings.php');
 AutoLoader::register();
 
-if(isset($_GET["anime"])){
-    require_once("personal/index.php");
+if(isset($_GET["ticket"])){
+    require_once("item/index.php");
 } else {
-    require_once("list/index.php");
+    require_once("main/index.php");
 }
 
 

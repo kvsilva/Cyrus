@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__DIR__) . '\\..\\resources\\php\\settings.php');
+
 
 use Functions\Routing;
 use Functions\Utils;
@@ -20,10 +20,10 @@ if (!isset($_SESSION["user"])) {
 <head>
     <?php
     include Utils::getDependencies("Cyrus", "head", true);
-    echo getHead(" - Tickets");
+    echo getHead(" - Ticket");
     ?>
-    <link href="<?php echo Utils::getDependencies("Tickets", "css") ?>" rel="stylesheet">
-    <script type="module" src="<?php echo Utils::getDependencies("Tickets") ?>"></script>
+    <link href="<?php echo Utils::getDependencies("Ticket", "css") ?>" rel="stylesheet">
+    <script type="module" src="<?php echo Utils::getDependencies("Ticket") ?>"></script>
 </head>
 <body>
 <?php
@@ -31,58 +31,77 @@ include(Utils::getDependencies("Cyrus", "header", true));
 ?>
 <div id="content">
     <div class="content-wrapper">
-        <div class="cyrus-page-title">
-            <h1>Os Meus Tickets</h1>
-        </div>
-        <div class="tickets-filter">
-            <div class="w-25 tickets-filter-search mb-5">
-                <div class="cyrus-input-group">
-                    <input class="cyrus-minimal" type="text" id="search" value=''
-                           onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password">
-                    <span class="cyrus-floating-label">Procurar por assunto</span>
+        <div class="ticket-wrapper">
+            <div class="ticket-information">
+                <div class="ticket-information-id">
+                    <div class="ticket-information-title">ID do Ticket</div>
+                    <span class="ticket-information-value">#15</span>
+                </div>
+                <div class="ticket-information-createddate">
+                    <div class="ticket-information-title">Data de Criação</div>
+                    <span class="ticket-information-value">25 de outubro de 2020 19:48</span>
+                </div>
+                <div class="ticket-information-lastactivity">
+                    <div class="ticket-information-title">Última Atualição</div>
+                    <span class="ticket-information-value">07/07/2022</span>
+                </div>
+                <div class="ticket-information-status">
+                    <div class="ticket-information-title">Estado</div>
+                    <span class="ticket-information-value">Resolvido</span>
                 </div>
             </div>
-            <div class="w-25 ms-5 float-end tickets-filter-status">
-                <div class="cyrus-input-group dropdown no-select">
-                    <div class="dropdown-toggle" type="button" id="dropdownMenuButton1"
-                         data-bs-toggle="dropdown" aria-expanded="false">
-                        <span id="selected-display-language" data-selected="0">Todos</span>
+            <div class="ticket-conversation">
+                <div class="ticket-explanation">
+                    <div class="ticket-explanation-title">
+                        <h3>Reembolso</h3>
                     </div>
-                    <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1">
-                        <li data-id="0">Todos</li>
-                        <li data-id="1">Aberto</li>
-                        <li data-id="2">Esperando a sua Resposta</li>
-                        <li data-id="3">Resolvido</li>
-                    </ul>
+                    <div class="ticket-explanation-body">
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec pellentesque arcu vel orci
+                            mollis laoreet. Nunc gravida, tortor id porta mattis, turpis est varius urna, sed interdum
+                            enim magna eu felis. Aenean vitae vulputate velit, non pulvinar justo. Nunc nulla lorem,
+                            mattis et eros sed, viverra aliquet neque. Praesent eleifend non eros non iaculis. Maecenas
+                            semper interdum justo in pharetra. Cras rhoncus augue leo, eu dictum risus luctus ac. Sed a
+                            tellus ornare, semper massa vehicula, tempus justo.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="ticket-thread" id="thread">
+
+                    <div class="ticket-message">
+                        <div class="ticket-message-header">
+                            <div class="ticket-user-icon">
+                                <img src="http://localhost/Cyrus/resources/site/resources/39.jpg">
+                            </div>
+                            <div class="ticket-user-info">
+                                <div class="ticket-user-info-wrapper">
+                                    <div class="ticket-user-info-username">Kurookami</div>
+                                    <div class="ticket-user-info-postdate">26 de outubro de 2020 13:52</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ticket-message-body">
+                            <p>
+                                Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+                                Suspendisse potenti. Praesent sollicitudin mi leo, id eleifend sem euismod et.
+                                Pellentesque id magna bibendum, pretium nunc quis, molestie neque. Sed nec cursus
+                                mauris, quis consectetur ante. Maecenas nulla risus, dignissim eget facilisis non,
+                                elementum vel velit. Proin eu justo non sem facilisis dapibus. Suspendisse maximus neque
+                                non scelerisque pulvinar.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="ticket-answer">
+                    <textarea id="form0-textarea" class="cyrus-input" placeholder="Sua resposta"></textarea>
+                    <input id="form0-submit" type="submit" class="cyrus-input" value="Enviar">
                 </div>
             </div>
         </div>
-        <div class="tickets">
-            <table>
-                <thead>
-                <tr>
-                    <th class="subject">Assunto</th>
-                    <th class="ticket-id">ID do Ticket</th>
-                    <th class="last-update">Última Atualização</th>
-                    <th class="status">Estado</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td><a class="cyrus-feed-view-link" href="c">Não consigo assistir a minha série favorita!</a></td>
-                    <td>123</td>
-                    <td>07/07/2022</td>
-                    <td>Resolvido</td>
-                </tr>
-                <tr>
-                    <td><a class="cyrus-feed-view-link" href="c">Teste</a></td>
-                    <td>1243</td>
-                    <td>05/07/2022</td>
-                    <td>Aguardando a sua Resposta</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+
 
     </div>
 </div>

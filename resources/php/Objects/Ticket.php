@@ -46,7 +46,6 @@ class Ticket extends Entity {
 
     // DEFAULT STRUCTURE
     protected ?String $title = null;
-    protected ?User $attended_by = null;
     protected ?TicketStatus $status = null;
     protected ?DateTime $created_at = null;
     protected ?DateTime $closed_at = null;
@@ -145,12 +144,11 @@ class Ticket extends Entity {
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $user = null, int $attended_by = null, int $closed_by = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, int $user = null, int $closed_by = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "user" => $user,
-            "attended_by" => $attended_by,
             "closed_by" => $closed_by
         ), table: 'ticket', class: 'Objects\Ticket', sql: $sql, flags: $flags);
     }
@@ -158,12 +156,11 @@ class Ticket extends Entity {
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "attended_by" => "int|null", "status" => "int|mixed|null", "created_at" => "bool|\DateTime|null", "closed_at" => "bool|\DateTime|null", "closed_by" => "int|null", "evaluation" => "int|null"])]
+    #[ArrayShape(["id" => "int|mixed", "status" => "int|mixed|null", "created_at" => "bool|\DateTime|null", "closed_at" => "bool|\DateTime|null", "closed_by" => "int|null", "evaluation" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("ticket"),
-            "attended_by" => $this->attended_by?->getId(),
             "status" => $this->status?->getId(),
             "created_at" => $this->created_at != null ? Database::convertDateToDatabase($this->created_at) : $this->created_at,
             "closed_at" => $this->closed_at != null ? Database::convertDateToDatabase($this->closed_at) : $this->closed_at,
@@ -176,12 +173,11 @@ class Ticket extends Entity {
      * @param bool $entities
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "attended_by" => "array", "status" => "array", "created_at" => "null|string", "closed_at" => "null|string", "closed_by" => "array|null", "evaluation" => "int|null"])]
+    #[ArrayShape(["id" => "int|mixed", "status" => "array", "created_at" => "null|string", "closed_at" => "null|string", "closed_by" => "array|null", "evaluation" => "int|null"])]
     public function toArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
-            "attended_by" => $this->attended_by->toArray(false, $entities),
             "status" => $this->status->toArray(false, $entities),
             "created_at" => $this->created_at?->format(Database::DateFormat),
             "closed_at" => $this->closed_at?->format(Database::DateFormat),
@@ -200,7 +196,6 @@ class Ticket extends Entity {
     {
         $array = array(
             "id" => $this->getId(),
-            "attended_by" => $this->attended_by,
             "status" => $this->status,
             "created_at" => $this->created_at?->format(Database::DateFormat),
             "closed_at" => $this->closed_at?->format(Database::DateFormat),
@@ -230,24 +225,6 @@ class Ticket extends Entity {
     public function setTitle(?string $title): Ticket
     {
         $this->title = $title;
-        return $this;
-    }
-
-    /**
-     * @return \Objects\User|null
-     */
-    public function getAttendedBy(): ?\Objects\User
-    {
-        return $this->attended_by;
-    }
-
-    /**
-     * @param \Objects\User|null $attended_by
-     * @return Ticket
-     */
-    public function setAttendedBy(?\Objects\User $attended_by): Ticket
-    {
-        $this->attended_by = $attended_by;
         return $this;
     }
 

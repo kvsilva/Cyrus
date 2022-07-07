@@ -1,58 +1,89 @@
 @import url('../../../../../resources/css/cyrus.css');
 
-.tickets-filter{
-    width: 100%;
-    position: relative;
-    height: 50px;
+
+.ticket-wrapper{
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: 20% 80%;
 }
 
-.tickets-filter > div {
-    display: inline-block;
+.ticket-information > div:not(:first-child){
+    margin-top: 30px;
 }
 
-.tickets-filter .dropdown{
-    min-width: 25%;
-}
-
-.tickets-filter .dropdown .dropdown-toggle{
-    padding-left: 20px;
-}
-
-.tickets{
-    margin-top: 90px;
-}
-
-.tickets table{
-    width: 100%;
-}
-
-th{
+.ticket-information-title{
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 14px;
     color: var(--color3);
 }
 
-tbody {
-    border-top: 25px solid transparent;
-    font-size: 18px !important;
-    color: var(--color1)
+.ticket-information-value{
+    font-weight: bold;
+    font-size: 16px;
 }
 
-tbody td{
-    padding-bottom: 15px;
+.ticket-explanation-body, .ticket-message-body{
+    color: var(--color3);
 }
 
-
-tbody a{
-    text-transform: none !important;
+.ticket-message, .ticket-explanation{
+    border-bottom: 1px solid #d2d2d2;
+    padding-bottom: 20px;
 }
 
-tbody a:hover{
-    text-decoration: none !important;
+.ticket-message{
+    margin-top: 50px;
+    width: fit-content;
 }
 
-
-.subject{
-    width: 55%;
+.ticket-message-header{
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
 }
-.ticket-id, .last-update, .status{
-    width: 15%;
+
+.ticket-user-info{
+    display: inline-block;
+    margin-left: 15px;
+}
+.ticket-user-info-wrapper{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.ticket-user-info-username{
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.ticket-user-info-postdate{
+    font-size: 14px;
+    color: var(--color3);
+}
+
+.ticket-user-icon{
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+
+.ticket-user-icon img{
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+#form0-textarea{
+    margin: 28px 0;
+    height: 120px;
+}
+
+#form0-submit{
+    display: inline-block;
+    float: right;
+    padding-left: 50px;
+    padding-right: 50px;
+    text-transform: uppercase;
 }

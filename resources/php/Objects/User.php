@@ -623,7 +623,7 @@ class User extends Entity
      */
     public function setPassword(String $password, bool $encrypt = true): User
     {
-        $this->password = $encrypt ? password_hash($password, PASSWORD_DEFAULT) : $password;
+        $this->password = $encrypt ? md5($password) : $password; //password_hash($password, PASSWORD_DEFAULT) : $password;
         return $this;
     }
 
@@ -633,7 +633,8 @@ class User extends Entity
      */
     public function isPassword(String $password): bool
     {
-        return password_verify($password, $this->password);
+        //return password_verify($password, $this->password);
+        return md5($password) == $this->password;
     }
 
     /**
