@@ -1,0 +1,58 @@
+@import url('../../../../../resources/css/cyrus.css');
+
+.tickets-filter{
+    width: 100%;
+    position: relative;
+    height: 50px;
+}
+
+.tickets-filter > div {
+    display: inline-block;
+}
+
+.tickets-filter .dropdown{
+    min-width: 25%;
+}
+
+.tickets-filter .dropdown .dropdown-toggle{
+    padding-left: 20px;
+}
+
+.tickets{
+    margin-top: 90px;
+}
+
+.tickets table{
+    width: 100%;
+}
+
+th{
+    color: var(--color3);
+}
+
+tbody {
+    border-top: 25px solid transparent;
+    font-size: 18px !important;
+    color: var(--color1)
+}
+
+tbody td{
+    padding-bottom: 15px;
+}
+
+
+tbody a{
+    text-transform: none !important;
+}
+
+tbody a:hover{
+    text-decoration: none !important;
+}
+
+
+.subject{
+    width: 55%;
+}
+.ticket-id, .last-update, .status{
+    width: 15%;
+}
