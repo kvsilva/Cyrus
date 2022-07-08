@@ -94,6 +94,8 @@ class Request
                         foreach($this->data[$key]["relations"] as $flag => $relation){
                             if($this->object->hasConstant(strtoupper($flag))){
                                 $this->flags[] = $relation;
+                                var_dump($relation);
+                                echo "\n\n\n\n";
                                 $relations[$flag] = $relation;
                             }
                         }
@@ -171,7 +173,8 @@ class Request
                 }
                 break;
             case "insert":
-                $flags = array_values(array_unique(array_merge($this->flags, $flags)));
+                var_dump($flags);
+                echo "\n\n\n\n";
                 $object = Entity::arrayToObject(object: $object_name, array: $id != null ? array() : $data, id: $id, flags: $flags);
                 $object = Entity::arrayToRelations($object, $relations);
                 $object->store();

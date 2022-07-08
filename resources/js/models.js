@@ -18,6 +18,11 @@ export const AnimeStatus = {
     DONT_LIKE: 3,
     WATCH_LATER: 4
 };
+export const TicketStatus = {
+    OPEN: 1,
+    CLOSED: 2,
+    AWAITING_YOUR_RESPONSE: 3
+};
 export const Maturity = {
     NORMAL: 0,
     MATURE: 1
@@ -300,33 +305,23 @@ export const GenderFlags = {
     NORMAL: { name: "NORMAL", value: 0 },
     ALL: { name: "ALL", value: 1 }
 };
-export class TicketStatus {
-    constructor(obj) {
-        const obj_ = obj || {};
-        this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.name = (obj_.name !== undefined) ? obj_.name : null;
-    }
-}
-export const TicketStatusFlags = {
-    NORMAL: { name: "NORMAL", value: 0 },
-    ALL: { name: "ALL", value: 1 }
-};
 export class Ticket {
     constructor(obj) {
         const obj_ = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.title = (obj_.title !== undefined) ? obj_.title : null;
-        this.attended_by = (obj_.attended_by !== undefined) ? (obj_.attended_by !== null ? new User(obj_.attended_by) : null) : null;
-        this.status = (obj_.status !== undefined) ? (obj_.status !== null ? new TicketStatus(obj_.status) : null) : null;
+        this.subject = (obj_.subject !== undefined) ? obj_.subject : null;
+        this.status = (obj_.status !== undefined) ? obj_.status : null;
+        this.responsible = (obj_.responsible !== undefined) ? (obj_.responsible !== null ? new User(obj_.responsible) : null) : null;
         this.created_at = (obj_.created_at !== undefined) ? obj_.created_at : null;
         this.closed_at = (obj_.closed_at !== undefined) ? obj_.closed_at : null;
         this.closed_by = (obj_.closed_by !== undefined) ? (obj_.closed_by !== null ? new User(obj_.closed_by) : null) : null;
         this.evaluation = (obj_.evaluation !== undefined) ? obj_.evaluation : null;
+        this.user = (obj_.user !== undefined) ? (obj_.user !== null ? new User(obj_.user) : null) : null;
         this.messages = (obj_.messages !== undefined) ? obj_.messages : [];
     }
 }
 export const TicketFlags = {
-    MESSAGES: { name: "MESSAGES", value: 2 },
+    TICKETMESSAGES: { name: "TICKETMESSAGES", value: 2 },
     NORMAL: { name: "NORMAL", value: 0 },
     ALL: { name: "ALL", value: 1 }
 };
@@ -341,7 +336,7 @@ export class TicketMessage {
     }
 }
 export const TicketMessageFlags = {
-    ATTACHMENTS: { name: "ATTACHMENTS", value: 2 },
+    TICKETMESSAGEATTACHMENTS: { name: "TICKETMESSAGEATTACHMENTS", value: 2 },
     NORMAL: { name: "NORMAL", value: 0 },
     ALL: { name: "ALL", value: 1 }
 };
@@ -494,7 +489,6 @@ export const flags = {
     "PunishmentTypeFlags": PunishmentTypeFlags,
     "PunishmentFlags": PunishmentFlags,
     "GenderFlags": GenderFlags,
-    "TicketStatusFlags": TicketStatusFlags,
     "TicketFlags": TicketFlags,
     "TicketMessageFlags": TicketMessageFlags,
     "RoleFlags": RoleFlags,
@@ -522,7 +516,6 @@ export const models = {
     "PunishmentType": PunishmentType,
     "Punishment": Punishment,
     "Gender": Gender,
-    "TicketStatus": TicketStatus,
     "Ticket": Ticket,
     "TicketMessage": TicketMessage,
     "Role": Role,

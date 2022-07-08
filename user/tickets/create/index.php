@@ -30,6 +30,7 @@ if (!isset($_SESSION["user"])) {
 <body>
 <?php
 include(Utils::getDependencies("Cyrus", "header", true));
+include(Utils::getDependencies("Cyrus", "alerts", true));
 ?>
 <div id="content">
     <div class="content-wrapper">
@@ -63,7 +64,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
             </div>
             <div class = "d-flex justify-content-center">
             <div class = "cyrus-input-group w-25">
-                <input id="form0-submit" type = "submit" class = "cyrus-btn cyrus-btn-type2" value = "ENVIAR">
+                <input id="form0-submit" type = "submit" class = "cyrus-btn cyrus-btn-type2" value = "ENVIAR" disabled>
             </div>
             </div>
         </div>

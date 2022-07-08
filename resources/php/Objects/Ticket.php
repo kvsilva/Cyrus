@@ -5,16 +5,10 @@ namespace Objects;
  */
 
 use DateTime;
+use Enumerators\TicketStatus;
+use Exceptions\NotInitialized;
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
-use mysqli;
-
-/*
- * Object Imports
- */
-
-use Objects\LogAction;
-use Objects\User;
 
 /*
  * Exception Imports
@@ -22,8 +16,6 @@ use Objects\User;
 use Exceptions\UniqueKey;
 use Exceptions\RecordNotFound;
 use Exceptions\IOException;
-use Exceptions\MalformedJSON;
-use Exception;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\TableNotFound;
@@ -32,7 +24,7 @@ use Exceptions\NotNullable;
 /*
  * Enumerator Imports
  */
-use Enumerators\Availability;
+
 /*
  * Others
  */
@@ -42,19 +34,25 @@ use ReflectionException;
 class Ticket extends Entity {
 
     // FLAGS
-    public const MESSAGES = 2;
+    public const TICKETMESSAGES = 2;
 
     // DEFAULT STRUCTURE
-    protected ?String $title = null;
+    protected ?String $subject = null;
     protected ?TicketStatus $status = null;
+    protected ?User $responsible = null;
     protected ?DateTime $created_at = null;
     protected ?DateTime $closed_at = null;
     protected ?User $closed_by = null;
     protected ?int $evaluation = null;
 
+
+    // FK
+
+    protected ?User $user = null;
+
     // RELATIONS
 
-    private ?array $messages = null;
+    private ?TicketMessagesArray $messages = null;
 
     /**
      * @param int|null $id
@@ -76,8 +74,8 @@ class Ticket extends Entity {
     {
         $database = $this->getDatabase();
         $id = $this->getId();
-        if($this->hasFlag(self::MESSAGES)){
-            $this->messages = array();
+        if($this->hasFlag(self::TICKETMESSAGES)){
+            $this->messages = new TicketMessagesArray();
             $query = $database->query("SELECT id as 'id' FROM ticket_message WHERE ticket = $id;");
             while($row = $query->fetch_array()){
                 $this->messages[] = new TicketMessage($row["id"], array(Entity::ALL));
@@ -87,7 +85,7 @@ class Ticket extends Entity {
     }
 
     /**
-     * @param User $user
+     * @param User|null $user
      * @return $this
      * @throws ColumnNotFound
      * @throws IOException
@@ -96,7 +94,8 @@ class Ticket extends Entity {
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store(User $user) : Ticket{
+    public function store(?User $user = null) : Ticket{
+        if($user === null) $user = $this->user;
         parent::__store(values: array("user" => $user?->getId()));
         return $this;
     }
@@ -156,12 +155,14 @@ class Ticket extends Entity {
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "status" => "int|mixed|null", "created_at" => "bool|\DateTime|null", "closed_at" => "bool|\DateTime|null", "closed_by" => "int|null", "evaluation" => "int|null"])]
+    #[ArrayShape(["id" => "int|null", "subject" => "null|String", "status" => "int|null", "responsible" => "int|null", "created_at" => "bool|\DateTime|null", "closed_at" => "bool|\DateTime|null", "closed_by" => "int|null", "evaluation" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("ticket"),
-            "status" => $this->status?->getId(),
+            "subject" => $this->subject,
+            "status" => $this->status?->value,
+            "responsible" => $this->responsible?->getId(),
             "created_at" => $this->created_at != null ? Database::convertDateToDatabase($this->created_at) : $this->created_at,
             "closed_at" => $this->closed_at != null ? Database::convertDateToDatabase($this->closed_at) : $this->closed_at,
             "closed_by" => $this->closed_by?->getId(),
@@ -178,7 +179,7 @@ class Ticket extends Entity {
     {
         $array = array(
             "id" => $this->getId(),
-            "status" => $this->status->toArray(false, $entities),
+            "status" => $this->status->toArray(),
             "created_at" => $this->created_at?->format(Database::DateFormat),
             "closed_at" => $this->closed_at?->format(Database::DateFormat),
             "closed_by" => $this->closed_by?->toArray(false, $entities),
@@ -192,6 +193,7 @@ class Ticket extends Entity {
         return $array;
     }
 
+    #[ArrayShape(["id" => "int|null", "status" => "\Enumerators\TicketStatus|null", "created_at" => "null|string", "closed_at" => "null|string", "closed_by" => "null|\Objects\User", "evaluation" => "int|null", "messages" => "array|null"])]
     public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
@@ -213,18 +215,18 @@ class Ticket extends Entity {
     /**
      * @return String|null
      */
-    public function getTitle(): ?string
+    public function getSubject(): ?string
     {
-        return $this->title;
+        return $this->subject;
     }
 
     /**
-     * @param String|null $title
+     * @param string|null $subject
      * @return Ticket
      */
-    public function setTitle(?string $title): Ticket
+    public function setSubject(?string $subject): Ticket
     {
-        $this->title = $title;
+        $this->subject = $subject;
         return $this;
     }
 
@@ -321,16 +323,16 @@ class Ticket extends Entity {
     /**
      * @return array|null
      */
-    public function getMessages(): ?array
+    public function getMessages(): ?TicketMessagesArray
     {
         return $this->messages;
     }
 
     /**
-     * @param array|null $messages
+     * @param TicketMessagesArray|null $messages
      * @return Ticket
      */
-    public function setMessages(?array $messages): Ticket
+    public function setMessages(?TicketMessagesArray $messages): Ticket
     {
         $this->messages = $messages;
         return $this;
@@ -366,6 +368,69 @@ class Ticket extends Entity {
             }
         }
         foreach($remove as $item) unset($this->messages[$item]);
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getResponsible(): ?User
+    {
+        return $this->responsible;
+    }
+
+    /**
+     * @param User|null $responsible
+     * @return Ticket
+     */
+    public function setResponsible(?User $responsible): Ticket
+    {
+        $this->responsible = $responsible;
+        return $this;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User|null $user
+     * @return Ticket
+     */
+    public function setUser(?User $user): Ticket
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @param int $relation
+     * @param mixed $value
+     * @return Ticket
+     */
+    public function addRelation(int $relation, mixed $value) : Ticket
+    {
+        switch ($relation) {
+            case self::TICKETMESSAGES:
+                $this->addMessage($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     */
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : Ticket
+    {
+        switch ($relation) {
+            case self::TICKETMESSAGES:
+                $this->removeMessage($value, $id);
+                break;
+        }
+        return $this;
     }
 
 }

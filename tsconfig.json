@@ -44,6 +44,8 @@
     "user/register/assets/js/*",
     "user/history/assets/js/*",
     "user/tickets/main/assets/js/*",
+    "user/tickets/item/assets/js/*",
+    "user/tickets/create/assets/js/*",
     "dev/test_page/assets/js/*"
   ],
   "exclude": [

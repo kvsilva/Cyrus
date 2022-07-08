@@ -277,7 +277,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
             }
             } else {
                 ?>
-                <div style="display: flex; align-items: center; width: 100%; justify-content: center; flex-direction: column; margin-top: 18px;">
+                <div class = "no-select" style="display: flex; align-items: center; width: 100%; justify-content: center; flex-direction: column; margin-top: 18px;">
                     <img draggable="false" width="200px" height="150px"
                          src="<?php echo Utils::getDependencies("Cyrus", "nothing_to_see") ?>">
                     <span style = "font-weight: bold; font-size: 22px; margin-top: 5px;">Não tem nada por aqui hoje o((>ω< ))o</span>

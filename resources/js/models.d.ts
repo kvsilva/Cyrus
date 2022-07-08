@@ -18,6 +18,11 @@ export declare const AnimeStatus: {
     DONT_LIKE: number;
     WATCH_LATER: number;
 };
+export declare const TicketStatus: {
+    OPEN: number;
+    CLOSED: number;
+    AWAITING_YOUR_RESPONSE: number;
+};
 export declare const Maturity: {
     NORMAL: number;
     MATURE: number;
@@ -405,35 +410,21 @@ export declare const GenderFlags: {
         value: number;
     };
 };
-export declare class TicketStatus {
-    id: number;
-    name: string;
-    constructor(obj?: any);
-}
-export declare const TicketStatusFlags: {
-    NORMAL: {
-        name: string;
-        value: number;
-    };
-    ALL: {
-        name: string;
-        value: number;
-    };
-};
 export declare class Ticket {
     id: number;
-    title: string;
-    attended_by: User | null;
-    status: TicketStatus | null;
+    subject: string;
+    status: number;
+    responsible: User | null;
     created_at: Date;
     closed_at: Date;
     closed_by: User | null;
     evaluation: number;
-    messages: any[];
+    user: User | null;
+    messages: TicketMessage[];
     constructor(obj?: any);
 }
 export declare const TicketFlags: {
-    MESSAGES: {
+    TICKETMESSAGES: {
         name: string;
         value: number;
     };
@@ -451,11 +442,11 @@ export declare class TicketMessage {
     author: User | null;
     content: string;
     sent_at: Date;
-    attachments: any[];
+    attachments: Resource[];
     constructor(obj?: any);
 }
 export declare const TicketMessageFlags: {
-    ATTACHMENTS: {
+    TICKETMESSAGEATTACHMENTS: {
         name: string;
         value: number;
     };

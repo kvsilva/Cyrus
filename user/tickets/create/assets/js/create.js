@@ -1,9 +1,101 @@
-import { Request as API } from "../../../../../resources/js/Request.d.ts";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+import { Request as API } from "../../../../../resources/js/Request.js";
+import { cyrusAlert } from "../../../../../resources/js/cyrus";
+import { TicketMessageFlags, TicketStatus } from "../../../../../resources/js/models";
 $(document).ready(function () {
-    API.requestService("utilities", "getRouting", {}, []).then((result) => {
-        if (result.status) {
-            if ("data" in result) {
-            }
+    $("#form0-subject").on("input", function () {
+        if ($.trim($("#form0-subject").val()).length > 0 && $.trim($("#form0-description").val()).length > 0) {
+            $("#form0-submit").prop("disabled", false);
         }
+        else
+            $("#form0-submit").prop("disabled", true);
+    });
+    $("#form0-description").on("input", function () {
+        if ($.trim($("#form0-subject").val()).length > 0 && $.trim($("#form0-description").val()).length > 0) {
+            $("#form0-submit").prop("disabled", false);
+        }
+        else
+            $("#form0-submit").prop("disabled", true);
+    });
+    $("#form0-submit").click(function (e) {
+        e.preventDefault();
+        if (($.trim($("#form0-subject").val()).length == 0 || $.trim($("#form0-description").val()).length == 0)) {
+            cyrusAlert("warning", "Há campos por preencher!");
+            return;
+        }
+        API.requestService("session", "getSession", {}, []).then((result) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            if (result.status) {
+                if ("data" in result) {
+                    let user = result.data[0];
+                    let attachments = [];
+                    for (let i = 0; i < $("#form0-attachments").prop("files").length; i++) {
+                        yield API.uploadFile($("#form0-attachments").prop("files")[i]).then((result2) => {
+                            if (result2.status && result2.data) {
+                                API.requestService("Resources", "uploadFile", {
+                                    file: result2.data,
+                                    title: 'Ticket Attachment',
+                                    description: 'Ticket Attachment Description'
+                                }).then((result3) => {
+                                    if (result3.status && result3.data) {
+                                        attachments.push(result3.data[0]);
+                                    }
+                                    else {
+                                        cyrusAlert("danger", "Ocorreu um erroa ao anexar os ficheiros em anexo ao sistema. Consulte a consola para mais informações.");
+                                        console.error(result3);
+                                    }
+                                });
+                            }
+                            else {
+                                cyrusAlert("danger", "Ocorreu um erroa ao fazer o upload dos ficheiros em anexo. Consulte a consola para mais informações.");
+                                console.error(result2);
+                            }
+                        });
+                    }
+                    yield API.requestType("Ticket", "insert", {
+                        user: (_a = result.data[0]) === null || _a === void 0 ? void 0 : _a.id,
+                        subject: $("#form0-subject").val(),
+                        status: TicketStatus.OPEN,
+                    }).then((result2) => __awaiter(this, void 0, void 0, function* () {
+                        var _b, _c;
+                        if (result2.status && result2.data) {
+                            let formData = {
+                                ticket: (_b = result2.data[0]) === null || _b === void 0 ? void 0 : _b.id,
+                                content: $("#form0-description").val(),
+                                author: (_c = result.data[0]) === null || _c === void 0 ? void 0 : _c.id,
+                                relations: {}
+                            };
+                            formData["relations"][TicketMessageFlags.TICKETMESSAGEATTACHMENTS.name] = attachments;
+                            yield API.requestType("TicketMessage", "insert", formData).then((result2) => {
+                                if (result2.status && result2.data) {
+                                    console.log("Ticket Created!");
+                                    console.log(result.data);
+                                }
+                                else {
+                                    cyrusAlert("danger", "Ocorreu um erroa ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
+                                    console.error(result2);
+                                }
+                            });
+                        }
+                        else {
+                            cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Consulte a consola para mais informações.");
+                            console.error(result2);
+                        }
+                    }));
+                    console.log(user);
+                    console.log(attachments);
+                }
+            }
+            else {
+            }
+        }));
     });
 });

@@ -19,7 +19,7 @@ use Objects\Resource;
 class TicketMessage extends Entity
 {
     // FLAGS
-    public const ATTACHMENTS = 2;
+    public const TICKETMESSAGEATTACHMENTS = 2;
 
     // DEFAULT STRUCTURE
 
@@ -29,7 +29,7 @@ class TicketMessage extends Entity
 
     // RELATIONS
 
-    private ?array $attachments = null;
+    private ?ResourcesArray $attachments = null;
 
     /**
      * @param int|null $id
@@ -51,8 +51,8 @@ class TicketMessage extends Entity
     {
         $database = $this->getDatabase();
         $id = $this->getId();
-        if($this->hasFlag(self::ATTACHMENTS)){
-            $this->attachments = array();
+        if($this->hasFlag(self::TICKETMESSAGEATTACHMENTS)){
+            $this->attachments = new ResourcesArray();
             $query = $database->query("SELECT resource as 'id' FROM ticket_message_attachment WHERE message = $id;");
             while($row = $query->fetch_array()){
                 $this->attachments[] = new Resource($row["id"], array(Entity::ALL));
@@ -87,7 +87,7 @@ class TicketMessage extends Entity
         parent::updateRelations();
         $database = $this->getDatabase();
         $id = $this->getId();
-        if ($this->hasFlag(self::ATTACHMENTS)) {
+        if ($this->hasFlag(self::TICKETMESSAGEATTACHMENTS)) {
             $query = $database->query("SELECT resource as 'id' FROM ticket_message_attachment WHERE message = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
@@ -162,6 +162,12 @@ class TicketMessage extends Entity
         return $array;
     }
 
+    /**
+     * @param bool $minimal
+     * @param bool $entities
+     * @return array
+     */
+    #[ArrayShape(["id" => "int|null", "author" => "null|\Objects\User", "content" => "null|String", "sent_at" => "null|string", "attachments" => "array|null"])]
     public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
@@ -235,16 +241,16 @@ class TicketMessage extends Entity
     /**
      * @return array|null
      */
-    public function getAttachments(): ?array
+    public function getAttachments(): ?ResourcesArray
     {
         return $this->attachments;
     }
 
     /**
-     * @param array|null $attachments
+     * @param ResourcesArray|null $attachments
      * @return TicketMessage
      */
-    public function setAttachments(?array $attachments): TicketMessage
+    public function setAttachments(?ResourcesArray $attachments): TicketMessage
     {
         $this->attachments = $attachments;
         return $this;
@@ -254,7 +260,13 @@ class TicketMessage extends Entity
      * @param Resource $attachment
      * @return $this
      */
-    public function addAttachment(Resource $attachment) : TicketMessage{
+    public function addAttachment(array|Resource $attachment) : TicketMessage{
+        if(is_array($attachment)){
+            $resource = new Resource();
+            $resource = Entity::arrayToObject($resource, $attachment);
+            $attachment = $resource;
+        }
+
         $this->attachments[] = $attachment;
         return $this;
     }
@@ -280,6 +292,38 @@ class TicketMessage extends Entity
             }
         }
         foreach($remove as $item) unset($this->attachments[$item]);
+    }
+
+    /**
+     * @param int $relation
+     * @param mixed $value
+     * @return TicketMessage
+     */
+    public function addRelation(int $relation, mixed $value) : TicketMessage
+    {
+        switch ($relation) {
+            case self::TICKETMESSAGEATTACHMENTS:
+                $this->addAttachment($value);
+                break;
+        }
+        return $this;
+    }
+
+
+    /**
+     * @param int $relation
+     * @param mixed|null $value
+     * @param int|null $id
+     * @return $this
+     */
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : TicketMessage
+    {
+        switch ($relation) {
+            case self::TICKETMESSAGEATTACHMENTS:
+                $this->removeAttachment($value, $id);
+                break;
+        }
+        return $this;
     }
 
 }
