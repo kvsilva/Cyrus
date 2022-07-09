@@ -123,7 +123,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             </div>
                             <?php if($ticket->getResponsible() === null){?>
                                 <div class="cyrus-input-group no-select w-100 align-items-start mt-5 ms-2">
-                                    <button class="cyrus-btn cyrus-btn-type2">Assumir</button>
+                                    <button class="cyrus-btn cyrus-btn-type2" id = "responsible">Assumir</button>
                                 </div>
                             <?php }?>
                         </div>

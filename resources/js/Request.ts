@@ -41,12 +41,13 @@ export class Request {
         });
     }
 
-    public static requestType(target: string, action: any, data: {} = {}, flags: string[] = [], minimal: boolean | null = null, entities: boolean | null = null) {
+    public static requestType(target: string, action: any, data: {} = {}, flags: string[] = [], minimal: boolean | null = null, entities: boolean | null = null, operator = "=") {
         let request : any[string] = {
             "type": target,
             "action": action,
             "dataTypes": true,
             "flags": flags,
+            "operator": operator,
             "data": [data]
         };
         if(minimal !== null) request["minimal"] = minimal;

@@ -88,10 +88,12 @@ class Models
             foreach($reflection->getCases() as $case){
                 $count++;
                 $enumerator .= "\n";
-                $name = $case->getName();
+                $caseName = $case->getName();
                 $value = $case->getBackingValue();
+                $name = $reflection->getMethod("getItem")->invokeArgs(null, array("num" => $value))->name();
+
                 $value = is_string($value) ? '"'.$value .'"' : $value;
-                $enumerator .= '    ' . $name . ': '. $value;
+                $enumerator .= '    ' . $caseName . ': {name: "'. $name . '", value: ' . $value . '}';
                 if(count($reflection->getCases()) > $count) $enumerator .= ",";
             }
             $enumerator .= "\n};\n";

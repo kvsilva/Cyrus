@@ -51,7 +51,7 @@ $(document).ready(function () {
                     await API.requestType("Ticket", "insert", {
                         user: result.data[0]?.id,
                         subject: $("#form0-subject").val(),
-                        status: TicketStatus.OPEN,
+                        status: TicketStatus.OPEN.value,
                     }).then(async (result2: any) => {
                         if (result2.status && result2.data) {
                             let formData : any[string] = {

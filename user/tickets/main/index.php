@@ -36,6 +36,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
         <div class="cyrus-page-title">
             <h1>Os Meus Tickets</h1>
         </div>
+        <div class = "d-flex justify-content-end mt-5">
+            <a href = "<?php echo Routing::getRouting("createticket")?>" class = " cyrus-btn cyrus-btn-type3">Abrir Ticket</a>
+        </div>
         <div class="tickets-filter">
             <div class="w-25 tickets-filter-search mb-5">
                 <div class="cyrus-input-group">
@@ -48,7 +51,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 <div class="cyrus-input-group dropdown no-select w-100">
                     <div class="dropdown-toggle float-end w-100 d-flex justify-content-end align-items-center" type="button" id="dropdownMenuButton1"
                          data-bs-toggle="dropdown" aria-expanded="false">
-                        <span id="selected-display-language" data-selected="0">Todos</span>
+                        <span id="selected-status" data-selected="0">Todos</span>
                     </div>
                     <ul class="dropdown-menu no-select" aria-labelledby="dropdownMenuButton1">
                         <li data-id="0">Todos</li>
@@ -72,20 +75,8 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     <th class="status">Estado</th>
                 </tr>
                 </thead>
-                <tbody>
-                <?php
-                $tickets = Ticket::find(user: $_SESSION["user"]->getId(), flags: [Entity::ALL]);
-                foreach($tickets as $ticket){
-                    ?>
-                    <tr>
-                        <td><a class="cyrus-feed-view-link" href="?ticket=<?php echo $ticket->getId(); ?>"><?php echo $ticket->getSubject(); ?></a></td>
-                        <td><?php echo $ticket->getId(); ?></td>
-                        <td><?php echo $ticket->getMessages()[$ticket->getMessages()->size()-1]->getSentAt()?->format(Database::DateFormat); ?></td>
-                        <td><?php echo $ticket->getStatus()->name(); ?></td>
-                    </tr>
-                    <?php
-                }
-                ?>
+                <tbody id = "tickets-table">
+
                 <!--<tr>
                     <td><a class="cyrus-feed-view-link" href="c">Não consigo assistir a minha série favorita!</a></td>
                     <td>123</td>

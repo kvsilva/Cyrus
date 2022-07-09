@@ -23,12 +23,13 @@ export class Request {
             "data": [data]
         });
     }
-    static requestType(target, action, data = {}, flags = [], minimal = null, entities = null) {
+    static requestType(target, action, data = {}, flags = [], minimal = null, entities = null, operator = "=") {
         let request = {
             "type": target,
             "action": action,
             "dataTypes": true,
             "flags": flags,
+            "operator": operator,
             "data": [data]
         };
         if (minimal !== null)

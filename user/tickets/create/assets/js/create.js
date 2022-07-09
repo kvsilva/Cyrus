@@ -60,7 +60,7 @@ $(document).ready(function () {
                     yield API.requestType("Ticket", "insert", {
                         user: (_a = result.data[0]) === null || _a === void 0 ? void 0 : _a.id,
                         subject: $("#form0-subject").val(),
-                        status: TicketStatus.OPEN,
+                        status: TicketStatus.OPEN.value,
                     }).then((result2) => __awaiter(this, void 0, void 0, function* () {
                         var _b, _c;
                         if (result2.status && result2.data) {

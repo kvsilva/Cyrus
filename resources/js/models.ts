@@ -1,44 +1,44 @@
 export const Availability = {
-    NOT_AVAILABLE: 0,
-    AVAILABLE: 1,
-    BOTH: 2
+    NOT_AVAILABLE: {name: "Indisponível", value: 0},
+    AVAILABLE: {name: "Disponível", value: 1},
+    BOTH: {name: "Ambos", value: 2}
 };
 export const DayOfWeek = {
-    MONDAY: 1,
-    TUESDAY: 2,
-    WEDNESDAY: 3,
-    THURSDAY: 4,
-    FRIDAY: 5,
-    SATURDAY: 6,
-    SUNDAY: 7
+    MONDAY: {name: "Segunda", value: 1},
+    TUESDAY: {name: "Terça", value: 2},
+    WEDNESDAY: {name: "Quarta", value: 3},
+    THURSDAY: {name: "Quinta", value: 4},
+    FRIDAY: {name: "Sexta", value: 5},
+    SATURDAY: {name: "Sábado", value: 6},
+    SUNDAY: {name: "Domingo", value: 7}
 };
 export const AnimeStatus = {
-    FAVOURITE: 1,
-    LIKE: 2,
-    DONT_LIKE: 3,
-    WATCH_LATER: 4
+    FAVOURITE: {name: "Favorito", value: 1},
+    LIKE: {name: "Gosto", value: 2},
+    DONT_LIKE: {name: "Não Gosto", value: 3},
+    WATCH_LATER: {name: "Ver mais tarde", value: 4}
 };
 export const TicketStatus = {
-    OPEN: 1,
-    CLOSED: 2,
-    AWAITING_YOUR_RESPONSE: 3
+    OPEN: {name: "Aberto", value: 1},
+    CLOSED: {name: "Fechado", value: 2},
+    AWAITING_YOUR_RESPONSE: {name: "Aguardando a tua resposta", value: 3}
 };
 export const Maturity = {
-    NORMAL: 0,
-    MATURE: 1
+    NORMAL: {name: "Normal", value: 0},
+    MATURE: {name: "Mature", value: 1}
 };
 export const Removal = {
-    DELETE: 0,
-    AVAILABILITY: 1
+    DELETE: {name: "Delete", value: 0},
+    AVAILABILITY: {name: "Availability", value: 1}
 };
 export const Sex = {
-    MALE: 1,
-    FEMALE: 2,
-    OTHER: 3
+    MALE: {name: "Masculino", value: 1},
+    FEMALE: {name: "Feminino", value: 2},
+    OTHER: {name: "Outro", value: 3}
 };
 export const Verification = {
-    NOT_VERIFIED: 0,
-    VERIFIED: 1
+    NOT_VERIFIED: {name: "Não Verificado", value: 0},
+    VERIFIED: {name: "Verificado", value: 1}
 };
 export class GlobalSetting {
     id: number;

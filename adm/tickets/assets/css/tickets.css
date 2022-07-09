@@ -26,6 +26,11 @@
     width: 100%;
 }
 
+.tickets-filter-status{
+    height: 100%;
+    padding-top: 10px;
+}
+
 th{
     color: var(--color3);
 }
@@ -51,8 +56,16 @@ tbody a:hover{
 
 
 .subject{
-    width: 55%;
+    width: 40%;
 }
-.ticket-id, .last-update, .status{
-    width: 15%;
+.ticket-id{
+    width: 8%;
+}
+
+.ticket-responsible, .ticket-user, .status{
+    width: 12%;
+}
+
+.last-update{
+    width: 20%;
 }

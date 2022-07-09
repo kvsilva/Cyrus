@@ -411,7 +411,7 @@ function updateRelations(id) {
         //await API.requestType(entity, "query", {"id": id, "available": Availability.BOTH}).then((result: any) => {
         API.requestType(entity, "query", {
             "id": id,
-            "available": Availability.BOTH
+            "available": Availability.BOTH.value
         }, [UserFlags.ALL.name]).then((result) => {
             var _a;
             if (result.status && result.data) {
@@ -533,7 +533,7 @@ function dataQuery() {
     return __awaiter(this, void 0, void 0, function* () {
         // @ts-ignore
         datatable.clear().draw();
-        yield API.requestType(entity, "query", { "available": Availability.BOTH }).then((result) => {
+        yield API.requestType(entity, "query", { "available": Availability.BOTH.value }).then((result) => {
             if (result.status && result.data) {
                 for (let i = 0; i < result.data.length; i++) {
                     let tr = $("<tr>");

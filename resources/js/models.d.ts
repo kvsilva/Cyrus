@@ -1,44 +1,122 @@
 export declare const Availability: {
-    NOT_AVAILABLE: number;
-    AVAILABLE: number;
-    BOTH: number;
+    NOT_AVAILABLE: {
+        name: string;
+        value: number;
+    };
+    AVAILABLE: {
+        name: string;
+        value: number;
+    };
+    BOTH: {
+        name: string;
+        value: number;
+    };
 };
 export declare const DayOfWeek: {
-    MONDAY: number;
-    TUESDAY: number;
-    WEDNESDAY: number;
-    THURSDAY: number;
-    FRIDAY: number;
-    SATURDAY: number;
-    SUNDAY: number;
+    MONDAY: {
+        name: string;
+        value: number;
+    };
+    TUESDAY: {
+        name: string;
+        value: number;
+    };
+    WEDNESDAY: {
+        name: string;
+        value: number;
+    };
+    THURSDAY: {
+        name: string;
+        value: number;
+    };
+    FRIDAY: {
+        name: string;
+        value: number;
+    };
+    SATURDAY: {
+        name: string;
+        value: number;
+    };
+    SUNDAY: {
+        name: string;
+        value: number;
+    };
 };
 export declare const AnimeStatus: {
-    FAVOURITE: number;
-    LIKE: number;
-    DONT_LIKE: number;
-    WATCH_LATER: number;
+    FAVOURITE: {
+        name: string;
+        value: number;
+    };
+    LIKE: {
+        name: string;
+        value: number;
+    };
+    DONT_LIKE: {
+        name: string;
+        value: number;
+    };
+    WATCH_LATER: {
+        name: string;
+        value: number;
+    };
 };
 export declare const TicketStatus: {
-    OPEN: number;
-    CLOSED: number;
-    AWAITING_YOUR_RESPONSE: number;
+    OPEN: {
+        name: string;
+        value: number;
+    };
+    CLOSED: {
+        name: string;
+        value: number;
+    };
+    AWAITING_YOUR_RESPONSE: {
+        name: string;
+        value: number;
+    };
 };
 export declare const Maturity: {
-    NORMAL: number;
-    MATURE: number;
+    NORMAL: {
+        name: string;
+        value: number;
+    };
+    MATURE: {
+        name: string;
+        value: number;
+    };
 };
 export declare const Removal: {
-    DELETE: number;
-    AVAILABILITY: number;
+    DELETE: {
+        name: string;
+        value: number;
+    };
+    AVAILABILITY: {
+        name: string;
+        value: number;
+    };
 };
 export declare const Sex: {
-    MALE: number;
-    FEMALE: number;
-    OTHER: number;
+    MALE: {
+        name: string;
+        value: number;
+    };
+    FEMALE: {
+        name: string;
+        value: number;
+    };
+    OTHER: {
+        name: string;
+        value: number;
+    };
 };
 export declare const Verification: {
-    NOT_VERIFIED: number;
-    VERIFIED: number;
+    NOT_VERIFIED: {
+        name: string;
+        value: number;
+    };
+    VERIFIED: {
+        name: string;
+        value: number;
+    };
 };
 export declare class GlobalSetting {
     id: number;

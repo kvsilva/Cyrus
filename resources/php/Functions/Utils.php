@@ -83,6 +83,7 @@ class Utils
                 "Login" => (new Dependency("Login", self::$BASE_URL . "user/"))->addImport(path: "assets/js/login.js")->addImport(path: "assets/css/login.css", extension: "css"),
                 "History" => (new Dependency("History", self::$BASE_URL . "user/"))->addImport(path: "assets/js/history.js")->addImport(path: "assets/css/history.css", extension: "css"),
                 "Tickets" => (new Dependency("Tickets", self::$BASE_URL . "user/"))->addImport(path: "main/assets/js/tickets.js")->addImport(path: "main/assets/css/tickets.css", extension: "css"),
+                "AdmTickets" => (new Dependency("Tickets", self::$BASE_URL . "adm/"))->addImport(path: "assets/js/tickets.js")->addImport(path: "assets/css/tickets.css", extension: "css"),
                 "Ticket" => (new Dependency("Tickets", self::$BASE_URL . "user/"))->addImport(path: "item/assets/js/ticket.js")->addImport(path: "item/assets/css/ticket.css", extension: "css"),
                 "CreateTicket" => (new Dependency("Tickets", self::$BASE_URL . "user/"))->addImport(path: "create/assets/js/create.js")->addImport(path: "create/assets/css/create.css", extension: "css"),
                 "Verify" => (new Dependency("Verify", self::$BASE_URL . "user/"))->addImport(path: "assets/js/verify.js")->addImport(path: "assets/css/verify.css", extension: "css"),

@@ -143,13 +143,13 @@ class Ticket extends Entity {
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, int $user = null, int $closed_by = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, int $user = null, int $closed_by = null, string $sql = null, string $operator = "=", array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "user" => $user,
             "closed_by" => $closed_by
-        ), table: 'ticket', class: 'Objects\Ticket', sql: $sql, flags: $flags);
+        ), table: 'ticket', class: 'Objects\Ticket', sql: $sql, operator: $operator, flags: $flags);
     }
 
     /**
@@ -179,7 +179,9 @@ class Ticket extends Entity {
     {
         $array = array(
             "id" => $this->getId(),
+            "subject" => $this->subject,
             "status" => $this->status->toArray(),
+            "responsible" => $this->responsible?->toArray(false, $entities),
             "created_at" => $this->created_at?->format(Database::DateFormat),
             "closed_at" => $this->closed_at?->format(Database::DateFormat),
             "closed_by" => $this->closed_by?->toArray(false, $entities),
@@ -190,6 +192,10 @@ class Ticket extends Entity {
             $array["messages"] = $this->messages != null ? array() : null;
             if ($array["messages"] != null) foreach ($this->messages as $value) $array["messages"][] = $value->toArray();
         }
+        if($entities) {
+            // Relations
+            $array["user"] = $this->user != null ? $this->user?->toArray() : null;
+        }
         return $array;
     }
 
@@ -198,7 +204,9 @@ class Ticket extends Entity {
     {
         $array = array(
             "id" => $this->getId(),
+            "subject" => $this->subject,
             "status" => $this->status,
+            "responsible" => $this->responsible,
             "created_at" => $this->created_at?->format(Database::DateFormat),
             "closed_at" => $this->closed_at?->format(Database::DateFormat),
             "closed_by" => $this->closed_by,

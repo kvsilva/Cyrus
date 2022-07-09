@@ -609,12 +609,14 @@ input.cyrus-minimal {
     box-shadow: inset 0 0 0 0.125rem var(--color0_light);
     transition-timing-function: ease;
     background-color: var(--color0_light);
+    text-decoration: none;
 }
 
 .cyrus-btn-type2:disabled {
     box-shadow: inset 0 0 0 0.125rem var(--color2_darker);
     background-color: transparent;
     color: var(--color2_darker);
+    text-decoration: none;
 }
 
 
@@ -628,12 +630,14 @@ input.cyrus-minimal {
     transition-property: color, background-color, box-shadow;
     transition-timing-function: ease;
     color: var(--color0);
+    text-decoration: none;
 }
 
 .cyrus-btn-type3:hover {
     color: var(--color0_light);
     box-shadow: inset 0 0 0 0.125rem var(--color0_light);
     transition-timing-function: ease;
+    text-decoration: none;
 }
 
 
@@ -1461,4 +1465,9 @@ input.cyrus-minimal {
     position: fixed;
     min-width: 25%;
     max-width: 40%;
+}
+
+/* Width */
+.w-15{
+    width: 15% !important;
 }

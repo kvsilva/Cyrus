@@ -41,7 +41,8 @@ class Request
 
     private ?bool $minimal = null;
     private ?bool $entities = null;
-    private String $orderBy = "id";
+    private String $orderBy;
+    private String $operator;
 
     /**
      * @param array $array
@@ -61,6 +62,7 @@ class Request
         $this->type = $array["type"] ?? null;
         $this->service = $array["service"] ?? null;
         $this->minimal = $array["minimal"] ?? null;
+        $this->operator = $array["operator"] ?? "=";
         $this->entities = $array["entities"] ?? null;
         $this->orderBy = $array["orderBy"] ?? "id";
         $this->dataTypes = isset($array["dataTypes"]) && $array["dataTypes"] ? array() : null;
@@ -155,7 +157,8 @@ class Request
         $objects = new EntityArray(entity: $object_name);
         switch ($this->getAction()){
             case "query":
-                $objects_find = Entity::__find(fields: $data, table: $obj->getTable(), class: $object_name, flags: $flags);
+
+                $objects_find = Entity::__find(fields: $data, table: $obj->getTable(), class: $object_name, operator: $this->operator, flags: $flags);
                 foreach($objects_find as $object1){
                     $objects[] = $object1;
                 }

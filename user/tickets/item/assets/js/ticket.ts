@@ -65,13 +65,13 @@ $(document).ready(function () {
     $("#selected-status").on("change", async function () {
         let status = $("#selected-status").data("selected");
 
-        let formData : any[string] = {
+        let formData: any[string] = {
             // @ts-ignore
             id: getParameter("ticket"),
             status: status
         };
 
-        if(status == TicketStatus.CLOSED) {
+        if (status == TicketStatus.CLOSED.value) {
             await API.requestService("session", "getSession", {}, []).then(async (result: any) => {
                 if (result.status) {
                     if ("data" in result) {
@@ -99,6 +99,32 @@ $(document).ready(function () {
             } else {
                 // @ts-ignore
                 cyrusAlert("danger", "Ocorreu um erroa ao mudar o estado do ticket. Consulte a consola para mais informações.");
+            }
+        });
+    });
+
+    $("#responsible").on("click", async function () {
+
+        let formData: any[string] = {
+            // @ts-ignore
+            id: getParameter("ticket"),
+            responsible: null
+        };
+
+        await API.requestService("session", "getSession", {}, []).then(async (result: any) => {
+            if (result.status) {
+                if ("data" in result) {
+                    formData.responsible = result.data[0]?.id;
+                }
+            }
+        });
+
+        await API.requestType("Ticket", "update", formData, [], null, true).then((result2: any) => {
+            if (result2.status && result2.data) {
+                location.reload();
+            } else {
+                // @ts-ignore
+                cyrusAlert("danger", "Ocorreu um erroa ao assumir o ticket. Consulte a consola para mais informações.");
             }
         });
     });
