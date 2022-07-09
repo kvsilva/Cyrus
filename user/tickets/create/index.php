@@ -47,7 +47,7 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                 <span class="cyrus-floating-label">Assunto</span>
             </div>
             <div class="cyrus-input-group">
-                <textarea class="cyrus-minimal" required value=''
+                <textarea style = "height: 150px;" class="cyrus-minimal" required value=''
                           onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password"
                           id="form0-description"></textarea>
                 <span class="cyrus-floating-label">Descrição</span>
@@ -56,11 +56,12 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
             <div>
                 <span class="cyrus-floating-label-float">Anexos</span>
                 <div class=" cyrus-group-file" data-hc-focus="false">
-                    <input type="file" multiple id="form0-attachments">
-                    <span>
-                    <a>Adicione o arquivo</a> ou solte os arquivos aqui
-                </span>
+                    <input data-cyrus="true" type="file" multiple id="form0-attachments">
+                    <span data-dragged = "false">Adicione o arquivo ou solte os arquivos aqui</span>
+                    <span class = "cyrus-item-hidden" data-dragged = "true">Solte o arquivo</span>
                 </div>
+                <ul class="cyrus-group-attachments" data-for="form0-attachments">
+                </ul>
             </div>
             <div class = "d-flex justify-content-center">
             <div class = "cyrus-input-group w-25">

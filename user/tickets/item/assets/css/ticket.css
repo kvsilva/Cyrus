@@ -34,7 +34,7 @@
 
 .ticket-message{
     margin-top: 50px;
-    width: fit-content;
+    width: 100%;
 }
 
 .ticket-message-header{
@@ -86,4 +86,16 @@
     padding-left: 50px;
     padding-right: 50px;
     text-transform: uppercase;
+    margin-top: 15px;
+}
+
+.ticket-answer h5{
+    margin-left: 8px;
+    margin-top: 15px;
+}
+
+.ticket-answer-wrapper{
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
 }

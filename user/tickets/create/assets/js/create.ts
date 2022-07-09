@@ -26,15 +26,13 @@ $(document).ready(function () {
         API.requestService("session", "getSession", {}, []).then(async (result: any) => {
             if (result.status) {
                 if ("data" in result) {
-                    let user = result.data[0];
+
                     let attachments: Resource[] = [];
                     for (let i = 0; i < $("#form0-attachments").prop("files").length; i++) {
-                        await API.uploadFile($("#form0-attachments").prop("files")[i]).then((result2: any) => {
+                        await API.uploadFile($("#form0-attachments").prop("files")[i]).then(async (result2: any) => {
                             if (result2.status && result2.data) {
-                                API.requestService("Resources", "uploadFile", {
+                                await API.requestService("Resources", "uploadFile", {
                                     file: result2.data,
-                                    title: 'Ticket Attachment',
-                                    description: 'Ticket Attachment Description'
                                 }).then((result3: any) => {
                                     if (result3.status && result3.data) {
                                         attachments.push(result3.data[0]);
@@ -64,27 +62,23 @@ $(document).ready(function () {
                             };
 
                             formData["relations"][TicketMessageFlags.TICKETMESSAGEATTACHMENTS.name] = attachments;
-                            console.log(formData);
-                            await API.requestType("TicketMessage", "insert", formData).then((result2: any) => {
+                            await API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2: any) => {
                                 if(result2.status && result2.data) {
-                                    console.log("Ticket Created!")
-                                    console.log(result.data);
+                                    cyrusAlert("success", "Ticket criado com sucesso! Redirecionando...");
+                                    setTimeout(function () {
+                                        window.location.href = new URL("../../../?ticket=" + result2.data[0]?.ticket?.id, import.meta.url).href;
+                                    }, 2000)
                                 } else {
                                     cyrusAlert("danger", "Ocorreu um erroa ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
-                                    console.error(result2);
                                 }
                             })
                         } else {
                             cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Consulte a consola para mais informações.");
-                            console.error(result2);
                         }
                     })
-
-                    console.log(user);
-                    console.log(attachments);
                 }
             } else {
-
+                cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Inicie sessão.");
             }
         });
     });

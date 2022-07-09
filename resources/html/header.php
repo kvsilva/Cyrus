@@ -11,7 +11,8 @@ use Objects\Permission;
             <div class="header-content">
                 <div class="header-left">
                     <div class="logo">
-                        <a class = "link-nodecoration" href = "<?php echo Routing::getRouting("home") ?>"><img src="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" alt="icon"></a>
+                        <a class="link-nodecoration" href="<?php echo Routing::getRouting("home") ?>"><img
+                                    src="<?php echo Utils::getDependencies("Cyrus", "logo"); ?>" alt="icon"></a>
                     </div>
                 </div>
                 <div class="header-center">
@@ -24,39 +25,39 @@ use Objects\Permission;
                     </div>
                 </div>
                 <div class="header-right">
-                    <div class="header-btn"  title = "Pesquisar">
+                    <div class="header-btn" title="Pesquisar">
                         <a class="link-nodecoration header-link" href="<?php echo Routing::getRouting("search"); ?>"> <i
                                     class="fa-solid fa-magnifying-glass"></i>
                         </a>
                     </div>
-                    <div class="header-btn"  title = "Favoritos">
+                    <div class="header-btn" title="Favoritos">
                         <i class="fa-solid fa-bookmark"></i>
                     </div>
                     <?php
-                    if(isset($_SESSION["user"])){
-                    ?>
+                    if (isset($_SESSION["user"])) {
+                        ?>
                         <div class="header-btn" id="user-menu-btn">
-                        <div role="button" class="header-user dropdown-arrow">
-                            <img draggable="false" class="header-user-avatar"
-                                 src="<?php echo $_SESSION["user"]?->getProfileImage()?->getPath()?>"
-                                 alt="Icon">
-                        </div>
-                        <div class="list-menu" id="user-menu-list">
-                            <div class="list-menu-scrollable">
-                                <div class="list-menu-section">
-                                    <div class="list-menu-section-item">
-                                        <div class="col-3">
-                                            <div class="pe-1">
-                                                <img draggable="false" class="list-avatar"
-                                                     src="<?php echo $_SESSION["user"]?->getProfileImage()?->getPath()?>"
-                                                     alt="Icon">
+                            <div role="button" class="header-user dropdown-arrow">
+                                <img draggable="false" class="header-user-avatar"
+                                     src="<?php echo $_SESSION["user"]?->getProfileImage()?->getPath() ?>"
+                                     alt="Icon">
+                            </div>
+                            <div class="list-menu" id="user-menu-list">
+                                <div class="list-menu-scrollable">
+                                    <div class="list-menu-section">
+                                        <div class="list-menu-section-item">
+                                            <div class="col-3">
+                                                <div class="pe-1">
+                                                    <img draggable="false" class="list-avatar"
+                                                         src="<?php echo $_SESSION["user"]?->getProfileImage()?->getPath() ?>"
+                                                         alt="Icon">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-9">
-                                            <div><?php echo $_SESSION["user"]?->getUsername()?></div>
-                                            <div class="user-role-text">
-                                                <i class="fa-solid fa-user-group"></i>
-                                                <span class="ps-2">
+                                            <div class="col-9">
+                                                <div><?php echo $_SESSION["user"]?->getUsername() ?></div>
+                                                <div class="user-role-text">
+                                                    <i class="fa-solid fa-user-group"></i>
+                                                    <span class="ps-2">
                                             <?php
                                             if (isset($_SESSION["user"]) && $_SESSION["user"]->getRoles() !== null && count($_SESSION["user"]->getRoles()) > 0) {
                                                 $rolesText = "";
@@ -73,45 +74,54 @@ use Objects\Permission;
                                             }
                                             ?>
                                         </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="list-menu-section">
-                                    <div class="list-menu-section-item list-menu-btn">
-                                        <div>
-                                            <i class="list-icon fa-solid fa-bookmark"></i>
-                                            <span>Lista de Visionamento</span>
+                                    <div class="list-menu-section">
+                                        <div class="list-menu-section-item list-menu-btn">
+                                            <div>
+                                                <i class="list-icon fa-solid fa-bookmark"></i>
+                                                <span>Lista de Visionamento</span>
+                                            </div>
+                                        </div>
+                                        <div class="list-menu-section-item list-menu-btn">
+                                            <a href="<?php echo Routing::getRouting("history"); ?>"
+                                               class="link-nodecoration">
+                                                <div>
+                                                    <i class="list-icon fa-solid fa-clock-rotate-left"></i>
+                                                    <span>Histórico</span>
+                                                </div>
+                                            </a>
                                         </div>
                                     </div>
-                                    <div class="list-menu-section-item list-menu-btn">
-                                        <a href="<?php echo Routing::getRouting("history"); ?>"
-                                           class="link-nodecoration">
-                                            <div>
-                                                <i class="list-icon fa-solid fa-clock-rotate-left"></i>
-                                                <span>Histórico</span>
-                                            </div>
-                                        </a>
+                                    <div class="list-menu-section">
+                                        <div class="list-menu-section-item list-menu-btn">
+                                            <a href="<?php echo Routing::getRouting("account"); ?>"
+                                               class="link-nodecoration">
+                                                <div>
+                                                    <i class="list-icon fa-solid fa-user"></i>
+                                                    <span>A minha conta</span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="list-menu-section-item list-menu-btn">
+                                            <a href="<?php echo Routing::getRouting("tickets"); ?>"
+                                               class="link-nodecoration">
+                                                <div>
+                                                    <i class="list-icon fa-solid fa-ticket-simple"></i>
+                                                    <span>Os meus Tickets</span>
+                                                </div>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="list-menu-section">
-                                    <div class="list-menu-section-item list-menu-btn">
-                                        <a href="<?php echo Routing::getRouting("account"); ?>"
-                                           class="link-nodecoration">
-                                            <div>
-                                                <i class="list-icon fa-solid fa-user"></i>
-                                                <span>A minha conta</span>
-                                            </div>
-                                        </a>
-                                    </div>
-                                </div>
 
-                                <?php
-                                if (isset($_SESSION["user"])) {
-                                    $permissions = Permission::find(tag: "BACKOFFICE_ACCESS");
-                                    if ($permissions->size() > 0 && $_SESSION["user"]->hasPermission($permissions[0])) {
-                                        ?>
-                                        <div class="list-menu-section">
+                                    <div class="list-menu-section">
+                                        <?php
+                                        if (isset($_SESSION["user"])) {
+                                        $permissions = Permission::find(tag: "BACKOFFICE_ACCESS");
+                                        if ($permissions->size() > 0 && $_SESSION["user"]->hasPermission($permissions[0])) {
+                                            ?>
                                             <div class="list-menu-section-item list-menu-btn">
                                                 <a href="<?php echo Routing::getRouting("backoffice"); ?>"
                                                    class="link-nodecoration">
@@ -121,28 +131,43 @@ use Objects\Permission;
                                                     </div>
                                                 </a>
                                             </div>
-                                        </div>
-                                        <?php
+                                            <?php
+                                            if ($_SESSION["user"]->hasPermission(tag: "TICKETS_ACCESS_OTHERS")) {
+                                                ?>
+                                                <div class="list-menu-section-item list-menu-btn">
+                                                    <a href="<?php echo Routing::getRouting("admtickets"); ?>"
+                                                       class="link-nodecoration">
+                                                        <div>
+                                                            <i class="list-icon fa-solid fa-ticket-simple"></i>
+                                                            <span>Tickets [ADM]</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <?php
+                                            }
+                                        } ?>
+                                    </div>
+                                    <?php
                                     }
-                                }
-                                ?>
+                                    ?>
 
-                                <div class="list-menu-section">
-                                    <div class="list-menu-section-item list-menu-btn" id="cyrus-logout">
-                                        <div>
-                                            <i class="list-icon fa-solid fa-right-from-bracket"></i>
-                                            <span>Encerrar Sessão</span>
+                                    <div class="list-menu-section">
+                                        <div class="list-menu-section-item list-menu-btn" id="cyrus-logout">
+                                            <div>
+                                                <i class="list-icon fa-solid fa-right-from-bracket"></i>
+                                                <span>Encerrar Sessão</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <?php } else {?>
-                        <div class="header-btn"  title = "Entrar">
-                            <a class="link-nodecoration header-link" href="<?php echo Routing::getRouting("login"); ?>"><i class="fa-solid fa-user"></i></a>
+                    <?php } else { ?>
+                        <div class="header-btn" title="Entrar">
+                            <a class="link-nodecoration header-link" href="<?php echo Routing::getRouting("login"); ?>"><i
+                                        class="fa-solid fa-user"></i></a>
                         </div>
-                    <?php }?>
+                    <?php } ?>
                 </div>
             </div>
         </div>

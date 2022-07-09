@@ -16,13 +16,14 @@ use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 
-class Resource extends Entity
+class Resource_OLD extends Entity
 {
     // FLAGS
 
     // DEFAULT STRUCTURE
 
-    protected ?String $original_name = null;
+    protected ?String $title = null;
+    protected ?String $description = null;
     protected ?String $extension = null;
     protected ?String $path = null;
     protected ?Availability $available = null;
@@ -76,12 +77,13 @@ class Resource extends Entity
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "original_name" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "int|null"])]
+    #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("resource"),
-            "original_name" => $this->original_name,
+            "title" => $this->title,
+            "description" => $this->description,
             "extension" => $this->extension,
             "path" => $this->path,
             "available" => $this->available?->value
@@ -89,29 +91,29 @@ class Resource extends Entity
     }
 
     /**
-     * @param bool $minimal
      * @param bool $entities
      * @return array
      */
-    #[Pure] #[ArrayShape(["id" => "int|null", "original_name" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "\Enumerators\Availability|null"])]
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "array|null"])]
     public function toArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
-            "original_name" => $this->original_name,
+            "title" => $this->title,
+            "description" => $this->description,
             "extension" => $this->extension,
             "path" => $this->path,
             "available" => $this->available?->toArray()
         );
     }
 
-
-    #[Pure] #[ArrayShape(["id" => "int|null", "original_name" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "\Enumerators\Availability|null"])]
+    #[Pure] #[ArrayShape(["id" => "int|mixed", "title" => "null|String", "description" => "null|String", "extension" => "null|String", "path" => "null|String", "available" => "array|null"])]
     public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         return array(
             "id" => $this->getId(),
-            "original_name" => $this->original_name,
+            "title" => $this->title,
+            "description" => $this->description,
             "extension" => $this->extension,
             "path" => $this->path,
             "available" => $this->available
@@ -121,18 +123,36 @@ class Resource extends Entity
     /**
      * @return String|null
      */
-    public function getOriginalName(): ?string
+    public function getTitle(): ?string
     {
-        return $this->original_name;
+        return $this->title;
     }
 
     /**
-     * @param String|null $originalName
+     * @param String|null $title
      * @return Resource
      */
-    public function setOriginalName(?string $originalName): Resource
+    public function setTitle(?string $title): Resource
     {
-        $this->original_name = $originalName;
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @return String|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param String|null $description
+     * @return Resource
+     */
+    public function setDescription(?string $description): Resource
+    {
+        $this->description = $description;
         return $this;
     }
 

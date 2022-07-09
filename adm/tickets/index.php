@@ -1,18 +1,21 @@
 <?php
 
+require_once(dirname(__DIR__) . '\\..\\resources\\php\\settings.php');
+AutoLoader::register();
+
 use Enumerators\TicketStatus;
 use Functions\Database;
 use Functions\Routing;
 use Functions\Utils;
-use Objects\Anime;
 use Objects\Entity;
-use Objects\EntityArray;
-use Objects\Season;
-use Objects\SeasonsArray;
 use Objects\Ticket;
-use Objects\Video;
 
 if (!isset($_SESSION["user"])) {
+    header("Location: " . Routing::getRouting("home"));
+    exit;
+}
+
+if (!$_SESSION["user"]->hasPermission(tag: "TICKETS_ACCESS_OTHERS")) {
     header("Location: " . Routing::getRouting("home"));
     exit;
 }
@@ -34,7 +37,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
 <div id="content">
     <div class="content-wrapper">
         <div class="cyrus-page-title">
-            <h1>Os Meus Tickets</h1>
+            <h1>Tickets</h1>
         </div>
         <div class="tickets-filter">
             <div class="w-25 tickets-filter-search mb-5">
@@ -68,18 +71,20 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 <tr>
                     <th class="subject">Assunto</th>
                     <th class="ticket-id">ID do Ticket</th>
+                    <th class="ticket-id">Utilizador</th>
                     <th class="last-update">Última Atualização</th>
                     <th class="status">Estado</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php
-                $tickets = Ticket::find(user: $_SESSION["user"]->getId(), flags: [Entity::ALL]);
+                $tickets = Ticket::find(flags: [Entity::ALL]);
                 foreach($tickets as $ticket){
                     ?>
                     <tr>
-                        <td><a class="cyrus-feed-view-link" href="?ticket=<?php echo $ticket->getId(); ?>"><?php echo $ticket->getSubject(); ?></a></td>
+                        <td><a class="cyrus-feed-view-link" href="<?php echo Routing::getRouting("tickets") . "?ticket=" . $ticket->getId(); ?>"><?php echo $ticket->getSubject(); ?></a></td>
                         <td><?php echo $ticket->getId(); ?></td>
+                        <td><?php echo $ticket->getUser()?->getUsername(); ?></td>
                         <td><?php echo $ticket->getMessages()[$ticket->getMessages()->size()-1]->getSentAt()?->format(Database::DateFormat); ?></td>
                         <td><?php echo $ticket->getStatus()->name(); ?></td>
                     </tr>

@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { Request as API } from "../../../resources/js/Request";
 import { UserFlags, VideoFlags } from "../../../resources/js/models";
+import { getParameter } from "../../../resources/js/cyrus";
 let user = null;
 $(document).ready(function () {
     return __awaiter(this, void 0, void 0, function* () {
@@ -227,13 +228,4 @@ function updateTime() {
             updateTime();
         }, 10000);
     }
-}
-function getParameter(parameter) {
-    // Address of the current window
-    let address = window.location.search;
-    // Returns a URLSearchParams object instance
-    let parameterList = new URLSearchParams(address);
-    // Returning the respected value associated
-    // with the provided key
-    return parameterList.get(parameter);
 }

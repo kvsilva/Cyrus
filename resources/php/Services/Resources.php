@@ -38,13 +38,12 @@ class Resources
      * @throws InvalidSize
      * @throws TableNotFound
      */
-    public static function uploadFile(WebFile | array $file, String $title, String $description): Status
+    public static function uploadFile(WebFile | array $file): Status
     {
         $file = is_array($file) ? new WebFile(obj: $file) : $file;
         $resource = new Resource();
         $resource->setPath("processing");
-        $resource->setTitle($title);
-        $resource->setDescription($description);
+        $resource->setOriginalName($file->getName());
         $resource->setExtension($file->getExtension());
         $resource->store();
         $path = Utils::getBasePath() . "/" . self::RESOURCES_DIRECTORY . "/" . $resource->getId() . "." . $resource->getExtension();
@@ -63,45 +62,13 @@ class Resources
      * @throws InvalidSize
      * @throws TableNotFound
      */
-    public static function registerFile(String $url, String $title, String $description, String $extension): Status
+    public static function registerFile(String $url, String $name, String $extension): Status
     {
         $resource = new Resource();
         $resource->setPath($url);
-        $resource->setTitle($title);
-        $resource->setDescription($description);
+        $resource->setOriginalName($name);
         $resource->setExtension($extension);
         $resource->store();
-        return new Status(isError: false, return: array($resource->toArray(false, false)), bareReturn: array($resource));
-    }
-
-    /**
-     * @throws NotNullable
-     * @throws UniqueKey
-     * @throws ColumnNotFound
-     * @throws IOException
-     * @throws InvalidSize
-     * @throws TableNotFound|ReflectionException
-     */
-    public static function uploadAnimeVideo(WebFile | array $file, int $videoId): Status
-    {
-        $videos = Video::find(id: $videoId);
-        if($videos->size() === 0){
-            return new Status(isError: true, message: "Não foi possível encontrar o ID do vídeo.");
-        }
-        $file = is_array($file) ? new WebFile(obj: $file) : $file;
-        $video = $videos[0];
-        $resource = new Resource();
-        $resource->setTitle($video->getTitle());
-        $resource->setDescription($video->getAnime()?->getTitle() . " - " . $video->getSynopsis());
-        $resource->setPath("processing");
-        $resource->setExtension($file->getExtension());
-        $resource->store();
-        $path = Utils::correctURL(Utils::getBasePath() . "\\" . self::ANIME_VIDEOS_DIRECTORY . "\\" . $resource->getId() . "." . $file->getExtension());
-        rename($file->getSystemPath(), $path);
-        $resource->setPath($path);
-        $resource->store();
-        $video->setPath($resource);
-        $video->store($video->getAnime());
         return new Status(isError: false, return: array($resource->toArray(false, false)), bareReturn: array($resource));
     }
 }

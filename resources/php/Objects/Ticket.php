@@ -163,8 +163,8 @@ class Ticket extends Entity {
             "subject" => $this->subject,
             "status" => $this->status?->value,
             "responsible" => $this->responsible?->getId(),
-            "created_at" => $this->created_at != null ? Database::convertDateToDatabase($this->created_at) : $this->created_at,
-            "closed_at" => $this->closed_at != null ? Database::convertDateToDatabase($this->closed_at) : $this->closed_at,
+            "created_at" => $this->created_at?->format(Database::DateFormat),
+            "closed_at" => $this->closed_at?->format(Database::DateFormat),
             "closed_by" => $this->closed_by?->getId(),
             "evaluation" => $this->evaluation
         );

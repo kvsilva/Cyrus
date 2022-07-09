@@ -252,6 +252,53 @@ a:hover {
     width: 100%;
 }
 
+.cyrus-group-file{
+    height: 70px;
+    margin-top: 15px;
+}
+
+.cyrus-group-attachments{
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+.cyrus-attachment{
+    border-radius: 3px;
+    clear: left;
+    float: left;
+    font-size: 14px;
+    margin-top: 10px;
+    overflow: hidden;
+    padding: 5px;
+    position: relative;
+    width: 50%;
+}
+
+.cyrus-attachment i{
+    margin-right: 5px;
+}
+
+.cyrus-attachment-remove{
+    float: right;
+    margin: 5px 5px;
+}
+
+.cyrus-attachment-link{
+    display: inline-block;
+    max-width: calc(100% - 30px);
+    overflow: hidden;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.cyrus-attachment:hover{
+    background-color: var(--hoverBackground);
+    cursor: pointer;
+}
+
 input[type=text].cyrus-input, textarea.cyrus-input, input[type=text].cyrus-input:focus-visible, textarea.cyrus-input:focus-visible {
     width: 100%;
     color: var(--color1);

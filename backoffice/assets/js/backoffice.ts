@@ -361,29 +361,6 @@ async function createDataArray(formName: string, formData: any[string], action: 
 function compareRecords(b: any, n: any) {
     let data: any[string];
     for (const index in b) {
-
-        /*if (typeof b[index] === 'object' && typeof n[index] === 'object') {
-            if (n !== undefined && b[index] !== null) {
-                n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
-            }
-        } else if(b !== undefined && n !== undefined && b !== null && n !== null){
-            if (typeof b[index] === 'object' && "id" in b[index]) {
-                n[index] = b[index].id === n ? undefined : n;
-            } else if (typeof n[index] === 'object' && "id" in n[index]) {
-                n[index] = n.id === b ? undefined : n;
-            } else {
-                n[index] = n === b ? undefined : n;
-            }
-        }*/
-
-        /*if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
-            n[index] = (n === null || n[index] === null) ? null : (typeof n[index] === 'object' ? compareRecords(b[index], n[index]) : (b[index].id === n) ? undefined : n);
-        } else {
-            if (b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]) {
-                n[index] = undefined;
-            }
-        }*/
-
         if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
             if(typeof n[index] === 'object') {
                 n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
@@ -399,17 +376,6 @@ function compareRecords(b: any, n: any) {
                 n[index] = undefined;
             }
         }
-
-        /*if (n !== undefined && b[index] !== null && typeof b[index] === 'object') {
-            n[index] = (n === null || n[index] === null) ? null : compareRecords(b[index], n[index]);
-        } else {
-            if (b !== undefined && n !== undefined && b !== null && n !== null && b[index] == n[index]) {
-                n[index] = undefined;
-            }
-        }*/
-
-
-
         if (data === undefined) data = [];
         data[index] = n !== undefined ? (n !== null ? n[index] : null) : undefined;
     }

@@ -14,6 +14,6 @@ class TicketMessagesArray extends EntityArray
      */
     public function __construct($array = [], $flags = 0, $iteratorClass = "ArrayIterator")
     {
-        parent::__construct(entity: "Objects\TicketMessages", array: $array, flags: $flags, iteratorClass: $iteratorClass);
+        parent::__construct(entity: "Objects\TicketMessage", array: $array, flags: $flags, iteratorClass: $iteratorClass);
     }
 }

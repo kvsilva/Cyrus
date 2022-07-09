@@ -11,6 +11,49 @@ $(document).ready(function () {
         // @ts-ignore
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    $("[data-download]").click(function () {
+        downloadURI($(this).data("href"), $(this).data("filename"));
+    });
+    $("[data-cyrus]").each(function () {
+        var _a;
+        if ($(this).is("input")) {
+            switch ((_a = $(this).attr("type")) === null || _a === void 0 ? void 0 : _a.toLowerCase()) {
+                case "file":
+                    $(this).on("dragover", function () {
+                        $(this).parent().find("[data-dragged='false']").addClass("cyrus-item-hidden");
+                        $(this).parent().find("[data-dragged='true']").removeClass("cyrus-item-hidden");
+                    });
+                    $(this).on("dragleave", function () {
+                        $(this).parent().find("[data-dragged='true']").addClass("cyrus-item-hidden");
+                        $(this).parent().find("[data-dragged='false']").removeClass("cyrus-item-hidden");
+                    });
+                    $(this).on("drop", function () {
+                        $(this).parent().find("[data-dragged='true']").addClass("cyrus-item-hidden");
+                        $(this).parent().find("[data-dragged='false']").removeClass("cyrus-item-hidden");
+                    });
+                    $(this).on("change", function () {
+                        $("[data-for='" + $(this).attr("id") + "']").html("");
+                        for (let i = 0; i < $(this).prop("files").length; i++) {
+                            let file = $(this).prop("files")[i];
+                            let element = $(this);
+                            $("[data-for='" + $(this).attr("id") + "']").append($("<li>").attr("class", "cyrus-attachment").append($("<i>").attr("class", "fa-solid fa-paperclip")).append($("<span>").attr("class", "cyrus-attachment-link").html(file.name)).append($("<i>").attr("class", "cyrus-attachment-remove fa-solid fa-xmark").click(({
+                                pos: i,
+                                e: element
+                            }), function (event) {
+                                let files = [];
+                                for (let m = 0; m < $(event.data.e).prop("files").length; m++) {
+                                    if (m !== event.data.pos)
+                                        files.push($(event.data.e).prop("files")[m]);
+                                }
+                                $(event.data.e).prop("files", FileListItems(files));
+                                element.trigger("change");
+                            })));
+                        }
+                    });
+                    break;
+            }
+        }
+    });
     $(".cyrus-carousel-next").click(function () {
         $(this).parent().parent().children(".cyrus-carousel-items").children(".cyrus-carousel-items-wrapper").each(function () {
             let cols = parseInt(getComputedStyle(document.body).getPropertyValue('--carousel-cols-count'));
@@ -149,3 +192,31 @@ export function getCurrentTimestamp() {
 }
 // @ts-ignore
 window.cyrusAlert = (alertType, alertHtml) => cyrusAlert(alertType, alertHtml);
+// @ts-ignore
+window.getParameter = (parameter) => getParameter(parameter);
+export function getParameter(parameter) {
+    // Address of the current window
+    let address = window.location.search;
+    // Returns a URLSearchParams object instance
+    let parameterList = new URLSearchParams(address);
+    // Returning the respected value associated
+    // with the provided key
+    return parameterList.get(parameter);
+}
+// @ts-ignore
+window.FileListItems = (files) => FileListItems(files);
+export function FileListItems(files) {
+    var b = new ClipboardEvent("").clipboardData || new DataTransfer();
+    for (var i = 0, len = files.length; i < len; i++)
+        b.items.add(files[i]);
+    return b.files;
+}
+// @ts-ignore
+window.downloadURI = (uri, name) => downloadURI(uri, name);
+// @ts-ignore
+function downloadURI(uri, name) {
+    const link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    link.click();
+}

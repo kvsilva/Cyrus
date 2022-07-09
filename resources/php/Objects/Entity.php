@@ -95,16 +95,18 @@ abstract class Entity
     /**
      * @throws ReflectionException
      */
-    private function arrayObject(array $array): void
+    public function arrayObject(array $array): void
     {
         $reflection = (new ReflectionClass($this));
-
+        if(isset($array["id"])) $this->id = $array["id"];
         foreach($this->getValidFlags($this, $array["relations"] ?? null) as $flag){
             if(!$this->hasFlag($flag)){
                 $this->flags[] = $flag;
             }
         }
+
         foreach($array as $key => $value) {
+
             if (strtolower($key) != "relations") {
                 if (true /*$value !== null*/) {
                     if (!is_bool(get_parent_class(get_called_class()))) {
@@ -164,7 +166,7 @@ abstract class Entity
                 }
             }
         }
-        if($this->getId() != null) $this->buildRelations();
+        $this->buildRelations();
         $this->arrayRelations($array["relations"] ?? null);
     }
 
@@ -235,12 +237,13 @@ abstract class Entity
         return $flags;
     }
 
+
     /**
      * @throws ReflectionException
      */
     public static function arrayToObject(Entity|String $object, array $array = array(), int $id = null, array $flags = array(self::NORMAL)) : Entity
     {
-        if($id == null && isset($array["id"])) $id = $array["id"];
+        if($id === null && isset($array["id"])) $id = $array["id"];
         if(is_string($object)){
             $object = (new ReflectionClass($object))->newInstanceArgs(array("id" => $id, "flags" => $flags));
         }

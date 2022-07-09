@@ -1,5 +1,6 @@
 import {Request as API} from "../../../resources/js/Request";
 import {User, UserFlags, VideoFlags} from "../../../resources/js/models";
+import {getParameter} from "../../../resources/js/cyrus";
 
 let user : User|null = null;
 
@@ -261,17 +262,4 @@ function updateTime(){
             updateTime();
         }, 10000);
     }
-}
-
-function getParameter(parameter: string) {
-
-    // Address of the current window
-    let address = window.location.search
-
-    // Returns a URLSearchParams object instance
-    let parameterList = new URLSearchParams(address)
-
-    // Returning the respected value associated
-    // with the provided key
-    return parameterList.get(parameter)
 }

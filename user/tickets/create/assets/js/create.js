@@ -35,15 +35,12 @@ $(document).ready(function () {
             var _a;
             if (result.status) {
                 if ("data" in result) {
-                    let user = result.data[0];
                     let attachments = [];
                     for (let i = 0; i < $("#form0-attachments").prop("files").length; i++) {
-                        yield API.uploadFile($("#form0-attachments").prop("files")[i]).then((result2) => {
+                        yield API.uploadFile($("#form0-attachments").prop("files")[i]).then((result2) => __awaiter(this, void 0, void 0, function* () {
                             if (result2.status && result2.data) {
-                                API.requestService("Resources", "uploadFile", {
+                                yield API.requestService("Resources", "uploadFile", {
                                     file: result2.data,
-                                    title: 'Ticket Attachment',
-                                    description: 'Ticket Attachment Description'
                                 }).then((result3) => {
                                     if (result3.status && result3.data) {
                                         attachments.push(result3.data[0]);
@@ -58,7 +55,7 @@ $(document).ready(function () {
                                 cyrusAlert("danger", "Ocorreu um erroa ao fazer o upload dos ficheiros em anexo. Consulte a consola para mais informações.");
                                 console.error(result2);
                             }
-                        });
+                        }));
                     }
                     yield API.requestType("Ticket", "insert", {
                         user: (_a = result.data[0]) === null || _a === void 0 ? void 0 : _a.id,
@@ -74,27 +71,27 @@ $(document).ready(function () {
                                 relations: {}
                             };
                             formData["relations"][TicketMessageFlags.TICKETMESSAGEATTACHMENTS.name] = attachments;
-                            yield API.requestType("TicketMessage", "insert", formData).then((result2) => {
+                            yield API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2) => {
                                 if (result2.status && result2.data) {
-                                    console.log("Ticket Created!");
-                                    console.log(result.data);
+                                    cyrusAlert("success", "Ticket criado com sucesso! Redirecionando...");
+                                    setTimeout(function () {
+                                        var _a, _b;
+                                        window.location.href = new URL("../../../?ticket=" + ((_b = (_a = result2.data[0]) === null || _a === void 0 ? void 0 : _a.ticket) === null || _b === void 0 ? void 0 : _b.id), import.meta.url).href;
+                                    }, 2000);
                                 }
                                 else {
                                     cyrusAlert("danger", "Ocorreu um erroa ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
-                                    console.error(result2);
                                 }
                             });
                         }
                         else {
                             cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Consulte a consola para mais informações.");
-                            console.error(result2);
                         }
                     }));
-                    console.log(user);
-                    console.log(attachments);
                 }
             }
             else {
+                cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Inicie sessão.");
             }
         }));
     });

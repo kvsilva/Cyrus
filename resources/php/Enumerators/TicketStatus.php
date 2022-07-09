@@ -20,7 +20,7 @@ enum TicketStatus: int
         };
     }
 
-    public function getAllItems(): array{
+    public static function getAllItems(): array{
         return array(
             self::OPEN,
             self::CLOSED,

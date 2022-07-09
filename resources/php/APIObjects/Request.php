@@ -93,9 +93,8 @@ class Request
                         $this->hasRelations = true;
                         foreach($this->data[$key]["relations"] as $flag => $relation){
                             if($this->object->hasConstant(strtoupper($flag))){
-                                $this->flags[] = $relation;
-                                var_dump($relation);
-                                echo "\n\n\n\n";
+                                $this->flags[] = $this->object->getConstant(strtoupper($flag));
+
                                 $relations[$flag] = $relation;
                             }
                         }
@@ -165,16 +164,15 @@ class Request
                 if($id == null) throw new NotNullable("id");
                 $objects_find = Entity::__find(fields: array("id" => $id, "available" => Availability::BOTH), table: $obj->getTable(), class: $object_name, flags: $flags);
                 if($objects_find->size() > 0) {
-                    $object = Entity::arrayToObject(object: $objects_find[0], array: $data, id: $id, flags: $flags);
-                    $object->arrayRelations($relations);
-                    $object->store();
-                    $object = Entity::__find(fields: array("id" => $object->getId(),  "available" => Availability::BOTH), table: $obj->getTable(), class: $object_name, flags: $flags)[0];
+                    $objects_find[0]->arrayObject($data);
+                    $objects_find[0]->arrayRelations($relations);
+                    //$object = Entity::arrayToObject(object: $objects_find[0], array: $data, id: $id, flags: $flags);
+                    $objects_find[0]->store();
+                    $object = Entity::__find(fields: array("id" => $objects_find[0]->getId(),  "available" => Availability::BOTH), table: $obj->getTable(), class: $object_name, flags: $flags)[0];
                     $objects[] = $object;
                 }
                 break;
             case "insert":
-                var_dump($flags);
-                echo "\n\n\n\n";
                 $object = Entity::arrayToObject(object: $object_name, array: $id != null ? array() : $data, id: $id, flags: $flags);
                 $object = Entity::arrayToRelations($object, $relations);
                 $object->store();

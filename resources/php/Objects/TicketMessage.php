@@ -27,6 +27,8 @@ class TicketMessage extends Entity
     protected ?String $content = null;
     protected ?DateTime $sent_at = null;
 
+    protected ?Ticket $ticket = null;
+
     // RELATIONS
 
     private ?ResourcesArray $attachments = null;
@@ -53,9 +55,11 @@ class TicketMessage extends Entity
         $id = $this->getId();
         if($this->hasFlag(self::TICKETMESSAGEATTACHMENTS)){
             $this->attachments = new ResourcesArray();
-            $query = $database->query("SELECT resource as 'id' FROM ticket_message_attachment WHERE message = $id;");
-            while($row = $query->fetch_array()){
-                $this->attachments[] = new Resource($row["id"], array(Entity::ALL));
+            if($id !== null) {
+                $query = $database->query("SELECT resource as 'id' FROM ticket_message_attachment WHERE message = $id;");
+                while ($row = $query->fetch_array()) {
+                    $this->attachments[] = new Resource($row["id"], array(Entity::ALL));
+                }
             }
         }
         parent::buildRelations();
@@ -70,8 +74,11 @@ class TicketMessage extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store(Ticket $ticket) : TicketMessage{
-        parent::__store(values: array("ticket" => $ticket->getId()));
+    public function store(?Ticket $ticket = null) : TicketMessage{
+        $values = array();
+        if($ticket === null) $ticket = $this->ticket;
+        $values["ticket"] = $ticket->getId();
+        parent::__store(values: $values);
         return $this;
     }
 
@@ -104,6 +111,7 @@ class TicketMessage extends Entity
             }
             foreach ($this->attachments as $attachment) {
                 $attachment->store();
+                $database->query("INSERT IGNORE INTO ticket_message_attachment (message, resource) VALUES (". $id .", ". $attachment->getId() .")");
             }
         }
     }
@@ -159,6 +167,9 @@ class TicketMessage extends Entity
             $array["attachments"] = $this->attachments != null ? array() : null;
             if ($array["attachments"] != null) foreach ($this->attachments as $value) $array["attachments"][] = $value->toArray();
         }
+        if($entities){
+            $array["ticket"] = $this->ticket?->toArray();
+        }
         return $array;
     }
 
@@ -180,6 +191,9 @@ class TicketMessage extends Entity
         if(!$minimal) {
             $array["attachments"] = $this->attachments != null ? array() : null;
             if ($array["attachments"] != null) foreach ($this->attachments as $value) $array["attachments"][] = $value;
+        }
+        if($entities){
+            $array["ticket"] = $this->ticket;
         }
         return $array;
     }
@@ -257,17 +271,18 @@ class TicketMessage extends Entity
     }
 
     /**
-     * @param Resource $attachment
+     * @param array|\Objects\Resource $attachment
      * @return $this
+     * @throws ReflectionException
      */
     public function addAttachment(array|Resource $attachment) : TicketMessage{
         if(is_array($attachment)){
             $resource = new Resource();
             $resource = Entity::arrayToObject($resource, $attachment);
-            $attachment = $resource;
+        } else {
+            $resource = $attachment;
         }
-
-        $this->attachments[] = $attachment;
+        $this->attachments[] = $resource;
         return $this;
     }
 

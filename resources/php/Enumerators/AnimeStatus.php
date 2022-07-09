@@ -21,7 +21,7 @@ enum AnimeStatus: int
         };
     }
 
-    public function getAllItems(): array{
+    public static function getAllItems(): array{
         return array(
             self::FAVOURITE,
             self::LIKE,

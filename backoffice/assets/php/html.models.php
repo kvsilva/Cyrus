@@ -68,8 +68,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                     <div class="w-100 text-center p-3">Removido</div>
                 </div>
                 <div class="model-update-details model-update-details-items" title="Apagar">
-                    <div><b>Title</b>:<span class="ps-2" data-item="title">Attack On Titan</span></div>
-                    <div><b>Description</b>:<span class="ps-2" data-item="description">Cape Image</span></div>
+                    <div><b>Original Name</b>:<span class="ps-2" data-item="title">Attack On Titan</span></div>
                     <div><b>URL</b>:<span class="ps-2" data-item="path">https://i.pinimg.com/originals/13/a1/01/13a10172127bbf9da50b8ce6db35eeaa.png</span>
                     </div>
                 </div>
@@ -93,20 +92,6 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                            data-subitem="id">
 
                     <div class="cyrus-input-group group-input-text">
-                        <input type="text" class="cyrus-minimal group-input" value=''
-                               onkeyup="this.setAttribute('value', this.value);"
-                               autocomplete="new-password"
-                               data-subitem="title">
-                        <span class="cyrus-floating-label">Title</span>
-                    </div>
-                    <div class="cyrus-input-group group-input-text">
-                        <input type="text" class="cyrus-minimal group-input" value=''
-                               onkeyup="this.setAttribute('value', this.value);"
-                               autocomplete="new-password"
-                               data-subitem="description" data-service="Resources" data-action="uploadFile">
-                        <span class="cyrus-floating-label">Description</span>
-                    </div>
-                    <div class="cyrus-input-group group-input-text">
                         <input type="file" class="cyrus-minimal group-input" value=''
                                onkeyup="this.setAttribute('value', this.value);"
                                autocomplete="new-password"
@@ -116,6 +101,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                 </div>
 
                 <!-- Register File -->
+                <!--
                 <div class="group-section-subitem-items cyrus-item-hidden" data-section="2">
                     <div class="cyrus-input-group group-input-text">
                         <input type="text" class="cyrus-minimal group-input" value=''
@@ -151,10 +137,10 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                                data-subitem="url" data-service="Resources" data-action="registerFile">
                         <span class="cyrus-floating-label">URL</span>
                     </div>
-                </div>
+                </div>-->
 
                 <!-- Upload Anime Video -->
-                <div class="group-section-subitem-items cyrus-item-hidden" data-section="3">
+                <!--<div class="group-section-subitem-items cyrus-item-hidden" data-section="3">
                     <div class="cyrus-input-group group-input-text">
                         <input type="number" class="cyrus-minimal group-input" value=''
                                onkeyup="this.setAttribute('value', this.value);"
@@ -171,8 +157,7 @@ function echoModelFor(string $model, string $formName, string $fieldName, string
                     </div>
                 </div>
 
-            </div>
-
+            </div>-->
             <?php
             break;
         /*case "sex":

@@ -61,8 +61,7 @@ export declare const GlobalSettingFlags: {
 };
 export declare class Resource {
     id: number;
-    title: string;
-    description: string;
+    original_name: string;
     extension: string;
     path: string;
     available: number;
@@ -442,6 +441,7 @@ export declare class TicketMessage {
     author: User | null;
     content: string;
     sent_at: Date;
+    ticket: Ticket | null;
     attachments: Resource[];
     constructor(obj?: any);
 }

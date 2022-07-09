@@ -27,6 +27,7 @@ class Routing
                 "history" => (Utils::getURL() . "user/history/"),
                 "verify" => (Utils::getURL() . "user/verify/"),
                 "tickets" => (Utils::getURL() . "user/tickets/"),
+                "admtickets" => (Utils::getURL() . "adm/tickets/"),
                 "createticket" => (Utils::getURL() . "user/tickets/create"),
                 "home" => (Utils::getURL()),
                 "root" => (Utils::getURL()),

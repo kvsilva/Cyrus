@@ -934,13 +934,13 @@ class User extends Entity
     }
 
     /**
-     * @param Permission $permission
+     * @param Permission|null $permission
      * @param String|null $tag
      * @return bool
      * @throws NotInitialized
      */
-    public function hasPermission(Permission $permission, String $tag = null) : bool{
-        if($this->roles == null) throw new NotInitialized("roles");
+    public function hasPermission(Permission $permission = null, String $tag = null) : bool{
+        if($this->roles === null) throw new NotInitialized("roles");
         foreach($this->roles as $element){
             if($element->hasPermission($permission, $tag)) return true;
         }

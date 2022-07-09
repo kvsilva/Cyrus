@@ -59,8 +59,7 @@ export class Resource {
     constructor(obj) {
         const obj_ = obj || {};
         this.id = (obj_.id !== undefined) ? obj_.id : null;
-        this.title = (obj_.title !== undefined) ? obj_.title : null;
-        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.original_name = (obj_.original_name !== undefined) ? obj_.original_name : null;
         this.extension = (obj_.extension !== undefined) ? obj_.extension : null;
         this.path = (obj_.path !== undefined) ? obj_.path : null;
         this.available = (obj_.available !== undefined) ? obj_.available : null;
@@ -332,6 +331,7 @@ export class TicketMessage {
         this.author = (obj_.author !== undefined) ? (obj_.author !== null ? new User(obj_.author) : null) : null;
         this.content = (obj_.content !== undefined) ? obj_.content : null;
         this.sent_at = (obj_.sent_at !== undefined) ? obj_.sent_at : null;
+        this.ticket = (obj_.ticket !== undefined) ? (obj_.ticket !== null ? new Ticket(obj_.ticket) : null) : null;
         this.attachments = (obj_.attachments !== undefined) ? obj_.attachments : [];
     }
 }
