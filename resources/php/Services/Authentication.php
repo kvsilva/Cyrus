@@ -71,7 +71,7 @@ class Authentication
 
         $url = Routing::getRouting("verify") . "?hash=" . md5($hash) . "&id=" . $user->getId();
 
-        $mailto = "vesilva31a@gmail.com";
+        $mailto = $email;
         $mailSub = "Ativar Conta";
         $mailMsg = '<!DOCTYPE html>
 <html>

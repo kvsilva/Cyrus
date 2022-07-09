@@ -8,7 +8,11 @@ use JetBrains\PhpStorm\Pure;
 
 class Utils
 {
-    private static String $BASE_URL = "localhost/Cyrus/";   // Não incluir o protocolo
+    private static String $BASE_URL_RAW = "localhost/Cyrus/";   // Não incluir o protocolo
+    private static String $EXTERNAL_BASE_URL_RAW = "89.155.152.30/Cyrus/";   // Não incluir o protocolo
+
+    private static String $BASE_URL;
+    private static String $EXTERNAL_BASE_URL;
 
     private static String $BASE_PATH;
 
@@ -63,7 +67,8 @@ class Utils
 
     private static function initialize() : void{
         if(!self::$initialized){
-            static::$BASE_URL = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https://' . static::$BASE_URL : 'http://' . static::$BASE_URL;
+            static::$BASE_URL = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https://' . static::$BASE_URL_RAW : 'http://' . static::$BASE_URL_RAW;
+            static::$EXTERNAL_BASE_URL = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https://' . static::$EXTERNAL_BASE_URL_RAW : 'http://' . static::$EXTERNAL_BASE_URL_RAW;
             self::$BASE_PATH = dirname(__DIR__,3);
             self::$initialized = true;
             self::$dependencies = array(
@@ -94,7 +99,14 @@ class Utils
         }
     }
 
+    public static function makeItPublic(String $url): array|string
+    {
+        self::initialize();
+        return str_replace(static::$BASE_URL_RAW, static::$EXTERNAL_BASE_URL_RAW, $url);
+    }
+
     public static function goTo(String $location) : void{
+        self::initialize();
         header('Location: ' . Routing::getRouting($location));
     }
 

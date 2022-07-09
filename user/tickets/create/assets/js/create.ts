@@ -65,7 +65,10 @@ $(document).ready(function () {
                             await API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2: any) => {
                                 if(result2.status && result2.data) {
                                     cyrusAlert("success", "Ticket criado com sucesso! Redirecionando...");
-                                    setTimeout(function () {
+                                    setTimeout(async function () {
+                                        await API.requestService("Tickets", "ticketCreated", {
+                                            id: result2.data[0]?.ticket?.id
+                                        });
                                         window.location.href = new URL("../../../?ticket=" + result2.data[0]?.ticket?.id, import.meta.url).href;
                                     }, 2000)
                                 } else {

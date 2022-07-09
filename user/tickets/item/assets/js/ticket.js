@@ -21,6 +21,7 @@ $(document).ready(function () {
         }
     });
     $("#form0-submit").click(function () {
+        $("#form0-submit").prop("disabled", true);
         API.requestService("session", "getSession", {}, []).then((result) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             if (result.status) {
@@ -46,6 +47,7 @@ $(document).ready(function () {
                                         // @ts-ignore
                                         cyrusAlert("danger", "Ocorreu um erroa ao anexar os ficheiros em anexo ao sistema. Consulte a consola para mais informações.");
                                         console.error(result3);
+                                        $("#form0-submit").prop("disabled", false);
                                     }
                                 });
                             }
@@ -53,20 +55,35 @@ $(document).ready(function () {
                                 // @ts-ignore
                                 cyrusAlert("danger", "Ocorreu um erroa ao fazer o upload dos ficheiros em anexo. Consulte a consola para mais informações.");
                                 console.error(result2);
+                                $("#form0-submit").prop("disabled", false);
                             }
                         }));
                     }
                     formData["relations"][TicketMessageFlags.TICKETMESSAGEATTACHMENTS.name] = attachments;
-                    yield API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2) => {
+                    yield API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2) => __awaiter(this, void 0, void 0, function* () {
+                        var _b, _c;
                         if (result2.status && result2.data) {
+                            // @ts-ignore
+                            cyrusAlert("success", "Atualizando o ticket...");
+                            yield API.requestService("Tickets", "ticketUpdated", {
+                                id: (_c = (_b = result2.data[0]) === null || _b === void 0 ? void 0 : _b.ticket) === null || _c === void 0 ? void 0 : _c.id
+                            });
+                            $("#form0-submit").prop("disabled", false);
                             location.reload();
                         }
                         else {
                             // @ts-ignore
-                            cyrusAlert("danger", "Ocorreu um erroa ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
+                            cyrusAlert("danger", "Ocorreu um erro ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
+                            $("#form0-submit").prop("disabled", false);
                         }
-                    });
+                    }));
                 }
+                else {
+                    $("#form0-submit").prop("disabled", false);
+                }
+            }
+            else {
+                $("#form0-submit").prop("disabled", false);
             }
         }));
     });
@@ -100,15 +117,21 @@ $(document).ready(function () {
                 formData["closed_at"] = null;
                 formData["closed_by"] = null;
             }
-            yield API.requestType("Ticket", "update", formData, [], null, true).then((result2) => {
+            yield API.requestType("Ticket", "update", formData, [], null, true).then((result2) => __awaiter(this, void 0, void 0, function* () {
                 if (result2.status && result2.data) {
+                    //@ts-ignore
+                    cyrusAlert("success", "Alterando o estado do ticket...");
+                    yield API.requestService("Tickets", "ticketStatusUpdated", {
+                        //@ts-ignore
+                        id: getParameter("ticket")
+                    });
                     location.reload();
                 }
                 else {
                     // @ts-ignore
                     cyrusAlert("danger", "Ocorreu um erroa ao mudar o estado do ticket. Consulte a consola para mais informações.");
                 }
-            });
+            }));
         });
     });
     $("#responsible").on("click", function () {
@@ -126,15 +149,21 @@ $(document).ready(function () {
                     }
                 }
             }));
-            yield API.requestType("Ticket", "update", formData, [], null, true).then((result2) => {
+            yield API.requestType("Ticket", "update", formData, [], null, true).then((result2) => __awaiter(this, void 0, void 0, function* () {
                 if (result2.status && result2.data) {
+                    //@ts-ignore
+                    cyrusAlert("success", "Assumindo o ticket...");
+                    yield API.requestService("Tickets", "ticketAssumed", {
+                        //@ts-ignore
+                        id: getParameter("ticket")
+                    });
                     location.reload();
                 }
                 else {
                     // @ts-ignore
                     cyrusAlert("danger", "Ocorreu um erroa ao assumir o ticket. Consulte a consola para mais informações.");
                 }
-            });
+            }));
         });
     });
     API.requestService("utilities", "getRouting", {}, []).then((result) => {

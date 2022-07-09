@@ -75,8 +75,13 @@ $(document).ready(function () {
                                 if (result2.status && result2.data) {
                                     cyrusAlert("success", "Ticket criado com sucesso! Redirecionando...");
                                     setTimeout(function () {
-                                        var _a, _b;
-                                        window.location.href = new URL("../../../?ticket=" + ((_b = (_a = result2.data[0]) === null || _a === void 0 ? void 0 : _a.ticket) === null || _b === void 0 ? void 0 : _b.id), import.meta.url).href;
+                                        var _a, _b, _c, _d;
+                                        return __awaiter(this, void 0, void 0, function* () {
+                                            yield API.requestService("Tickets", "ticketCreated", {
+                                                id: (_b = (_a = result2.data[0]) === null || _a === void 0 ? void 0 : _a.ticket) === null || _b === void 0 ? void 0 : _b.id
+                                            });
+                                            window.location.href = new URL("../../../?ticket=" + ((_d = (_c = result2.data[0]) === null || _c === void 0 ? void 0 : _c.ticket) === null || _d === void 0 ? void 0 : _d.id), import.meta.url).href;
+                                        });
                                     }, 2000);
                                 }
                                 else {

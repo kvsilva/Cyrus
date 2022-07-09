@@ -15,6 +15,7 @@ $(document).ready(function () {
     });
 
     $("#form0-submit").click(function () {
+        $("#form0-submit").prop("disabled", true);
         API.requestService("session", "getSession", {}, []).then(async (result: any) => {
             if (result.status) {
                 if ("data" in result) {
@@ -39,25 +40,38 @@ $(document).ready(function () {
                                         // @ts-ignore
                                         cyrusAlert("danger", "Ocorreu um erroa ao anexar os ficheiros em anexo ao sistema. Consulte a consola para mais informações.");
                                         console.error(result3);
+                                        $("#form0-submit").prop("disabled", false);
                                     }
                                 });
                             } else {
                                 // @ts-ignore
                                 cyrusAlert("danger", "Ocorreu um erroa ao fazer o upload dos ficheiros em anexo. Consulte a consola para mais informações.");
                                 console.error(result2);
+                                $("#form0-submit").prop("disabled", false);
                             }
                         });
                     }
                     formData["relations"][TicketMessageFlags.TICKETMESSAGEATTACHMENTS.name] = attachments;
-                    await API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2: any) => {
+                    await API.requestType("TicketMessage", "insert", formData, [], null, true).then(async (result2: any) => {
                         if (result2.status && result2.data) {
+                            // @ts-ignore
+                            cyrusAlert("success", "Atualizando o ticket...");
+                            await API.requestService("Tickets", "ticketUpdated", {
+                                id: result2.data[0]?.ticket?.id
+                            });
+                            $("#form0-submit").prop("disabled", false);
                             location.reload();
                         } else {
                             // @ts-ignore
-                            cyrusAlert("danger", "Ocorreu um erroa ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
+                            cyrusAlert("danger", "Ocorreu um erro ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
+                            $("#form0-submit").prop("disabled", false);
                         }
                     });
+                } else {
+                    $("#form0-submit").prop("disabled", false);
                 }
+            } else {
+                $("#form0-submit").prop("disabled", false);
             }
         });
     });
@@ -93,8 +107,14 @@ $(document).ready(function () {
             formData["closed_by"] = null;
         }
 
-        await API.requestType("Ticket", "update", formData, [], null, true).then((result2: any) => {
+        await API.requestType("Ticket", "update", formData, [], null, true).then(async (result2: any) => {
             if (result2.status && result2.data) {
+                //@ts-ignore
+                cyrusAlert("success", "Alterando o estado do ticket...");
+                await API.requestService("Tickets", "ticketStatusUpdated", {
+                    //@ts-ignore
+                    id: getParameter("ticket")
+                });
                 location.reload();
             } else {
                 // @ts-ignore
@@ -119,8 +139,14 @@ $(document).ready(function () {
             }
         });
 
-        await API.requestType("Ticket", "update", formData, [], null, true).then((result2: any) => {
+        await API.requestType("Ticket", "update", formData, [], null, true).then(async (result2: any) => {
             if (result2.status && result2.data) {
+                //@ts-ignore
+                cyrusAlert("success", "Assumindo o ticket...");
+                await API.requestService("Tickets", "ticketAssumed", {
+                    //@ts-ignore
+                    id: getParameter("ticket")
+                });
                 location.reload();
             } else {
                 // @ts-ignore
