@@ -18,6 +18,7 @@
     --color7: #a0a0a0;
     --color8: #ef4323;
     --color9: #1a1919;
+    --color10: orange;
 
     --backgroundColor: black;
 
@@ -1056,6 +1057,8 @@ input.cyrus-minimal {
     flex-wrap: wrap;
 }
 
+
+
 .cyrus-card-image-flex {
     --cyrus-card-image-width: 170px;
     --cyrus-card-image-height: 120px;
@@ -1064,6 +1067,12 @@ input.cyrus-minimal {
     position: relative;
     display: flex;
     flex-wrap: wrap;
+}
+
+.cyrus-card-image-cape-flex {
+    --cyrus-card-image-width: 150px;
+    --cyrus-card-image-height: 95px;
+    object-fit: cover;
 }
 
 .cyrus-card-image-catalog {
@@ -1081,8 +1090,9 @@ input.cyrus-minimal {
     --cyrus-card-image-height: 130px;
     width: var(--cyrus-card-image-width);
     height: var(--cyrus-card-image-height);
-    min-width: 230px;
-    min-height: 130px;
+    min-width: var(--cyrus-card-image-width);
+    min-height: var(--cyrus-card-image-height);
+
     position: relative;
     display: flex;
     flex-wrap: wrap;
@@ -1379,6 +1389,10 @@ input.cyrus-minimal {
 
 .cyrus-feed-divider-2 {
     background-image: linear-gradient(to var(--cyrus-start-direction), var(--color5), var(--color4));
+}
+
+.cyrus-feed-divider-3 {
+    background-image: linear-gradient(to var(--cyrus-start-direction), var(--color8), var(--color10));
 }
 
 

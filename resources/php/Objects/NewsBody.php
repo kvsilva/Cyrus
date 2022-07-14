@@ -2,11 +2,13 @@
 
 namespace Objects;
 
+use DateTime;
 use Enumerators\Availability;
 use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
+use Exceptions\NotInitialized;
 use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
@@ -16,16 +18,26 @@ use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 
-class Audience extends Entity
+class NewsBody extends Entity
 {
     // FLAGS
 
     // DEFAULT STRUCTURE
 
-    protected ?String $name = null;
-    protected ?int $minimum_age = null;
+    protected ?DateTime $edited_at = null;
+    protected ?String $content = null;
+    protected ?String $title = null;
+    protected ?String $subtitle = null;
+    protected ?Resource $thumbnail = null;
+
+    // FK
+
+    protected ?User $user = null;
+    protected ?News $news = null;
 
     // RELATIONS
+
+    protected ?NewsBodysArray $editions = null;
 
     /**
      * @param int|null $id
@@ -35,7 +47,7 @@ class Audience extends Entity
      */
     public function __construct(int $id = null, array $flags = array(self::NORMAL))
     {
-        parent::__construct(table: "audience", id: $id, flags: $flags);
+        parent::__construct(table: "news_body", id: $id, flags: $flags);
     }
 
     /**
@@ -47,7 +59,7 @@ class Audience extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store() : Audience{
+    public function store() : NewsBody{
         parent::__store();
         return $this;
     }
@@ -55,7 +67,7 @@ class Audience extends Entity
     /**
      * @throws IOException
      */
-    public function remove() : Audience{
+    public function remove() : NewsBody{
         parent::__remove();
         return $this;
     }
@@ -63,25 +75,28 @@ class Audience extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, String $name = null, int $minimum_age = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, String $title = null, int $user = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
-            "name" => $name,
-            "minimum_age" => $minimum_age
-        ), table: 'audience', class: 'Objects\Audience', sql: $sql, flags: $flags);
+            "title" => $title,
+            "user" => $user
+        ), table: 'news_body', class: 'Objects\NewsBody', sql: $sql, flags: $flags);
     }
 
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
+    #[ArrayShape(["id" => "int|null", "created_at" => "null|string", "content" => "null|String", "title" => "null|String", "subtitle" => "null|String", "thumbnail" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
-            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("audience"),
-            "name" => $this->name,
-            "minimum_age" => $this->minimum_age
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("news_body"),
+            "edited_at" => $this->edited_at?->format(Database::DateFormatSimplified),
+            "content" => $this->content,
+            "title" => $this->title,
+            "subtitle" => $this->subtitle,
+            "thumbnail" => $this->thumbnail?->getId(),
         );
     }
 
@@ -90,14 +105,22 @@ class Audience extends Entity
      * @param bool $entities
      * @return array
      */
-    #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
+
+    #[ArrayShape(["edited_at" => "null|string", "content" => "null|String", "title" => "null|String", "subtitle" => "null|String", "thumbnail" => "array|null", "news" => "array|null", "user" => "array|null"])]
     public function toArray(bool $minimal = false, bool $entities = false): array
     {
-        return array(
-            "id" => $this->getId(),
-            "name" => $this->name,
-            "minimum_age" => $this->minimum_age
+        $array = array(
+            "edited_at" => $this->edited_at?->format(Database::DateFormatSimplified),
+            "content" => $this->content,
+            "title" => $this->title,
+            "subtitle" => $this->subtitle,
+            "thumbnail" => $this->thumbnail?->toArray(),
         );
+        if($entities){
+            $array["user"] = $this->user?->toArray();
+            $array["news"] = $this->news?->toArray();
+        }
+        return $array;
     }
 
     /**
@@ -105,49 +128,164 @@ class Audience extends Entity
      * @param bool $entities
      * @return array
      */
-    #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
+    #[ArrayShape(["edited_at" => "null|string", "content" => "null|String", "title" => "null|String", "subtitle" => "null|String", "thumbnail" => "array|null", "news" => "array|null", "user" => "array|null"])]
     public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
-        return array(
-            "id" => $this->getId(),
-            "name" => $this->name,
-            "minimum_age" => $this->minimum_age
+        $array = array(
+            "edited_at" => $this->edited_at?->format(Database::DateFormatSimplified),
+            "content" => $this->content,
+            "title" => $this->title,
+            "subtitle" => $this->subtitle,
+            "thumbnail" => $this->thumbnail,
         );
+        if($entities){
+            $array["user"] = $this->user;
+            $array["news"] = $this->news;
+        }
+        return $array;
+    }
+
+    /**
+     * @return DateTime|null
+     */
+    public function getEditedAt(): ?DateTime
+    {
+        return $this->edited_at;
+    }
+
+    /**
+     * @param DateTime|null $edited_at
+     * @return NewsBody
+     */
+    public function setEditedAt(?DateTime $edited_at): NewsBody
+    {
+        $this->edited_at = $edited_at;
+        return $this;
     }
 
     /**
      * @return String|null
      */
-    public function getName(): ?string
+    public function getContent(): ?string
     {
-        return $this->name;
+        return $this->content;
     }
 
     /**
-     * @param String|null $name
-     * @return Audience
+     * @param String|null $content
+     * @return NewsBody
      */
-    public function setName(?string $name): Audience
+    public function setContent(?string $content): NewsBody
     {
-        $this->name = $name;
+        $this->content = $content;
         return $this;
     }
 
     /**
-     * @return int|null
+     * @return String|null
      */
-    public function getMinimumAge(): ?int
+    public function getTitle(): ?string
     {
-        return $this->minimum_age;
+        return $this->title;
     }
 
     /**
-     * @param int|null $minimum_age
-     * @return Audience
+     * @param String|null $title
+     * @return NewsBody
      */
-    public function setMinimumAge(?int $minimum_age): Audience
+    public function setTitle(?string $title): NewsBody
     {
-        $this->minimum_age = $minimum_age;
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @return String|null
+     */
+    public function getSubtitle(): ?string
+    {
+        return $this->subtitle;
+    }
+
+    /**
+     * @param String|null $subtitle
+     * @return NewsBody
+     */
+    public function setSubtitle(?string $subtitle): NewsBody
+    {
+        $this->subtitle = $subtitle;
+        return $this;
+    }
+
+    /**
+     * @return Resource|null
+     */
+    public function getThumbnail(): ?Resource
+    {
+        return $this->thumbnail;
+    }
+
+    /**
+     * @param Resource|null $thumbnail
+     * @return NewsBody
+     */
+    public function setThumbnail(?Resource $thumbnail): NewsBody
+    {
+        $this->thumbnail = $thumbnail;
+        return $this;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User|null $user
+     * @return NewsBody
+     */
+    public function setUser(?User $user): NewsBody
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return News|null
+     */
+    public function getNews(): ?News
+    {
+        return $this->news;
+    }
+
+    /**
+     * @param News|null $news
+     * @return NewsBody
+     */
+    public function setNews(?News $news): NewsBody
+    {
+        $this->news = $news;
+        return $this;
+    }
+
+    /**
+     * @return NewsBodysArray|null
+     */
+    public function getEditions(): ?NewsBodysArray
+    {
+        return $this->editions;
+    }
+
+    /**
+     * @param NewsBodysArray|null $editions
+     * @return NewsBody
+     */
+    public function setEditions(?NewsBodysArray $editions): NewsBody
+    {
+        $this->editions = $editions;
         return $this;
     }
 

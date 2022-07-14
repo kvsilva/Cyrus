@@ -2,11 +2,13 @@
 
 namespace Objects;
 
+use DateTime;
 use Enumerators\Availability;
 use Enumerators\Removal;
 use Exceptions\ColumnNotFound;
 use Exceptions\InvalidSize;
 use Exceptions\IOException;
+use Exceptions\NotInitialized;
 use Exceptions\NotNullable;
 use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
@@ -16,16 +18,25 @@ use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 
-class Audience extends Entity
+class News extends Entity
 {
     // FLAGS
 
+    public const NEWSBODY = 2;
+
     // DEFAULT STRUCTURE
 
-    protected ?String $name = null;
-    protected ?int $minimum_age = null;
+    protected ?DateTime $created_at = null;
+    protected ?bool $spotlight = null;
+    protected ?Availability $available = null;
+
+    // FK
+
+    protected ?User $user = null;
 
     // RELATIONS
+
+    protected ?NewsBodysArray $editions = null;
 
     /**
      * @param int|null $id
@@ -35,7 +46,7 @@ class Audience extends Entity
      */
     public function __construct(int $id = null, array $flags = array(self::NORMAL))
     {
-        parent::__construct(table: "audience", id: $id, flags: $flags);
+        parent::__construct(table: "news", id: $id, flags: $flags);
     }
 
     /**
@@ -47,7 +58,7 @@ class Audience extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store() : Audience{
+    public function store() : News{
         parent::__store();
         return $this;
     }
@@ -55,7 +66,7 @@ class Audience extends Entity
     /**
      * @throws IOException
      */
-    public function remove() : Audience{
+    public function remove() : News{
         parent::__remove();
         return $this;
     }
@@ -63,25 +74,28 @@ class Audience extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, String $name = null, int $minimum_age = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, String $spotlight = null, int $user = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
-            "name" => $name,
-            "minimum_age" => $minimum_age
-        ), table: 'audience', class: 'Objects\Audience', sql: $sql, flags: $flags);
+            "user" => $user,
+            "spotlight" => $spotlight,
+            "available" => $available?->value
+        ), table: 'news', class: 'Objects\News', sql: $sql, flags: $flags);
     }
 
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
+
+    #[ArrayShape(["id" => "int|null", "created_at" => "null|string", "spotlight" => "bool|null", "available" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
-            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("audience"),
-            "name" => $this->name,
-            "minimum_age" => $this->minimum_age
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("news"),
+            "created_at" => $this->created_at?->format(Database::DateFormatSimplified),
+            "spotlight" => $this->spotlight,
+            "available" => $this->available?->value,
         );
     }
 
@@ -90,14 +104,26 @@ class Audience extends Entity
      * @param bool $entities
      * @return array
      */
-    #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
+    #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
     public function toArray(bool $minimal = false, bool $entities = false): array
     {
-        return array(
-            "id" => $this->getId(),
-            "name" => $this->name,
-            "minimum_age" => $this->minimum_age
-        );
+        $array = array(
+        "id" => $this->getId(),
+        "created_at" => $this->created_at?->format(Database::DateFormatSimplified),
+        "spotlight" => $this->spotlight,
+        "available" => $this->available?->toArray(),
+    );
+        if($entities){
+            $array["user"] = $this->user?->toArray();
+        }
+        if(!$minimal){
+            $array["editions"] = null;
+            if ($this->editions != null) {
+                $array["editions"] = array();
+                foreach ($this->editions as $value) $array["editions"][] = $value->toArray();
+            }
+        }
+        return $array;
     }
 
     /**
@@ -105,52 +131,161 @@ class Audience extends Entity
      * @param bool $entities
      * @return array
      */
-    #[Pure] #[ArrayShape(["id" => "int|mixed", "name" => "null|String", "minimum_age" => "int|null"])]
-    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
+    #[ArrayShape(["id" => "int|null", "created_at" => "null|string", "spotlight" => "bool|null", "available" => "array|null", "user" => "array|null"])]public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
-        return array(
+        $array = array(
             "id" => $this->getId(),
-            "name" => $this->name,
-            "minimum_age" => $this->minimum_age
+            "created_at" => $this->created_at?->format(Database::DateFormatSimplified),
+            "spotlight" => $this->spotlight,
+            "available" => $this->available,
         );
+        if($entities){
+            $array["user"] = $this->user;
+        }
+        if(!$minimal){
+            $array["editions"] = null;
+            if ($this->editions != null) {
+                $array["editions"] = array();
+                foreach ($this->editions as $value) $array["editions"][] = $value;
+            }
+        }
+        return $array;
     }
 
     /**
-     * @return String|null
+     * @return DateTime|null
      */
-    public function getName(): ?string
+    public function getCreatedAt(): ?DateTime
     {
-        return $this->name;
+        return $this->created_at;
     }
 
     /**
-     * @param String|null $name
-     * @return Audience
+     * @param DateTime|null $created_at
+     * @return News
      */
-    public function setName(?string $name): Audience
+    public function setCreatedAt(?DateTime $created_at): News
     {
-        $this->name = $name;
+        $this->created_at = $created_at;
         return $this;
     }
 
     /**
-     * @return int|null
+     * @return bool|null
      */
-    public function getMinimumAge(): ?int
+    public function getSpotlight(): ?bool
     {
-        return $this->minimum_age;
+        return $this->spotlight;
     }
 
     /**
-     * @param int|null $minimum_age
-     * @return Audience
+     * @param bool|null $spotlight
+     * @return News
      */
-    public function setMinimumAge(?int $minimum_age): Audience
+    public function setSpotlight(?bool $spotlight): News
     {
-        $this->minimum_age = $minimum_age;
+        $this->spotlight = $spotlight;
         return $this;
     }
 
+    /**
+     * @return Availability|null
+     */
+    public function getAvailable(): ?Availability
+    {
+        return $this->available;
+    }
+
+    /**
+     * @param Availability|null $available
+     * @return News
+     */
+    public function setAvailable(?Availability $available): News
+    {
+        $this->available = $available;
+        return $this;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User|null $user
+     * @return News
+     */
+    public function setUser(?User $user): News
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    public function addRelation(int $relation, mixed $value) : News
+    {
+        switch ($relation) {
+            case self::NEWSBODY:
+                $this->addEdition($value);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @throws NotInitialized
+     * @noinspection PhpParamsInspection
+     */
+    public function removeRelation(int $relation, mixed $value = null, int $id = null) : News
+    {
+        switch ($relation) {
+            case self::NEWSBODY:
+                $this->removeEdition($value, $id);
+                break;
+        }
+        return $this;
+    }
+
+    /**
+     * @param NewsBody $entity
+     * @return News
+     * @throws NotInitialized
+     */
+    public function addEdition(NewsBody $entity): News
+    {
+        if($this->editions == null) throw new NotInitialized("NewsBody");
+        $this->editions[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param NewsBody|null $entity
+     * @param int|null $id
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeEdition(NewsBody $entity = null, int $id = null): News
+    {
+        if($this->editions == null) throw new NotInitialized("NewsBody");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->editions); $i++) {
+                if ($this->editions[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->editions); $i++) {
+                if ($this->editions[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->editions[$item]);
+        return $this;
+    }
 
 
 }
