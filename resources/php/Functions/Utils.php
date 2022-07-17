@@ -73,6 +73,7 @@ class Utils
             self::$initialized = true;
             self::$dependencies = array(
                 "JQuery" => (new Dependency("JQuery", Routing::getResource("dependencies"), "3.6.0"))->addImport(path: "jquery-3.6.0.min.js"),
+                "SummerNote" => (new Dependency("SummerNote", Routing::getResource("dependencies"), "0.8.18"))->addImport(path: "summernote.min.js")->addImport(path: "summernote.min.css", extension: "css"),
                 "Popper" => (new Dependency("Popper", Routing::getResource("dependencies"), "2.9.2"))->addImport(path: "popper.min.js"),
                 "PHPMailer" => (new Dependency("PHPMailer", Routing::getResource("dependencies"), "1.0"))->addImport(path: "PHPMailer.php", extension: "phpmailer")->addImport(path: "SMTP.php", extension: "smtp")->addImport(path: "Exception.php", extension: "exception"),
                 "FontAwesome" => (new Dependency("FontAwesome", Routing::getResource("dependencies"), "6.1.1"))->addImport(path: "css/all.css", extension: "css"),
@@ -83,6 +84,9 @@ class Utils
                 "Search" => (new Dependency("Search", self::$BASE_URL))->addImport(path: "assets/js/search.js")->addImport(path: "assets/css/search.css", extension: "css"),
                 "Calendar" => (new Dependency("Calendar", self::$BASE_URL))->addImport(path: "assets/js/calendar.js")->addImport(path: "assets/css/calendar.css", extension: "css"),
                 "List" => (new Dependency("List", self::$BASE_URL . "animes/"))->addImport(path: "assets/js/list.js")->addImport(path: "assets/css/list.css", extension: "css"),
+                "NewsItem" => (new Dependency("Item", self::$BASE_URL . "news/"))->addImport(path: "assets/js/item.js")->addImport(path: "assets/css/item.css", extension: "css"),
+                "NewsCreate" => (new Dependency("Create", self::$BASE_URL . "news/"))->addImport(path: "assets/js/create.js")->addImport(path: "assets/css/create.css", extension: "css"),
+                "NewsList" => (new Dependency("List", self::$BASE_URL . "news/"))->addImport(path: "assets/js/list.js")->addImport(path: "assets/css/list.css", extension: "css"),
                 "Home" => (new Dependency("Home", self::$BASE_URL))->addImport(path: "assets/js/home.js")->addImport(path: "assets/css/home.css", extension: "css"),
                 "Account" => (new Dependency("Account", self::$BASE_URL . "user/"))->addImport(path: "assets/js/account.js")->addImport(path: "assets/css/account.css", extension: "css"),
                 "Login" => (new Dependency("Login", self::$BASE_URL . "user/"))->addImport(path: "assets/js/login.js")->addImport(path: "assets/css/login.css", extension: "css"),

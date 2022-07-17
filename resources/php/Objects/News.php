@@ -23,20 +23,19 @@ class News extends Entity
     // FLAGS
 
     public const NEWSBODY = 2;
+    public const COMMENTNEWS = 3;
 
     // DEFAULT STRUCTURE
 
     protected ?DateTime $created_at = null;
+    protected ?User $user = null;
     protected ?bool $spotlight = null;
     protected ?Availability $available = null;
-
-    // FK
-
-    protected ?User $user = null;
 
     // RELATIONS
 
     protected ?NewsBodysArray $editions = null;
+    protected ?CommentNewssArray $comments = null;
 
     /**
      * @param int|null $id
@@ -47,6 +46,74 @@ class News extends Entity
     public function __construct(int $id = null, array $flags = array(self::NORMAL))
     {
         parent::__construct(table: "news", id: $id, flags: $flags);
+    }
+
+    /**
+     * @throws ReflectionException
+     * @throws RecordNotFound
+     */
+    protected function buildRelations()
+    {
+        $database = $this->getDatabase();
+        $id = $this->getId();
+        if ($this->hasFlag(self::NEWSBODY)) {
+            $this->editions = new NewsBodysArray();
+            if($this->getId() !== null) {
+                $query = $database->query("SELECT id FROM news_body WHERE news = $id;");
+                while ($row = $query->fetch_array()) {
+                    $this->editions[] = new NewsBody($row["id"], array(Entity::ALL));
+                }
+            }
+        }
+        if ($this->hasFlag(self::COMMENTNEWS)) {
+            $this->comments = new CommentNewssArray();
+            if($this->getId() !== null) {
+                $query = $database->query("SELECT id FROM commentnews WHERE news = $id;");
+                while ($row = $query->fetch_array()) {
+                    $this->comments[] = new CommentNews($row["id"], array(Entity::ALL));
+                }
+            }
+        }
+        parent::buildRelations();
+    }
+
+    protected function updateRelations()
+    {
+        parent::updateRelations();
+        $database = $this->getDatabase();
+        $id = $this->getId();
+        if ($this->hasFlag(self::NEWSBODY)) {
+            $query = $database->query("SELECT id FROM news_body WHERE news = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->editions as $edition) {
+                    if ($edition->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) (new NewsBody($row["id"]))->remove();
+            }
+            foreach ($this->editions as $edition) {
+                $edition->store(news: $this);
+            }
+        }
+        if ($this->hasFlag(self::COMMENTNEWS)) {
+            $query = $database->query("SELECT id FROM news_body WHERE news = $id;");
+            while ($row = $query->fetch_array()) {
+                $remove = true;
+                foreach ($this->comments as $entity) {
+                    if ($entity->getId() == $row["id"]) {
+                        $remove = false;
+                        break;
+                    }
+                }
+                if ($remove) (new CommentNews($row["id"]))->remove();
+            }
+            foreach ($this->comments as $entity) {
+                $entity->store(news: $this);
+            }
+        }
     }
 
     /**
@@ -87,12 +154,12 @@ class News extends Entity
     /**
      * @return array
      */
-
-    #[ArrayShape(["id" => "int|null", "created_at" => "null|string", "spotlight" => "bool|null", "available" => "int|null"])]
+    #[ArrayShape(["id" => "int|null", "user" => "int|null", "created_at" => "null|string", "spotlight" => "bool|null", "available" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("news"),
+            "user" => $this->user?->getId(),
             "created_at" => $this->created_at?->format(Database::DateFormatSimplified),
             "spotlight" => $this->spotlight,
             "available" => $this->available?->value,
@@ -230,6 +297,9 @@ class News extends Entity
             case self::NEWSBODY:
                 $this->addEdition($value);
                 break;
+            case self::COMMENTNEWS:
+                $this->addComment($value);
+                break;
         }
         return $this;
     }
@@ -244,18 +314,27 @@ class News extends Entity
             case self::NEWSBODY:
                 $this->removeEdition($value, $id);
                 break;
+            case self::COMMENTNEWS:
+                $this->removeComment($value, $id);
+                break;
         }
         return $this;
     }
 
     /**
-     * @param NewsBody $entity
+     * @param array|NewsBody $entity
      * @return News
      * @throws NotInitialized
+     * @throws ReflectionException
      */
-    public function addEdition(NewsBody $entity): News
+    public function addEdition(array|NewsBody $entity): News
     {
-        if($this->editions == null) throw new NotInitialized("NewsBody");
+        if($this->editions === null) throw new NotInitialized("NewsBody");
+        if(is_array($entity)){
+            $e = (new NewsBody());
+            $e->arrayObject($entity);
+            $entity = $e;
+        }
         $this->editions[] = $entity;
         return $this;
     }
@@ -284,6 +363,69 @@ class News extends Entity
             }
         }
         foreach($remove as $item) unset($this->editions[$item]);
+        return $this;
+    }
+
+    /**
+     * @return NewsBodysArray|null
+     */
+    public function getEditions(): ?NewsBodysArray
+    {
+        return $this->editions;
+    }
+
+    /**
+     * @param NewsBodysArray|null $editions
+     * @return News
+     */
+    public function setEditions(?NewsBodysArray $editions): News
+    {
+        $this->editions = $editions;
+        return $this;
+    }
+
+    /**
+     * @param array|NewsBody $entity
+     * @return News
+     * @throws NotInitialized
+     * @throws ReflectionException
+     */
+    public function addComment(array|NewsBody $entity): News
+    {
+        if($this->comments === null) throw new NotInitialized("CommentNews");
+        if(is_array($entity)){
+            $e = (new CommentNews());
+            $e->arrayObject($entity);
+            $entity = $e;
+        }
+        $this->comments[] = $entity;
+        return $this;
+    }
+
+    /**
+     * @param CommentNews|null $entity
+     * @param int|null $id
+     * @return $this
+     * @throws NotInitialized
+     */
+    public function removeComment(CommentNews $entity = null, int $id = null): News
+    {
+        if($this->comments == null) throw new NotInitialized("CommentNews");
+        $remove = array();
+        if($entity != null){
+            for ($i = 0; $i < count($this->comments); $i++) {
+                if ($this->comments[$i]->getId() == $entity->getId()) {
+                    $remove[] = $i;
+                }
+            }
+        } else if($id != null) {
+            for ($i = 0; $i < count($this->comments); $i++) {
+                if ($this->comments[$i]->getId() == $id) {
+                    $remove[] = $i;
+                }
+            }
+        }
+        foreach($remove as $item) unset($this->comments[$item]);
         return $this;
     }
 

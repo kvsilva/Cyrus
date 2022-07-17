@@ -58,6 +58,7 @@ class Models
         "Objects\\Log",
         "Objects\\CommentAnime",
         "Objects\\CommentVideo",
+        "Objects\\CommentNews",
         "APIObjects\\WebFile",
     );
 

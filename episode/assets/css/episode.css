@@ -27,15 +27,6 @@
 
 }
 
-
-.reviews-average-rating{
-    padding-right: 15px;
-}
-
-.reviews-average-rating, .reviews-count{
-    margin-right: auto;
-}
-
 .review-post{
     background-color: var(--hoverBackground);
     width: 100%;

@@ -112,6 +112,7 @@ class Request
                     }
                     if($this->dataTypes !== null) $this->dataTypes = self::getDataTypes($this->dataTypes);
                 } catch (Exception $e){
+                    echo $e->getTraceAsString();
                     $errors[] = array("error" => $e->getMessage(), "data" => $this->data[$key]);
                 }
             }

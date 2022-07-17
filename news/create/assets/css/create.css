@@ -1,0 +1,11 @@
+
+.note-editor > a {
+    color: initial !important;
+}
+
+.note-editor .dropdown-toggle::after {
+    display: none;
+}
+.note-btn{
+    color: white !important;
+}

@@ -1,0 +1,51 @@
+@import url('../../../../resources/css/cyrus.css');
+
+.news-item{
+    padding: 18px 20px;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.news-item:hover{
+    background-color: var(--hoverBackground);
+}
+
+.news-item-body{
+    display: flex;
+
+    flex-direction: row;
+    margin-top: 18px;
+}
+
+.news-item-body-thumbnail{
+    width: 125px;
+    height: 125px;
+    min-height: 125px;
+    min-width: 125px;
+    margin-right: 15px;
+}
+.news-item-body-thumbnail img{
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+.news-item-head-title{
+    font-size: 32px;
+    font-weight: bold;
+}
+.news-item-head-subtitle{
+    font-size: 18px;
+    font-style: italic;
+    color: var(--color3);
+}
+.news-item-head-author{
+    font-size: 18px;
+    color: var(--color0_light);
+    font-weight: bold;
+}
+
+.news-item-head-date{
+    font-size: 16px;
+}

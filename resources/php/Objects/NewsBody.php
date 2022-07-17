@@ -59,8 +59,11 @@ class NewsBody extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store() : NewsBody{
-        parent::__store();
+    public function store(?News $news = null) : NewsBody{
+        if($news === null){
+            $news = $this->news;
+        }
+        parent::__store(array("news" => $news?->getId()));
         return $this;
     }
 
@@ -87,11 +90,12 @@ class NewsBody extends Entity
     /**
      * @return array
      */
-    #[ArrayShape(["id" => "int|null", "created_at" => "null|string", "content" => "null|String", "title" => "null|String", "subtitle" => "null|String", "thumbnail" => "int|null"])]
+    #[ArrayShape(["id" => "int|null", "user" => "int|null", "edited_at" => "null|string", "content" => "null|String", "title" => "null|String", "subtitle" => "null|String", "thumbnail" => "int|null"])]
     protected function valuesArray(): array
     {
         return array(
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("news_body"),
+            "user" => $this->user?->getId(),
             "edited_at" => $this->edited_at?->format(Database::DateFormatSimplified),
             "content" => $this->content,
             "title" => $this->title,

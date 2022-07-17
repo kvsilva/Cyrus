@@ -658,6 +658,26 @@ export const CommentVideoFlags = {
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
+export class CommentNews {
+    id: number;
+    post_date: Date;
+    description: string;
+    user: User | null;
+    news: News | null;
+
+    public constructor(obj?: any){ 
+        const obj_: any = obj || {};
+        this.id = (obj_.id !== undefined) ? obj_.id : null;
+        this.post_date = (obj_.post_date !== undefined) ? obj_.post_date : null;
+        this.description = (obj_.description !== undefined) ? obj_.description : null;
+        this.user = (obj_.user !== undefined) ? (obj_.user !== null ? new User(obj_.user): null) : null;
+        this.news = (obj_.news !== undefined) ? (obj_.news !== null ? new News(obj_.news): null) : null;
+    }
+}
+export const CommentNewsFlags = {
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
+};
 export class APIWebFile {
     id: number;
     name: string;
@@ -709,7 +729,8 @@ export const flags : any = {
     "LogActionFlags" : LogActionFlags,
     "LogFlags" : LogFlags,
     "CommentAnimeFlags" : CommentAnimeFlags,
-    "CommentVideoFlags" : CommentVideoFlags
+    "CommentVideoFlags" : CommentVideoFlags,
+    "CommentNewsFlags" : CommentNewsFlags
 }
 export const models : any = { 
     "GlobalSetting" : GlobalSetting,
@@ -737,5 +758,6 @@ export const models : any = {
     "Log" : Log,
     "CommentAnime" : CommentAnime,
     "CommentVideo" : CommentVideo,
+    "CommentNews" : CommentNews,
     "APIWebFile" : APIWebFile
 }
