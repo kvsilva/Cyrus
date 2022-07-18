@@ -22,14 +22,12 @@ $(document).ready(async function () {
         let title: string = $("#form0-title").val();
         //@ts-ignore
         let subtitle: string = $("#form0-subtitle").val();
+        //@ts-ignore
+        let preview: string = $("#form0-preview").val();
         // @ts-ignore
         let body: string = $("#form0-body").summernote('code');
 
-        console.log("Titulo", title);
-        console.log("Sub Título", subtitle);
-        console.log("Body", body);
-
-        if (title.length > 0 && subtitle.length > 0 && body.length > 0 && $("#form0-thumbnail").prop("files").length > 0) {
+        if (title.length > 0 && subtitle.length > 0 && preview.length > 0 && body.length > 0 && $("#form0-thumbnail").prop("files").length > 0) {
             let attachment: Resource|null = null;
             await API.uploadFile($("#form0-thumbnail").prop("files")[0]).then(async (result2: any) => {
                 if (result2.status && result2.data) {
@@ -63,6 +61,7 @@ $(document).ready(async function () {
                             content: body,
                             title: title,
                             subtitle: subtitle,
+                            preview: preview,
                             thumbnail: attachment
                         }
                     ]

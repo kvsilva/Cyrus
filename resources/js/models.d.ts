@@ -650,6 +650,56 @@ export declare const LogFlags: {
         value: number;
     };
 };
+export declare class News {
+    id: number;
+    created_at: Date;
+    user: User | null;
+    spotlight: boolean;
+    available: number;
+    editions: NewsBody[];
+    comments: CommentNews[];
+    constructor(obj?: any);
+}
+export declare const NewsFlags: {
+    NEWSBODY: {
+        name: string;
+        value: number;
+    };
+    COMMENTNEWS: {
+        name: string;
+        value: number;
+    };
+    NORMAL: {
+        name: string;
+        value: number;
+    };
+    ALL: {
+        name: string;
+        value: number;
+    };
+};
+export declare class NewsBody {
+    id: number;
+    edited_at: Date;
+    content: string;
+    title: string;
+    subtitle: string;
+    thumbnail: Resource | null;
+    user: User | null;
+    news: News | null;
+    editions: NewsBody[];
+    constructor(obj?: any);
+}
+export declare const NewsBodyFlags: {
+    NORMAL: {
+        name: string;
+        value: number;
+    };
+    ALL: {
+        name: string;
+        value: number;
+    };
+};
 export declare class CommentAnime {
     id: number;
     post_date: Date;
@@ -681,6 +731,24 @@ export declare class CommentVideo {
     constructor(obj?: any);
 }
 export declare const CommentVideoFlags: {
+    NORMAL: {
+        name: string;
+        value: number;
+    };
+    ALL: {
+        name: string;
+        value: number;
+    };
+};
+export declare class CommentNews {
+    id: number;
+    post_date: Date;
+    description: string;
+    user: User | null;
+    news: News | null;
+    constructor(obj?: any);
+}
+export declare const CommentNewsFlags: {
     NORMAL: {
         name: string;
         value: number;

@@ -27,12 +27,11 @@ $(document).ready(function () {
                 let title = $("#form0-title").val();
                 //@ts-ignore
                 let subtitle = $("#form0-subtitle").val();
+                //@ts-ignore
+                let preview = $("#form0-preview").val();
                 // @ts-ignore
                 let body = $("#form0-body").summernote('code');
-                console.log("Titulo", title);
-                console.log("Sub Título", subtitle);
-                console.log("Body", body);
-                if (title.length > 0 && subtitle.length > 0 && body.length > 0 && $("#form0-thumbnail").prop("files").length > 0) {
+                if (title.length > 0 && subtitle.length > 0 && preview.length > 0 && body.length > 0 && $("#form0-thumbnail").prop("files").length > 0) {
                     let attachment = null;
                     yield API.uploadFile($("#form0-thumbnail").prop("files")[0]).then((result2) => __awaiter(this, void 0, void 0, function* () {
                         if (result2.status && result2.data) {
@@ -67,6 +66,7 @@ $(document).ready(function () {
                                     content: body,
                                     title: title,
                                     subtitle: subtitle,
+                                    preview: preview,
                                     thumbnail: attachment
                                 }
                             ]

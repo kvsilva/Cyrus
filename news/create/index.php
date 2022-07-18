@@ -43,8 +43,12 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
             <span class="cyrus-floating-label">Título</span>
         </div>
         <div class = "cyrus-input-group">
-            <textarea class="cyrus-minimal group-input" style = "height: 150px;" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password" id = "form0-subtitle"></textarea>
+            <input type="text" class="cyrus-minimal group-input" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password" id = "form0-subtitle">
             <span class="cyrus-floating-label">Subtítulo</span>
+        </div>
+        <div class = "cyrus-input-group">
+            <textarea class="cyrus-minimal group-input" style = "height: 150px;" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password" id = "form0-preview"></textarea>
+            <span class="cyrus-floating-label">Resumo</span>
         </div>
         <div class = "mt-4 mb-4">
             <span class="cyrus-floating-label-float">Anexos</span>

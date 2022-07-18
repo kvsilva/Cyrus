@@ -56,6 +56,8 @@ class Models
         "Objects\\AccountPurchase",
         "Objects\\LogAction",
         "Objects\\Log",
+        "Objects\\News",
+        "Objects\\NewsBody",
         "Objects\\CommentAnime",
         "Objects\\CommentVideo",
         "Objects\\CommentNews",

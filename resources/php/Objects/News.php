@@ -99,7 +99,7 @@ class News extends Entity
             }
         }
         if ($this->hasFlag(self::COMMENTNEWS)) {
-            $query = $database->query("SELECT id FROM news_body WHERE news = $id;");
+            $query = $database->query("SELECT id FROM commentnews WHERE news = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
                 foreach ($this->comments as $entity) {
@@ -187,7 +187,12 @@ class News extends Entity
             $array["editions"] = null;
             if ($this->editions != null) {
                 $array["editions"] = array();
-                foreach ($this->editions as $value) $array["editions"][] = $value->toArray();
+                foreach ($this->editions as $value) $array["editions"][] = $value->toArray($minimal, true);
+            }
+            $array["comments"] = null;
+            if ($this->comments != null) {
+                $array["comments"] = array();
+                foreach ($this->comments as $value) $array["comments"][] = $value->toArray($minimal, true);
             }
         }
         return $array;
@@ -198,7 +203,8 @@ class News extends Entity
      * @param bool $entities
      * @return array
      */
-    #[ArrayShape(["id" => "int|null", "created_at" => "null|string", "spotlight" => "bool|null", "available" => "array|null", "user" => "array|null"])]public function toOriginalArray(bool $minimal = false, bool $entities = false): array
+    #[ArrayShape(["id" => "int|null", "created_at" => "null|string", "spotlight" => "bool|null", "available" => "array|null", "user" => "array|null"])]
+    public function toOriginalArray(bool $minimal = false, bool $entities = false): array
     {
         $array = array(
             "id" => $this->getId(),
@@ -214,6 +220,11 @@ class News extends Entity
             if ($this->editions != null) {
                 $array["editions"] = array();
                 foreach ($this->editions as $value) $array["editions"][] = $value;
+            }
+            $array["comments"] = null;
+            if ($this->comments != null) {
+                $array["comments"] = array();
+                foreach ($this->comments as $value) $array["comments"][] = $value;
             }
         }
         return $array;

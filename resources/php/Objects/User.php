@@ -18,6 +18,7 @@ use Exceptions\RecordNotFound;
 use Exceptions\TableNotFound;
 use Exceptions\UniqueKey;
 use Functions\Database;
+use Functions\Utils;
 use ReflectionException;
 
 class User extends Entity
@@ -378,7 +379,7 @@ class User extends Entity
             "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("user"),
             "email" => $this->email,
             "username" => $this->username,
-            "password" => $this->password != null && password_get_info($this->password)["algoName"] === 'unknown' ? $this->setPassword($this->password)->getPassword() : $this->password,
+            "password" => $this->password != null && !Utils::isValidMd5($this->password) ? $this->setPassword($this->password)->getPassword() : $this->password,
             "birthdate" => $this->birthdate?->format(Database::DateFormat),
             "sex" => $this->sex != null ? $this->sex->value : Sex::OTHER->value,
             "creation_date" => $this->creation_date?->format(Database::DateFormat),

@@ -28,6 +28,7 @@ class NewsBody extends Entity
     protected ?String $content = null;
     protected ?String $title = null;
     protected ?String $subtitle = null;
+    protected ?String $preview = null;
     protected ?Resource $thumbnail = null;
 
     // FK
@@ -100,6 +101,7 @@ class NewsBody extends Entity
             "content" => $this->content,
             "title" => $this->title,
             "subtitle" => $this->subtitle,
+            "preview" => $this->preview,
             "thumbnail" => $this->thumbnail?->getId(),
         );
     }
@@ -118,6 +120,7 @@ class NewsBody extends Entity
             "content" => $this->content,
             "title" => $this->title,
             "subtitle" => $this->subtitle,
+            "preview" => $this->preview,
             "thumbnail" => $this->thumbnail?->toArray(),
         );
         if($entities){
@@ -140,6 +143,7 @@ class NewsBody extends Entity
             "content" => $this->content,
             "title" => $this->title,
             "subtitle" => $this->subtitle,
+            "preview" => $this->preview,
             "thumbnail" => $this->thumbnail,
         );
         if($entities){
@@ -290,6 +294,24 @@ class NewsBody extends Entity
     public function setEditions(?NewsBodysArray $editions): NewsBody
     {
         $this->editions = $editions;
+        return $this;
+    }
+
+    /**
+     * @return String|null
+     */
+    public function getPreview(): ?string
+    {
+        return $this->preview;
+    }
+
+    /**
+     * @param String|null $preview
+     * @return NewsBody
+     */
+    public function setPreview(?string $preview): NewsBody
+    {
+        $this->preview = $preview;
         return $this;
     }
 

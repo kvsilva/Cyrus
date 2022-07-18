@@ -610,6 +610,60 @@ export const LogFlags = {
     NORMAL: {name: "NORMAL", value: 0},
     ALL: {name: "ALL", value: 1}
 };
+export class News {
+    id: number;
+    created_at: Date;
+    user: User | null;
+    spotlight: boolean;
+    available: number;
+    editions: NewsBody[];
+    comments: CommentNews[];
+
+    public constructor(obj?: any){ 
+        const obj_: any = obj || {};
+        this.id = (obj_.id !== undefined) ? obj_.id : null;
+        this.created_at = (obj_.created_at !== undefined) ? obj_.created_at : null;
+        this.user = (obj_.user !== undefined) ? (obj_.user !== null ? new User(obj_.user): null) : null;
+        this.spotlight = (obj_.spotlight !== undefined) ? obj_.spotlight : null;
+        this.available = (obj_.available !== undefined) ? obj_.available : null;
+        this.editions = (obj_.editions !== undefined) ? obj_.editions : [];
+        this.comments = (obj_.comments !== undefined) ? obj_.comments : [];
+    }
+}
+export const NewsFlags = {
+    NEWSBODY: {name: "NEWSBODY", value: 2},
+    COMMENTNEWS: {name: "COMMENTNEWS", value: 3},
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
+};
+export class NewsBody {
+    id: number;
+    edited_at: Date;
+    content: string;
+    title: string;
+    subtitle: string;
+    thumbnail: Resource | null;
+    user: User | null;
+    news: News | null;
+    editions: NewsBody[];
+
+    public constructor(obj?: any){ 
+        const obj_: any = obj || {};
+        this.id = (obj_.id !== undefined) ? obj_.id : null;
+        this.edited_at = (obj_.edited_at !== undefined) ? obj_.edited_at : null;
+        this.content = (obj_.content !== undefined) ? obj_.content : null;
+        this.title = (obj_.title !== undefined) ? obj_.title : null;
+        this.subtitle = (obj_.subtitle !== undefined) ? obj_.subtitle : null;
+        this.thumbnail = (obj_.thumbnail !== undefined) ? (obj_.thumbnail !== null ? new Resource(obj_.thumbnail): null) : null;
+        this.user = (obj_.user !== undefined) ? (obj_.user !== null ? new User(obj_.user): null) : null;
+        this.news = (obj_.news !== undefined) ? (obj_.news !== null ? new News(obj_.news): null) : null;
+        this.editions = (obj_.editions !== undefined) ? obj_.editions : [];
+    }
+}
+export const NewsBodyFlags = {
+    NORMAL: {name: "NORMAL", value: 0},
+    ALL: {name: "ALL", value: 1}
+};
 export class CommentAnime {
     id: number;
     post_date: Date;
@@ -728,6 +782,8 @@ export const flags : any = {
     "AccountPurchaseFlags" : AccountPurchaseFlags,
     "LogActionFlags" : LogActionFlags,
     "LogFlags" : LogFlags,
+    "NewsFlags" : NewsFlags,
+    "NewsBodyFlags" : NewsBodyFlags,
     "CommentAnimeFlags" : CommentAnimeFlags,
     "CommentVideoFlags" : CommentVideoFlags,
     "CommentNewsFlags" : CommentNewsFlags
@@ -756,6 +812,8 @@ export const models : any = {
     "AccountPurchase" : AccountPurchase,
     "LogAction" : LogAction,
     "Log" : Log,
+    "News" : News,
+    "NewsBody" : NewsBody,
     "CommentAnime" : CommentAnime,
     "CommentVideo" : CommentVideo,
     "CommentNews" : CommentNews,

@@ -308,7 +308,7 @@ abstract class Entity
             $sql_values = "";
             foreach($query_keys_values as $key => $value){
                 $sql_keys .= "`" . $key . "`,";
-                $sql_values .= ($value !== null ? "'" . $value . "'" : "default") . ",";
+                $sql_values .= ($value !== null ? "'" . str_replace("'", "\'", $value) . "'" : "default") . ",";
             }
             $sql_keys = substr($sql_keys,0,-1);
             $sql_values = substr($sql_values,0,-1) ;
@@ -319,12 +319,11 @@ abstract class Entity
             }
             $update_sql = "";
             foreach($query_keys_values as $key => $value){
-                $update_sql .= ("`" . $key . "` = " . ($value !== null ? "'" . $value . "'" : "default")) . ",";
+                $update_sql .= ("`" . $key . "` = " . ($value !== null ? "'" . str_replace("'", "\'", $value) . "'" : "default")) . ",";
             }
             $update_sql = substr($update_sql,0,-1);
             $sql = "UPDATE $table SET $update_sql WHERE id = $this->id";
         }
-
         $database->query($sql);
         $database->query("COMMIT");
         $this->id = $query_keys_values["id"];

@@ -31,6 +31,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
     <div class="content-wrapper">
         <?php
         foreach($news as $item){
+
             $lastUpdate = $item->getEditions()[$item->getEditions()->size()-1];
         ?>
         <div class="news-item no-select">
@@ -55,7 +56,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                     </div>
                     <div class="news-item-body-preview">
                     <span>
-                        À medida que o sol se põe atrás das montanhas, uma luz dourada começa a banhar a extensa floresta. Nas tranquilas trilhas, a Crunchyroll-Hime e o Yuzu se deparam com uma bela paisagem de verdes exuberantes e muito espaço para relaxar. Junte-se a Hime enquanto ela levanta acampamento para descansar e curtir todos os animes da temporada de verão 2022 da Crunchyroll!
+                        <?php echo $lastUpdate->getPreview()?>
                     </span>
                     </div>
                 </div>
