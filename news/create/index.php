@@ -46,9 +46,19 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
             <input type="text" class="cyrus-minimal group-input" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password" id = "form0-subtitle">
             <span class="cyrus-floating-label">Subtítulo</span>
         </div>
+
         <div class = "cyrus-input-group">
             <textarea class="cyrus-minimal group-input" style = "height: 150px;" value='' onkeyup="this.setAttribute('value', this.value);" autocomplete="new-password" id = "form0-preview"></textarea>
             <span class="cyrus-floating-label">Resumo</span>
+        </div>
+        <div>
+            <label class="cyrus-label-checkbox mt-2">
+                                        <span class="cyrus-hover-pointer">
+                                            <input class="cyrus-input-checkbox-null" type="checkbox" id="form0-spotlight">
+                                            <span class="cyrus-input-checkbox-checkmark"></span>
+                                            <span>Notícia de Destaque</span>
+                                        </span>
+            </label>
         </div>
         <div class = "mt-4 mb-4">
             <span class="cyrus-floating-label-float">Anexos</span>

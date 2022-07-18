@@ -31,6 +31,7 @@ $(document).ready(function () {
                 let preview = $("#form0-preview").val();
                 // @ts-ignore
                 let body = $("#form0-body").summernote('code');
+                let spotlight = $("#form0-spotlight").prop("checked");
                 if (title.length > 0 && subtitle.length > 0 && preview.length > 0 && body.length > 0 && $("#form0-thumbnail").prop("files").length > 0) {
                     let attachment = null;
                     yield API.uploadFile($("#form0-thumbnail").prop("files")[0]).then((result2) => __awaiter(this, void 0, void 0, function* () {
@@ -58,7 +59,7 @@ $(document).ready(function () {
                     }));
                     let formData = {
                         user: user === null || user === void 0 ? void 0 : user.id,
-                        spotlight: true,
+                        spotlight: spotlight,
                         relations: {
                             "NEWSBODY": [
                                 {

@@ -66,7 +66,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                         ?></span>
                 </div>
                 <div class="ticket-information-lastactivity">
-                    <div class="ticket-information-title">Última Atualição</div>
+                    <div class="ticket-information-title">Última Atualização</div>
                     <span class="ticket-information-value"><?php
                         $formatter = new IntlDateFormatter('pt_PT', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
                         $formatter->setPattern("d 'de' '['MMMM']' 'de' yyyy 'às' H:mm");

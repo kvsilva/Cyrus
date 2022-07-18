@@ -1485,3 +1485,11 @@ input.cyrus-minimal {
 .w-15{
     width: 15% !important;
 }
+
+.spoiler{
+    background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTIxIDIxLjc5M3YxLjQxNEw0LjIwNiA0MEgyLjc5M0wyMSAyMS43OTNabTAgN3YxLjQxNEwxMS4yMDYgNDBIOS43OTNMMjEgMjguNzkzWm0wIDd2MS40MTRMMTguMjA2IDQwaC0xLjQxNEwyMSAzNS43OTNabTAtMjF2MS40MTVsLTIxIDIxdi0xLjQxNGwyMS0yMVptMC03djEuNDE1bC0yMSAyMXYtMS40MTRsMjEtMjFabTAtN3YxLjQxNWwtMjEgMjF2LTEuNDE0bDIxLTIxWk0xNi4yMDcgMCAwIDE2LjIxdi0xLjQxNkwxNC43OTMgMGgxLjQxNVptLTcgMEwwIDkuMjFWNy43OTJMNy43OTMgMGgxLjQxNVptLTcgMEwwIDIuMjFWLjc5MkwuNzkzIDBoMS40MTVaIiBmaWxsPSIjQTBBMEEwIi8+PC9zdmc+') repeat-x;
+    background-size: 1.5rem;
+    height: 1.125rem;
+    opacity: .5;
+    color: transparent;
+}

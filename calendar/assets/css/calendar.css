@@ -186,6 +186,10 @@
         justify-content: flex-start;
         flex-wrap: wrap;
     }
+    .calendar-day-body{
+        margin-top: 20px;
+        margin-bottom: 25px;
+    }
 }
 
 @media only screen and (max-width: 1250px) {

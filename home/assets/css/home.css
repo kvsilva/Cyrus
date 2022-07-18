@@ -18,12 +18,58 @@
 }
 
 #keepWatchingVideos{
-    --carousel-cols-count: 5;
+
 }
 
 #lastReleasedVideos{
+
+}
+
+.video-carousel{
     --carousel-cols-count: 5;
 }
+
+
+@media only screen and (max-width: 1270px) {
+    .video-carousel{
+        --carousel-cols-count: 4;
+    }
+}
+
+@media only screen and (max-width: 1080px) {
+    .video-carousel {
+        --carousel-cols-count: 3;
+    }
+}
+
+@media only screen and (max-width: 930px) {
+    .video-carousel .cyrus-card {
+        align-items: flex-start !important;
+    }
+    .video-carousel .cyrus-card-body{
+        margin-left : 0 !important;
+    }
+}
+
+@media only screen and (max-width: 830px) {
+    .video-carousel {
+        --carousel-cols-count: 2;
+    }
+
+}
+
+@media only screen and (max-width: 51px) {
+    .video-carousel {
+        --carousel-cols-count: 1;
+    }
+}
+
+@media only screen and (max-width: 51px) {
+    .video-carousel {
+        --carousel-cols-count: 1;
+    }
+}
+
 
 #content .section:not(:first-child){
 
@@ -45,6 +91,7 @@
 
 .news-section{
     position: relative;
+    width: 100%;
 }
 
 :root{
@@ -67,8 +114,12 @@
     top: 0;
     z-index: -1;
 }
+.cyrus-card{
+    display: inline-block;
+}
 
 .news{
+    min-width: 700px;
     position: absolute;
     z-index: 1;
     left: 20%;
@@ -77,10 +128,11 @@
     bottom: 80px;
     background-color: var(--backgroundColor);
 }
-
 .news-wrapper{
     margin: 50px 60px;
 }
+
+
 
 .spotlight-news h4.cyrus-card-title{
     height: var(--news-spotlight-title-size)
@@ -100,10 +152,12 @@
 
 .news-content{
     margin-top: 16px;
-    display: grid;
+    display: flex;
+    flex-direction: row;
+    /*display: grid;
     column-gap: 30px;
     grid-template: "latest-news spotlight-news";
-    grid-template-columns: repeat(12,minmax(0,1fr));
+    grid-template-columns: repeat(12,minmax(0,1fr));*/
 }
 
 .spotlight-news{
@@ -114,6 +168,7 @@
 .latest-news{
     grid-area: latest-news;
     grid-column: span 9;
+    width: 100%;
 }
 
 .news-cape{

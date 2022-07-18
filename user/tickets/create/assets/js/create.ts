@@ -1,5 +1,4 @@
 import {Request as API} from "../../../../../resources/js/Request.js";
-import {cyrusAlert} from "../../../../../resources/js/cyrus";
 import {Resource, TicketMessageFlags, TicketStatus} from "../../../../../resources/js/models";
 
 $(document).ready(function () {
@@ -19,6 +18,7 @@ $(document).ready(function () {
     $("#form0-submit").click(function (e) {
         e.preventDefault();
         if (($.trim(<string>$("#form0-subject").val()).length == 0 || $.trim(<string>$("#form0-description").val()).length == 0)) {
+            //@ts-ignore
             cyrusAlert("warning", "Há campos por preencher!");
             return;
         }
@@ -37,11 +37,13 @@ $(document).ready(function () {
                                     if (result3.status && result3.data) {
                                         attachments.push(result3.data[0]);
                                     } else {
+                                        //@ts-ignore
                                         cyrusAlert("danger", "Ocorreu um erroa ao anexar os ficheiros em anexo ao sistema. Consulte a consola para mais informações.");
                                         console.error(result3);
                                     }
                                 });
                             } else {
+                                //@ts-ignore
                                 cyrusAlert("danger", "Ocorreu um erroa ao fazer o upload dos ficheiros em anexo. Consulte a consola para mais informações.");
                                 console.error(result2);
                             }
@@ -64,6 +66,7 @@ $(document).ready(function () {
                             formData["relations"][TicketMessageFlags.TICKETMESSAGEATTACHMENTS.name] = attachments;
                             await API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2: any) => {
                                 if(result2.status && result2.data) {
+                                    //@ts-ignore
                                     cyrusAlert("success", "Ticket criado com sucesso! Redirecionando...");
                                     setTimeout(async function () {
                                         await API.requestService("Tickets", "ticketCreated", {
@@ -72,15 +75,18 @@ $(document).ready(function () {
                                         window.location.href = new URL("../../../?ticket=" + result2.data[0]?.ticket?.id, import.meta.url).href;
                                     }, 2000)
                                 } else {
+                                    //@ts-ignore
                                     cyrusAlert("danger", "Ocorreu um erroa ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
                                 }
                             })
                         } else {
+                            //@ts-ignore
                             cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Consulte a consola para mais informações.");
                         }
                     })
                 }
             } else {
+                //@ts-ignore
                 cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Inicie sessão.");
             }
         });

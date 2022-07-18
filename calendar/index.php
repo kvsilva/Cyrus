@@ -31,6 +31,10 @@ include(Utils::getDependencies("Cyrus", "header", true));
 <div id="content">
     <!-- CONTENT HERE -->
     <div class = "content-wrapper">
+        <div class="cyrus-page-title">
+            <h1>Calendário</h1>
+        </div>
+        <div class="cyrus-feed-divider cyrus-feed-divider-1 mt-3"></div>
         <div class = "calendar">
         <?php
         foreach($calendar as $day => $dayInfo){?>

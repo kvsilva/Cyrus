@@ -23,6 +23,9 @@ use Objects\Permission;
                     <div class="header-btn">
                         <a class="link-nodecoration header-link" href="<?php echo Routing::getRouting("calendar"); ?>">Calendário</a>
                     </div>
+                    <div class="header-btn">
+                        <a class="link-nodecoration header-link" href="<?php echo Routing::getRouting("news"); ?>">Notícias</a>
+                    </div>
                 </div>
                 <div class="header-right">
                     <div class="header-btn" title="Pesquisar">
@@ -30,9 +33,9 @@ use Objects\Permission;
                                     class="fa-solid fa-magnifying-glass"></i>
                         </a>
                     </div>
-                    <div class="header-btn" title="Favoritos">
+                    <!--<div class="header-btn" title="Favoritos">
                         <i class="fa-solid fa-bookmark"></i>
-                    </div>
+                    </div>-->
                     <?php
                     if (isset($_SESSION["user"])) {
                         ?>
@@ -79,12 +82,12 @@ use Objects\Permission;
                                         </div>
                                     </div>
                                     <div class="list-menu-section">
-                                        <div class="list-menu-section-item list-menu-btn">
+                                        <!--<div class="list-menu-section-item list-menu-btn">
                                             <div>
                                                 <i class="list-icon fa-solid fa-bookmark"></i>
                                                 <span>Lista de Visionamento</span>
                                             </div>
-                                        </div>
+                                        </div>-->
                                         <div class="list-menu-section-item list-menu-btn">
                                             <a href="<?php echo Routing::getRouting("history"); ?>"
                                                class="link-nodecoration">
@@ -110,7 +113,7 @@ use Objects\Permission;
                                                class="link-nodecoration">
                                                 <div>
                                                     <i class="list-icon fa-solid fa-ticket-simple"></i>
-                                                    <span>Os meus Tickets</span>
+                                                    <span>As minhas solicitações</span>
                                                 </div>
                                             </a>
                                         </div>
@@ -139,7 +142,7 @@ use Objects\Permission;
                                                        class="link-nodecoration">
                                                         <div>
                                                             <i class="list-icon fa-solid fa-ticket-simple"></i>
-                                                            <span>Tickets [ADM]</span>
+                                                            <span>Solicitações </span>
                                                         </div>
                                                     </a>
                                                 </div>

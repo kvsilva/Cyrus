@@ -22,7 +22,7 @@ if (!isset($_SESSION["user"])) {
 <head>
     <?php
     include Utils::getDependencies("Cyrus", "head", true);
-    echo getHead(" - Tickets");
+    echo getHead(" - Solicitação");
     ?>
     <link href="<?php echo Utils::getDependencies("Tickets", "css") ?>" rel="stylesheet">
     <script type="module" src="<?php echo Utils::getDependencies("Tickets") ?>"></script>
@@ -34,8 +34,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
 <div id="content">
     <div class="content-wrapper">
         <div class="cyrus-page-title">
-            <h1>Os Meus Tickets</h1>
+            <h1>As minhas solicitações</h1>
         </div>
+        <div class="cyrus-feed-divider cyrus-feed-divider-1 mt-3"></div>
         <div class = "d-flex justify-content-end mt-5">
             <a href = "<?php echo Routing::getRouting("createticket")?>" class = " cyrus-btn cyrus-btn-type3">Abrir Ticket</a>
         </div>

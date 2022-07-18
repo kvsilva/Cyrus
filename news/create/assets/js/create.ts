@@ -26,6 +26,7 @@ $(document).ready(async function () {
         let preview: string = $("#form0-preview").val();
         // @ts-ignore
         let body: string = $("#form0-body").summernote('code');
+        let spotlight : boolean = $("#form0-spotlight").prop("checked");
 
         if (title.length > 0 && subtitle.length > 0 && preview.length > 0 && body.length > 0 && $("#form0-thumbnail").prop("files").length > 0) {
             let attachment: Resource|null = null;
@@ -53,7 +54,7 @@ $(document).ready(async function () {
 
             let formData: any[string] = {
                 user: user?.id,
-                spotlight: true,
+                spotlight: spotlight,
                 relations: {
                     "NEWSBODY": [
                         {

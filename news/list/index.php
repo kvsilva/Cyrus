@@ -29,13 +29,17 @@ include(Utils::getDependencies("Cyrus", "header", true));
 ?>
 <div id="content">
     <div class="content-wrapper">
+        <div class="cyrus-page-title">
+            <h1>Notícias</h1>
+        </div>
+        <div class="cyrus-feed-divider cyrus-feed-divider-1 mt-3"></div>
         <?php
         foreach($news as $item){
 
             $lastUpdate = $item->getEditions()[$item->getEditions()->size()-1];
         ?>
         <div class="news-item no-select">
-            <a href="?news=9" class="link-nodecoration">
+            <a href="?news=<?php echo $item->getId();?>" class="link-nodecoration">
                 <div class="news-item-head">
                     <div class="news-item-head-title"><?php echo $lastUpdate->getTitle() ?></div>
                     <div class="news-item-head-subtitle"><?php echo $lastUpdate->getSubtitle()?></div>

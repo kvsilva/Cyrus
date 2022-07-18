@@ -55,7 +55,7 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                         <span class="cyrus-floating-label">Palavra-Passe</span>
                     </div>
 
-                    <input type = "submit" id = "execute" class="cyrus-input cyrus-btn" disabled>
+                    <input type = "submit" id = "execute" class="cyrus-input cyrus-btn" disabled value = "Entrar">
                 </div>
                 <div class="redirect-page">
                     <span>Não registado? <a

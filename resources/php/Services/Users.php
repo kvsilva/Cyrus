@@ -28,14 +28,15 @@ class Users
      */
     private const keepWatchVideos = 12;
 
-    public static function getKeepWatchingVideos() : Status{
+    public static function getKeepWatchingVideos(?int $max = null) : Status{
         if(isset($_SESSION["user"])){
             $id = $_SESSION["user"]->getId();
             $user = new User($id, flags: [User::VIDEOHISTORY]);
             $videos = $user->getVideoHistory();
+            $max = ($max === null) ? self::keepWatchVideos : (($max === -1) ? sizeof($videos) : $max);
             $ret = array();
             $original = array();
-            for($i = 0; $i < self::keepWatchVideos; $i++){
+            for($i = 0; $i < $max; $i++){
                 if(count($videos) > $i){
                     $original[] = array(
                         "video" => $videos[$i]["video"],

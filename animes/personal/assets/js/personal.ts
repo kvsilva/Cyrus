@@ -149,7 +149,6 @@ async function dataQuery() {
                         if(item.classification != $("#review-current-filter").data("selected")) continue;
                     }
 
-
                     let ye = new Intl.DateTimeFormat('pt', { year: 'numeric' }).format(item?.date);
                     let mo = new Intl.DateTimeFormat('pt', { month: 'long' }).format(item?.date);
                     let da = new Intl.DateTimeFormat('pt', { day: '2-digit' }).format(item?.date);
@@ -183,21 +182,22 @@ async function dataQuery() {
                                     $("<div>").attr("class", "mt-3").append(
                                         $("<h3>").attr("class", "review-title").html(item?.title)
                                     ).append(
-                                        $("<div>").attr("class", "review-description").attr("data-collapsible", "true").append(
+                                        $("<div>").attr("class", "review-description " + (item.spoiler ? "spoiler" : "")).attr("data-collapsible", "true").attr("data-spoiler", item.spoiler).append(
                                             $("<p>").html(item?.description)
                                         )
                                     )
                                 ).append(
                                     $("<div>").append(
                                         //<button data-collapse = "true" class = "cyrus-btn cyrus-btn-simple">MOSTRAR MAIS</button>
-                                        $("<button>").attr("class", "cyrus-btn cyrus-btn-simple").text("MOSTRAR MAIS").attr("data-collapse", "true").click(function () {
+                                        $("<button>").attr("class", "cyrus-btn cyrus-btn-simple").text("MOSTRAR MAIS").attr("data-collapse", "true").attr("data-spoiler", item.spoiler).click(function () {
+                                            let isSpoiler : boolean = $(this).data("spoiler");
                                             if ($(this).data("collapse") === true) {
-                                                $(this).parent().parent().find("[data-collapsible]").addClass("expanded");
+                                                $(this).parent().parent().find("[data-collapsible]").addClass("expanded").removeClass(isSpoiler ? "spoiler" : "");
                                                 $(this).text("MOSTRAR MENOS");
                                                 $(this).data("collapse", false);
                                             } else {
                                                 $(this).data("collapse", true);
-                                                $(this).parent().parent().find("[data-collapsible]").removeClass("expanded");
+                                                $(this).parent().parent().find("[data-collapsible]").removeClass("expanded").addClass(isSpoiler ? "spoiler" : "");;
                                                 $(this).text("MOSTRAR MAIS");
                                             }
                                         })

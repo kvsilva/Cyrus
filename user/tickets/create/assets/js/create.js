@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Request as API } from "../../../../../resources/js/Request.js";
-import { cyrusAlert } from "../../../../../resources/js/cyrus";
 import { TicketMessageFlags, TicketStatus } from "../../../../../resources/js/models";
 $(document).ready(function () {
     $("#form0-subject").on("input", function () {
@@ -28,6 +27,7 @@ $(document).ready(function () {
     $("#form0-submit").click(function (e) {
         e.preventDefault();
         if (($.trim($("#form0-subject").val()).length == 0 || $.trim($("#form0-description").val()).length == 0)) {
+            //@ts-ignore
             cyrusAlert("warning", "Há campos por preencher!");
             return;
         }
@@ -46,12 +46,14 @@ $(document).ready(function () {
                                         attachments.push(result3.data[0]);
                                     }
                                     else {
+                                        //@ts-ignore
                                         cyrusAlert("danger", "Ocorreu um erroa ao anexar os ficheiros em anexo ao sistema. Consulte a consola para mais informações.");
                                         console.error(result3);
                                     }
                                 });
                             }
                             else {
+                                //@ts-ignore
                                 cyrusAlert("danger", "Ocorreu um erroa ao fazer o upload dos ficheiros em anexo. Consulte a consola para mais informações.");
                                 console.error(result2);
                             }
@@ -73,6 +75,7 @@ $(document).ready(function () {
                             formData["relations"][TicketMessageFlags.TICKETMESSAGEATTACHMENTS.name] = attachments;
                             yield API.requestType("TicketMessage", "insert", formData, [], null, true).then((result2) => {
                                 if (result2.status && result2.data) {
+                                    //@ts-ignore
                                     cyrusAlert("success", "Ticket criado com sucesso! Redirecionando...");
                                     setTimeout(function () {
                                         var _a, _b, _c, _d;
@@ -85,17 +88,20 @@ $(document).ready(function () {
                                     }, 2000);
                                 }
                                 else {
+                                    //@ts-ignore
                                     cyrusAlert("danger", "Ocorreu um erroa ao guardar os detalhes do seu ticket. Consulte a consola para mais informações.");
                                 }
                             });
                         }
                         else {
+                            //@ts-ignore
                             cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Consulte a consola para mais informações.");
                         }
                     }));
                 }
             }
             else {
+                //@ts-ignore
                 cyrusAlert("danger", "Ocorreu um erroa ao criar o seu ticket. Inicie sessão.");
             }
         }));

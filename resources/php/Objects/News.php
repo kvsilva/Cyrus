@@ -141,14 +141,14 @@ class News extends Entity
     /**
      * @throws ReflectionException
      */
-    public static function find(int $id = null, String $spotlight = null, int $user = null, Availability $available = Availability::AVAILABLE, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
+    public static function find(int $id = null, bool $spotlight = null, int $user = null, Availability $available = Availability::AVAILABLE, ?int $limit = null, string $sql = null, array $flags = [self::NORMAL]) : EntityArray
     {
         return parent::__find(fields: array(
             "id" => $id,
             "user" => $user,
             "spotlight" => $spotlight,
             "available" => $available?->value
-        ), table: 'news', class: 'Objects\News', sql: $sql, flags: $flags);
+        ), table: 'news', class: 'Objects\News', sql: $sql, limit: $limit, flags: $flags);
     }
 
     /**

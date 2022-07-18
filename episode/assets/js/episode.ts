@@ -1,6 +1,5 @@
 import {Request as API} from "../../../resources/js/Request";
 import {User, UserFlags, VideoFlags} from "../../../resources/js/models";
-import {getParameter} from "../../../resources/js/cyrus";
 
 let user : User|null = null;
 
@@ -15,6 +14,7 @@ $(document).ready(async function () {
                         "VideoHistory":
                             [
                                 {
+                                    //@ts-ignore
                                     "video": getParameter("episode"),
                                     "date": null,
                                     "watched_until": null
@@ -24,6 +24,7 @@ $(document).ready(async function () {
                 }, [UserFlags.VIDEOHISTORY.name], false).then((result: any) => {
                     if (result.status) {
                         if ("data" in result) {
+                            //@ts-ignore
                             let loc: any[] = result.data[0].video_history?.filter((value: any) => value.video?.id == parseInt(<string>getParameter("episode")));
                             if (loc.length > 0) {
                                 // @ts-ignore
@@ -71,6 +72,7 @@ $(document).ready(async function () {
                     // @ts-ignore
                     cyrusAlert("warning", "Processando o seu pedido...");
                     API.requestType("Video", "update", {
+                        //@ts-ignore
                         "id": getParameter("episode"),
                         "relations": {
                             "COMMENTVIDEOS":
@@ -113,6 +115,7 @@ async function dataQuery() {
     $("#reviews-list").html("");
 
     let formData : any[string] = {
+        //@ts-ignore
         "id": getParameter("anime"),
     };
 
@@ -155,21 +158,22 @@ async function dataQuery() {
                     )
                 )*/.append(
                                     $("<div>").attr("class", "mt-3").append(
-                                        $("<div>").attr("class", "review-description").attr("data-collapsible", "true").append(
+                                        $("<div>").attr("class", "review-description " + (item.spoiler ? "spoiler" : "")).attr("data-collapsible", "true").attr("data-spoiler", item.spoiler).append(
                                             $("<p>").html(item?.description)
                                         )
                                     )
                                 ).append(
                                     $("<div>").append(
                                         //<button data-collapse = "true" class = "cyrus-btn cyrus-btn-simple">MOSTRAR MAIS</button>
-                                        $("<button>").attr("class", "cyrus-btn cyrus-btn-simple").text("MOSTRAR MAIS").attr("data-collapse", "true").click(function () {
+                                        $("<button>").attr("class", "cyrus-btn cyrus-btn-simple").text("MOSTRAR MAIS").attr("data-collapse", "true").attr("data-spoiler", item.spoiler).click(function () {
+                                            let isSpoiler : boolean = $(this).data("spoiler");
                                             if ($(this).data("collapse") === true) {
-                                                $(this).parent().parent().find("[data-collapsible]").addClass("expanded");
+                                                $(this).parent().parent().find("[data-collapsible]").addClass("expanded").removeClass(isSpoiler ? "spoiler" : "");
                                                 $(this).text("MOSTRAR MENOS");
                                                 $(this).data("collapse", false);
                                             } else {
                                                 $(this).data("collapse", true);
-                                                $(this).parent().parent().find("[data-collapsible]").removeClass("expanded");
+                                                $(this).parent().parent().find("[data-collapsible]").removeClass("expanded").addClass(isSpoiler ? "spoiler" : "");;
                                                 $(this).text("MOSTRAR MAIS");
                                             }
                                         })
@@ -245,6 +249,7 @@ function updateTime(){
                     "VideoHistory":
                         [
                             {
+                                //@ts-ignore
                                 "video": getParameter("episode"),
                                 "date": null,
                                 "watched_until": time

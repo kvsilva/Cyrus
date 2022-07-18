@@ -67,7 +67,7 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                         <span class="cyrus-floating-label">Repetir a Palavra-Passe</span>
                     </div>
 
-                    <input type = "submit" id = "execute" class="cyrus-input cyrus-btn" disabled>
+                    <input type = "submit" id = "execute" class="cyrus-input cyrus-btn" disabled value = "Registar">
                 </div>
                 <div class="redirect-page">
                     <span>Já tens conta? <a

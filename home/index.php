@@ -6,6 +6,7 @@ use Functions\Utils;
 use Objects\Anime;
 use Objects\Entity;
 use Objects\EntityArray;
+use Objects\News;
 use Objects\Season;
 use Objects\SeasonsArray;
 use Objects\Video;
@@ -91,122 +92,83 @@ include(Utils::getDependencies("Cyrus", "header", true));
             <div class="news-wrapper">
                 <h2 class="news-wrapper-title">
                     <i style="font-size: 15px;" class="fa-solid fa-bullhorn"></i>
+                    <div class = "w-100">
                     <span>Cyrus Notícias</span>
+                        <div class="float-end cyrus-feed-view-link">
+                            <a class="link-nodecoration" href="<?php echo Routing::getRouting("news")?>">Ver Todas <i
+                                        class="fa-solid fa-chevron-right"></i></a>
+                        </div>
+                    </div>
                 </h2>
                 <div class="cyrus-feed-divider cyrus-feed-divider-3"></div>
                 <div class="news-content">
                     <div class="spotlight-news">
                         <h5>Notícias em Destaque</h5>
                         <div class="spotlight-news-wrapper">
+                            <?php
+                            $spotlight_news = News::find(spotlight: true, limit: 2, flags: [Entity::ALL]);
+                            foreach($spotlight_news as $news){
+                            $lastUpdate = $news->getEditions()[$news->getEditions()->size()-1];
+                            ?>
                             <div class="cyrus-card">
-                                <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news")?>"></a>
+                                <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news") . '?news=' . $lastUpdate->getId()?>"></a>
                                 <div class="cyrus-card-image cyrus-card-image-cape">
-                                    <img class = "news-cape" src="https://img1.ak.crunchyroll.com/i/spire3/34691498069ec9dcde8862b519d05a8d1657180697_thumb.jpg"></div>
+                                    <img class = "news-cape" src="<?php echo $lastUpdate?->getThumbnail()?->getPath()?>"></div>
                                 <div class="cyrus-card-body">
                                     <div class="cyrus-card-title">
-                                        <h4 class="cyrus-card-title">Kazuki Takahashi, criador de Yu-Gi-Oh!, faleceu aos 60 anos</h4>
+                                        <h4 class="cyrus-card-title"><?php echo $lastUpdate->getTitle()?></h4>
                                     </div>
                                     <div class="cyrus-card-description">
-                                        <div class="cyrus-card-description-info"><span>07 de Julho de 2022, 16:30, por Kurookami</span></div>
+                                        <div class="cyrus-card-description-info"><span><?php
+                                                $formatter = new IntlDateFormatter('pt_PT', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+                                                //$formatter->setPattern("d 'de' '['MMMM']' 'de' yyyy 'às' H:mm");
+                                                $formatter->setPattern("d 'de' '['MMMM']' 'de' yyyy");
+                                                $formatted = $formatter->format($news->getCreatedAt());
+                                                $month = substr($formatted, strpos($formatted, "[") + 1, strpos($formatted, "]") - strlen($formatted));
+                                                $monthCapitalize = ucfirst($month);
+                                                $formatted = str_replace("[" . $month . "]", $monthCapitalize, $formatted);
+                                                echo $formatted . ", por " . $news->getUser()?->getUsername();
+
+                                                ?></span></div>
 
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="cyrus-card">
-                                <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news")?>"></a>
-                                <div class="cyrus-card-image cyrus-card-image-cape">
-                                    <img class = "news-cape" src="https://img1.ak.crunchyroll.com/i/spire4/2d0da8d79fc5536d56cc77cec7c5ddd91656868541_thumb.jpg"></div>
-                                <div class="cyrus-card-body">
-                                    <div class="cyrus-card-title">
-                                        <h4 class="cyrus-card-title">Aniplex e Crunchyroll anunciam adaptação em anime de Solo Leveling para 2023</h4>
-                                    </div>
-                                    <div class="cyrus-card-description">
-                                        <div class="cyrus-card-description-info"><span>05 de Julho de 2022, 12:30, por Administrador</span></div>
-
-                                    </div>
-                                </div>
-                            </div>
-
+                            <?php }?>
                         </div>
                     </div>
                     <div class="latest-news">
                         <h5>Notícias mais Recentes</h5>
-
+                        <?php
+                        $recent_news = News::find(spotlight: true, limit: 5, flags: [Entity::ALL]);
+                        foreach($recent_news as $news){
+                            $lastUpdate = $news->getEditions()[$news->getEditions()->size()-1];
+                         ?>
                         <div class="cyrus-card cyrus-card-flex">
-                            <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news")?>"></a>
+                            <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news") . '?news='. $news->getId()?>"></a>
                             <div class="cyrus-card-image cyrus-card-image-cape-flex">
-                                <img src="https://img1.ak.crunchyroll.com/i/spire3/34691498069ec9dcde8862b519d05a8d1657180697_thumb.jpg"></div>
+                                <img src="<?php echo $lastUpdate?->getThumbnail()?->getPath()?>"></div>
                             <div class="cyrus-card-body">
                                 <div class="cyrus-card-title">
-                                    <h4 class="cyrus-card-title">Kazuki Takahashi, criador de Yu-Gi-Oh!, faleceu aos 60 anos</h4>
+                                    <h4 class="cyrus-card-title"><?php echo $lastUpdate?->getTitle()?></h4>
                                 </div>
                                 <div class="cyrus-card-description">
-                                    <div class="cyrus-card-description-info"><span>07 de Julho de 2022, 16:30, por Kurookami</span></div>
+                                    <div class="cyrus-card-description-info"><span><?php
+                                            $formatter = new IntlDateFormatter('pt_PT', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+                                            //$formatter->setPattern("d 'de' '['MMMM']' 'de' yyyy 'às' H:mm");
+                                            $formatter->setPattern("d 'de' '['MMMM']' 'de' yyyy");
+                                            $formatted = $formatter->format($news->getCreatedAt());
+                                            $month = substr($formatted, strpos($formatted, "[") + 1, strpos($formatted, "]") - strlen($formatted));
+                                            $monthCapitalize = ucfirst($month);
+                                            $formatted = str_replace("[" . $month . "]", $monthCapitalize, $formatted);
+                                            echo $formatted . ", por " . $news->getUser()?->getUsername();
+
+                                            ?></span></div>
 
                                 </div>
                             </div>
                         </div>
-
-                        <div class="cyrus-card cyrus-card-flex">
-                            <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news")?>"></a>
-                            <div class="cyrus-card-image cyrus-card-image-cape-flex">
-                                <img src="https://img1.ak.crunchyroll.com/i/spire4/2d0da8d79fc5536d56cc77cec7c5ddd91656868541_thumb.jpg"></div>
-                            <div class="cyrus-card-body">
-                                <div class="cyrus-card-title">
-                                    <h4 class="cyrus-card-title">Aniplex e Crunchyroll anunciam adaptação em anime de Solo Leveling para 2023</h4>
-                                </div>
-                                <div class="cyrus-card-description">
-                                    <div class="cyrus-card-description-info"><span>05 de Julho de 2022, 12:30, por Administrador</span></div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="cyrus-card cyrus-card-flex">
-                            <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news")?>"></a>
-                            <div class="cyrus-card-image cyrus-card-image-cape-flex">
-                                <img src="https://img1.ak.crunchyroll.com/i/spire4/2d0da8d79fc5536d56cc77cec7c5ddd91656868541_thumb.jpg"></div>
-                            <div class="cyrus-card-body">
-                                <div class="cyrus-card-title">
-                                    <h4 class="cyrus-card-title">Aniplex e Crunchyroll anunciam adaptação em anime de Solo Leveling para 2023</h4>
-                                </div>
-                                <div class="cyrus-card-description">
-                                    <div class="cyrus-card-description-info"><span>05 de Julho de 2022, 12:30, por Administrador</span></div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="cyrus-card cyrus-card-flex">
-                            <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news")?>"></a>
-                            <div class="cyrus-card-image cyrus-card-image-cape-flex">
-                                <img src="https://img1.ak.crunchyroll.com/i/spire4/2d0da8d79fc5536d56cc77cec7c5ddd91656868541_thumb.jpg"></div>
-                            <div class="cyrus-card-body">
-                                <div class="cyrus-card-title">
-                                    <h4 class="cyrus-card-title">Aniplex e Crunchyroll anunciam adaptação em anime de Solo Leveling para 2023</h4>
-                                </div>
-                                <div class="cyrus-card-description">
-                                    <div class="cyrus-card-description-info"><span>05 de Julho de 2022, 12:30, por Administrador</span></div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="cyrus-card cyrus-card-flex">
-                            <a class="cyrus-card-link" href="<?php echo Routing::getRouting("news")?>"></a>
-                            <div class="cyrus-card-image cyrus-card-image-cape-flex">
-                                <img src="https://img1.ak.crunchyroll.com/i/spire4/2d0da8d79fc5536d56cc77cec7c5ddd91656868541_thumb.jpg"></div>
-                            <div class="cyrus-card-body">
-                                <div class="cyrus-card-title">
-                                    <h4 class="cyrus-card-title">Aniplex e Crunchyroll anunciam adaptação em anime de Solo Leveling para 2023</h4>
-                                </div>
-                                <div class="cyrus-card-description">
-                                    <div class="cyrus-card-description-info"><span>05 de Julho de 2022, 12:30, por Administrador</span></div>
-
-                                </div>
-                            </div>
-                        </div>
+                        <?php } ?>
 
 
                     </div>
@@ -225,13 +187,13 @@ include(Utils::getDependencies("Cyrus", "header", true));
             }
             if ($total > 0) {
                 ?>
-                <div id="keepWatchingVideos" class="section content-wrapper">
+                <div id="keepWatchingVideos" class="section content-wrapper video-carousel">
                     <div class="content-wrapper">
                         <div class="section-list">
                             <div class="section-list-title">
                                 <span class="h2">Continue Assistindo</span>
                                 <div class="float-end cyrus-feed-view-link">
-                                    <a class="link-nodecoration" href="#">Ver Histórico <i
+                                    <a class="link-nodecoration" href="<?php echo Routing::getRouting("history")?>">Ver Histórico <i
                                                 class="fa-solid fa-chevron-right"></i></a>
                                 </div>
                             </div>
@@ -249,10 +211,10 @@ include(Utils::getDependencies("Cyrus", "header", true));
                             <div class="cyrus-carousel-items">
                                 <div class="cyrus-carousel-items-wrapper">
                                     <?php
-                                    foreach ($videos as $item) {
+                                    foreach ($videos[0] as $item) {
                                         if (count($item) === 0) continue;
-                                        $video = $item[0]["video"];
-                                        $remaining = $item[0]["remaining"];
+                                        $video = $item["video"];
+                                        $remaining = $item["remaining"];
                                         ?>
                                         <div class="cyrus-card cyrus-carousel-items-card">
                                             <a class="cyrus-card-link"
@@ -302,7 +264,7 @@ include(Utils::getDependencies("Cyrus", "header", true));
                 <?php
             }
         } ?>
-        <div id="lastReleasedVideos" class="section content-wrapper">
+        <div id="lastReleasedVideos" class="section content-wrapper video-carousel">
             <div class="content-wrapper">
                 <div class="section-list">
                     <div class="section-list-title">
