@@ -66,7 +66,7 @@ $(document).ready(function () {
                 }));
             });
         });
-        dataQuery();
+        yield dataQuery();
     });
 });
 // @ts-ignore

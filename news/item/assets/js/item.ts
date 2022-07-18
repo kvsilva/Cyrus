@@ -64,7 +64,7 @@ $(document).ready(async function () {
 
     });
 
-    dataQuery();
+    await dataQuery();
 
 
 });

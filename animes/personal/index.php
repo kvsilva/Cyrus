@@ -316,61 +316,7 @@ include(Utils::getDependencies("Cyrus", "alerts", true));
                     </div>
                     <?php }?>
                     <div id="reviews-list" class="mt-3">
-                            <!--<div class="review">
-                                <div class="row">
-                                    <div class="col-2 review-post-user no-select">
-                                        <img draggable="false" class="mx-auto"
-                                             src="https://static.crunchyroll.com/assets/avatar/170x170/1044-jujutsu-kaisen-satoru-gojo.png">
-                                    </div>
-                                    <div class="col-9">
-                                <span>
-                                    <span class="review-username"><?php echo $_SESSION["user"]?->getUsername() ?></span>
-                                    <span class="review-date float-right">10 de Janeiro de 2021</span>
-                                </span>
-                                        <span class="review-options">
-                                    <button class="cyrus-btn cyrus-btn-simple"><i class="fa-solid fa-flag"></i></button>
-                                    <button class="cyrus-btn cyrus-btn-simple"><i
-                                                class="fa-solid fa-share-nodes"></i></button>
-                                </span>
-                                        <div class="review-star mt-3">
-                                                <i class="fa-solid fa-star star static filled"></i>
-                                                <i class="fa-solid fa-star star static filled"></i>
-                                                <i class="fa-solid fa-star star static filled"></i>
-                                                <i class="fa-solid fa-star star static filled"></i>
-                                                <i class="fa-solid fa-star star static filled"></i>
-                                        </div>
-                                        <div class="mt-3">
-                                            <h3 class="review-title">Lorem ipsum dolor sit amet</h3>
-                                            <div class="review-description" data-collapsible="true">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
-                                                    fringilla
-                                                    nunc at arcu rhoncus facilisis. Donec at justo eget eros auctor
-                                                    porttitor ut
-                                                    in magna. Etiam porta commodo dolor. Sed a enim dapibus, placerat
-                                                    erat
-                                                    sit
-                                                    amet, rhoncus ipsum. Fusce ut lobortis turpis, a hendrerit leo.
-                                                    Vivamus
-                                                    dui
-                                                    ipsum, tristique vulputate vulputate nec, cursus non enim. Proin
-                                                    molestie
-                                                    ante a lorem congue, quis tincidunt ligula consectetur. Sed id
-                                                    tempus
-                                                    mi,
-                                                    sed finibus nulla.
-                                                    Curabitur sodales viverra dapibus. Aenean fermentum dui turpis, non
-                                                    leo. Mauris blandit odio eleifend nisi aliquet maximus laoreet non
-                                                    arcu.
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <button data-collapse="true" class="cyrus-btn cyrus-btn-simple">MOSTRAR MAIS
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>-->
+
                     </div>
                 </div>
             </div>
