@@ -4,7 +4,7 @@ namespace Objects;
 
 use ReflectionException;
 
-class GendersArray extends EntityArray
+class GenresArray extends EntityArray
 {
     /**
      * @param $array
@@ -14,6 +14,6 @@ class GendersArray extends EntityArray
      */
     public function __construct($array = [], $flags = 0, $iteratorClass = "ArrayIterator")
     {
-        parent::__construct(entity: "Objects\Gender", array: $array, flags: $flags, iteratorClass: $iteratorClass);
+        parent::__construct(entity: "Objects\Genre", array: $array, flags: $flags, iteratorClass: $iteratorClass);
     }
 }

@@ -136,7 +136,7 @@ class GlobalSetting extends Entity
 
     /**
      * @param String|null $name
-     * @return Gender
+     * @return Genre
      */
     public function setName(?string $name): GlobalSetting
     {

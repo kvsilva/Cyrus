@@ -47,7 +47,7 @@ class Models
         "Objects\\Dubbing",
         "Objects\\PunishmentType",
         "Objects\\Punishment",
-        "Objects\\Gender",
+        "Objects\\Genre",
         "Objects\\Ticket",
         "Objects\\TicketMessage",
         "Objects\\Role",

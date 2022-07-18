@@ -16,7 +16,7 @@ use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 use ReflectionException;
 
-class Gender extends Entity
+class Genre extends Entity
 {
     // FLAGS
 
@@ -34,7 +34,7 @@ class Gender extends Entity
      */
     public function __construct(int $id = null, array $flags = array(self::NORMAL))
     {
-        parent::__construct(table: "gender", id: $id, flags: $flags);
+        parent::__construct(table: "genre", id: $id, flags: $flags);
     }
 
     /**
@@ -46,7 +46,7 @@ class Gender extends Entity
      * @throws TableNotFound
      * @throws UniqueKey
      */
-    public function store() : Gender{
+    public function store() : Genre{
         parent::__store();
         return $this;
     }
@@ -54,7 +54,7 @@ class Gender extends Entity
     /**
      * @throws IOException
      */
-    public function remove() : Gender{
+    public function remove() : Genre{
         parent::__remove();
         return $this;
     }
@@ -67,7 +67,7 @@ class Gender extends Entity
         return parent::__find(fields: array(
             "id" => $id,
             "name" => $name
-        ), table: 'gender', class: 'Objects\Gender', sql: $sql, flags: $flags);
+        ), table: 'genre', class: 'Objects\Genre', sql: $sql, flags: $flags);
     }
 
     /**
@@ -77,7 +77,7 @@ class Gender extends Entity
     protected function valuesArray(): array
     {
         return array(
-            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("gender"),
+            "id" => $this->getId() != null ? $this->getId() : Database::getNextIncrement("genre"),
             "name" => $this->name
         );
     }
@@ -115,9 +115,9 @@ class Gender extends Entity
 
     /**
      * @param String|null $name
-     * @return Gender
+     * @return Genre
      */
-    public function setName(?string $name): Gender
+    public function setName(?string $name): Genre
     {
         $this->name = $name;
         return $this;

@@ -54,7 +54,7 @@ class Anime extends Entity
     // Anime::Seasons
     private ?SeasonsArray $seasons = null;
     // Anime::Genders
-    private ?GendersArray $genders = null;
+    private ?GenresArray $genders = null;
     // Anime::Genders
     private ?CommentAnimesArray $comments = null;
 
@@ -93,10 +93,10 @@ class Anime extends Entity
             }
         }
         if($this->hasFlag(self::GENDERS)){
-            $this->genders = new GendersArray();
+            $this->genders = new GenresArray();
             $query = $database->query("SELECT gender as id FROM anime_gender WHERE anime = $id;");
             while($row = $query->fetch_array()){
-                $this->genders[] = new Gender($row["id"]);
+                $this->genders[] = new Genre($row["id"]);
             }
         }
         if($this->hasFlag(self::COMMENTANIMES)){
@@ -476,12 +476,12 @@ class Anime extends Entity
     }
 
     /**
-     * @param Gender|null $entity
+     * @param Genre|null $entity
      * @param int|null $id
      * @return $this
      * @throws NotInitialized
      */
-    public function removeGender(Gender $entity = null, int $id = null): Anime
+    public function removeGender(Genre $entity = null, int $id = null): Anime
     {
         if($this->genders == null) throw new NotInitialized("genders");
         $remove = array();
@@ -548,11 +548,11 @@ class Anime extends Entity
     }
 
     /**
-     * @param Gender $entity
+     * @param Genre $entity
      * @return $this
      * @throws NotInitialized
      */
-    public function addGender(Gender $entity): Anime
+    public function addGender(Genre $entity): Anime
     {
         if($this->genders == null) throw new NotInitialized("genders");
         $this->genders[] = $entity;
@@ -608,18 +608,18 @@ class Anime extends Entity
     }
 
     /**
-     * @return GendersArray|null
+     * @return GenresArray|null
      */
-    public function getGenders(): ?GendersArray
+    public function getGenders(): ?GenresArray
     {
         return $this->genders;
     }
 
     /**
-     * @param GendersArray|null $genders
+     * @param GenresArray|null $genders
      * @return Anime
      */
-    public function setGenders(?GendersArray $genders): Anime
+    public function setGenders(?GenresArray $genders): Anime
     {
         $this->genders = $genders;
         return $this;
