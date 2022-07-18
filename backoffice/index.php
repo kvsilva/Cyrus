@@ -125,12 +125,21 @@ $objects = array(
                 "class" => "Objects\Season",
                 "ignore" => array("anime")
             ),
-            "genders" => array(
+            "genres" => array(
                 "model" => "default",
-                "class" => "Objects\Gender",
+                "class" => "Objects\Genre",
                 "ignore" => array()
             ),
         )
+    ),
+    "Objects\CommentAnime" => array(
+        "icon" => "fa-solid fa-comment",
+        "update" => false,
+        "insert" => false,
+        "forceModel" => array(
+
+        ),
+        "relations" => null
     ),
     "Objects\Season" => array(
         "icon" => "fa-solid fa-tv",
@@ -176,6 +185,15 @@ $objects = array(
             )
         )
     ),
+    "Objects\CommentVideo" => array(
+        "icon" => "fa-solid fa-comment",
+        "update" => false,
+        "insert" => false,
+        "forceModel" => array(
+
+        ),
+        "relations" => null
+    ),
     "Objects\VideoType" => array(
         "icon" => "fa-solid fa-photo-film",
         "update" => true,
@@ -199,7 +217,7 @@ $objects = array(
         ),
         "relations" => null
     ),
-    "Objects\Gender" => array(
+    "Objects\Genre" => array(
         "icon" => "fa-solid fa-book-open",
         "update" => true,
         "insert" => true,
@@ -211,6 +229,24 @@ $objects = array(
         "update" => true,
         "insert" => true,
         "forceModel" => array(),
+        "relations" => null
+    ),
+    "Objects\News" => array(
+        "icon" => "fa-solid fa-rss",
+        "update" => false,
+        "insert" => false,
+        "forceModel" => array(
+
+        ),
+        "relations" => null
+    ),
+    "Objects\NewsComment" => array(
+        "icon" => "fa-solid fa-comment",
+        "update" => false,
+        "insert" => false,
+        "forceModel" => array(
+
+        ),
         "relations" => null
     ),
     "Objects\Resource" => array(
@@ -229,6 +265,7 @@ $objects = array(
         ),
         "relations" => null
     ),
+
 );
 
 $entity_name = $_GET["entity"] ?? "User";

@@ -25,7 +25,7 @@ class Anime extends Entity
 
     public const VIDEOS = 2;
     public const SEASONS = 3;
-    public const GENDERS = 4;
+    public const GENRES = 4;
     public const COMMENTANIMES = 5;
 
     // DEFAULT STRUCTURE
@@ -53,8 +53,8 @@ class Anime extends Entity
     private ?VideosArray $videos = null;
     // Anime::Seasons
     private ?SeasonsArray $seasons = null;
-    // Anime::Genders
-    private ?GenresArray $genders = null;
+    // Anime::Genres
+    private ?GenresArray $genres = null;
     // Anime::Genders
     private ?CommentAnimesArray $comments = null;
 
@@ -92,11 +92,11 @@ class Anime extends Entity
                 $this->videos[] = new Video($row["id"]);
             }
         }
-        if($this->hasFlag(self::GENDERS)){
-            $this->genders = new GenresArray();
+        if($this->hasFlag(self::GENRES)){
+            $this->genres = new GenresArray();
             $query = $database->query("SELECT gender as id FROM anime_gender WHERE anime = $id;");
             while($row = $query->fetch_array()){
-                $this->genders[] = new Genre($row["id"]);
+                $this->genres[] = new Genre($row["id"]);
             }
         }
         if($this->hasFlag(self::COMMENTANIMES)){
@@ -167,11 +167,11 @@ class Anime extends Entity
                 $video->store(anime: $this);
             }
         }
-        if ($this->hasFlag(self::GENDERS)) {
+        if ($this->hasFlag(self::GENRES)) {
             $query = $database->query("SELECT gender as 'id' FROM anime_gender WHERE anime = $id;");
             while ($row = $query->fetch_array()) {
                 $remove = true;
-                foreach ($this->genders as $gender) {
+                foreach ($this->genres as $gender) {
                     if ($gender->getId() == $row["id"]) {
                         $remove = false;
                         break;
@@ -181,7 +181,7 @@ class Anime extends Entity
                     $database->query("DELETE FROM ANIME_GENDER where anime = $id AND gender = $row[id]");
                 }
             }
-            foreach ($this->genders as $gender) {
+            foreach ($this->genres as $gender) {
                 $gender->store();
                 $database->query("INSERT IGNORE INTO ANIME_GENDER (anime, gender) VALUES ($id, " . $gender->getId() . ")");
             }
@@ -289,9 +289,9 @@ class Anime extends Entity
                 foreach ($this->videos as $value) $array["videos"][] = $value->toArray();
             }
             $array["genders"] = null;
-            if ($this->genders != null) {
+            if ($this->genres != null) {
                 $array["genders"] = array();
-                foreach ($this->genders as $value) $array["genders"][] = $value->toArray();
+                foreach ($this->genres as $value) $array["genders"][] = $value->toArray();
             }
             $array["seasons"] = null;
             if ($this->seasons != null) {
@@ -334,9 +334,9 @@ class Anime extends Entity
                 foreach ($this->videos as $value) $array["videos"][] = $value;
             }
             $array["genders"] = null;
-            if ($this->genders !== null) {
+            if ($this->genres !== null) {
                 $array["genders"] = array();
-                foreach ($this->genders as $value) $array["genders"][] = $value;
+                foreach ($this->genres as $value) $array["genders"][] = $value;
             }
             $array["seasons"] = null;
             if ($this->seasons !== null) {
@@ -360,8 +360,8 @@ class Anime extends Entity
             case self::VIDEOS:
                 $this->setVideos($value);
                 break;
-            case self::GENDERS:
-                $this->setGenders($value);
+            case self::GENRES:
+                $this->setGenres($value);
                 break;
             case self::SEASONS:
                 $this->setSeasons($value);
@@ -385,7 +385,7 @@ class Anime extends Entity
             case self::SEASONS:
                 $this->addSeason($value);
                 break;
-            case self::GENDERS:
+            case self::GENRES:
                 $this->addGender($value);
                 break;
             case self::COMMENTANIMES:
@@ -408,7 +408,7 @@ class Anime extends Entity
             case self::SEASONS:
                 $this->removeSeasons($value, $id);
                 break;
-            case self::GENDERS:
+            case self::GENRES:
                 $this->removeGender($value, $id);
                 break;
             case self::COMMENTANIMES:
@@ -483,22 +483,22 @@ class Anime extends Entity
      */
     public function removeGender(Genre $entity = null, int $id = null): Anime
     {
-        if($this->genders == null) throw new NotInitialized("genders");
+        if($this->genres == null) throw new NotInitialized("genders");
         $remove = array();
         if($entity != null){
-            for ($i = 0; $i < count($this->genders); $i++) {
-                if ($this->genders[$i]->getId() == $entity->getId()) {
+            for ($i = 0; $i < count($this->genres); $i++) {
+                if ($this->genres[$i]->getId() == $entity->getId()) {
                     $remove[] = $i;
                 }
             }
         } else if($id != null) {
-            for ($i = 0; $i < count($this->genders); $i++) {
-                if ($this->genders[$i]->getId() == $id) {
+            for ($i = 0; $i < count($this->genres); $i++) {
+                if ($this->genres[$i]->getId() == $id) {
                     $remove[] = $i;
                 }
             }
         }
-        foreach($remove as $item) unset($this->genders[$item]);
+        foreach($remove as $item) unset($this->genres[$item]);
         return $this;
     }
 
@@ -554,8 +554,8 @@ class Anime extends Entity
      */
     public function addGender(Genre $entity): Anime
     {
-        if($this->genders == null) throw new NotInitialized("genders");
-        $this->genders[] = $entity;
+        if($this->genres == null) throw new NotInitialized("genders");
+        $this->genres[] = $entity;
         return $this;
     }
 
@@ -610,18 +610,18 @@ class Anime extends Entity
     /**
      * @return GenresArray|null
      */
-    public function getGenders(): ?GenresArray
+    public function getGenres(): ?GenresArray
     {
-        return $this->genders;
+        return $this->genres;
     }
 
     /**
-     * @param GenresArray|null $genders
+     * @param GenresArray|null $genres
      * @return Anime
      */
-    public function setGenders(?GenresArray $genders): Anime
+    public function setGenres(?GenresArray $genres): Anime
     {
-        $this->genders = $genders;
+        $this->genres = $genres;
         return $this;
     }
 

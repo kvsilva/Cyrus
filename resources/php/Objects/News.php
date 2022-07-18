@@ -212,8 +212,9 @@ class News extends Entity
             "spotlight" => $this->spotlight,
             "available" => $this->available,
         );
+        $array["user"] = $this->user;
         if($entities){
-            $array["user"] = $this->user;
+
         }
         if(!$minimal){
             $array["editions"] = null;

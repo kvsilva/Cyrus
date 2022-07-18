@@ -533,7 +533,7 @@ function dataQuery() {
     return __awaiter(this, void 0, void 0, function* () {
         // @ts-ignore
         datatable.clear().draw();
-        yield API.requestType(entity, "query", { "available": Availability.BOTH.value }).then((result) => {
+        yield API.requestType(entity, "query", { "available": Availability.BOTH.value }, [UserFlags.NORMAL.name], true, false).then((result) => {
             if (result.status && result.data) {
                 for (let i = 0; i < result.data.length; i++) {
                     let tr = $("<tr>");
