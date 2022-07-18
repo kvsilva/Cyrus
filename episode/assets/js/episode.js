@@ -112,7 +112,7 @@ function dataQuery() {
         $("#reviews-list").html("");
         let formData = {
             //@ts-ignore
-            "id": getParameter("anime"),
+            "id": getParameter("episode"),
         };
         yield API.requestType("Video", "query", formData, [VideoFlags.COMMENTVIDEOS.name], false, true).then((result) => {
             var _a, _b, _c;

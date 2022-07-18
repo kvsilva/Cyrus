@@ -116,7 +116,7 @@ async function dataQuery() {
 
     let formData : any[string] = {
         //@ts-ignore
-        "id": getParameter("anime"),
+        "id": getParameter("episode"),
     };
 
     await API.requestType("Video", "query", formData, [VideoFlags.COMMENTVIDEOS.name], false, true).then((result: any) => {

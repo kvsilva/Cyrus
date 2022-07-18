@@ -8,7 +8,7 @@ use JetBrains\PhpStorm\Pure;
 
 class Utils
 {
-    private static String $BASE_URL_RAW = "89.155.152.30/Cyrus/";   // Não incluir o protocolo
+    private static String $BASE_URL_RAW = "localhost/Cyrus/";   // Não incluir o protocolo
     private static String $EXTERNAL_BASE_URL_RAW = "89.155.152.30/Cyrus/";   // Não incluir o protocolo
 
     private static String $BASE_URL;

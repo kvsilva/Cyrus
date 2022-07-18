@@ -33,6 +33,9 @@ include(Utils::getDependencies("Cyrus", "header", true));
             <h1>Notícias</h1>
         </div>
         <div class="cyrus-feed-divider cyrus-feed-divider-1 mt-3"></div>
+        <div class = "d-flex justify-content-end mt-5">
+            <a href = "<?php echo Routing::getRouting("createnews")?>" class = " cyrus-btn cyrus-btn-type3">Criar Notícia</a>
+        </div>
         <?php
         foreach($news as $item){
 

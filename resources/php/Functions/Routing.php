@@ -19,6 +19,7 @@ class Routing
                 "animes" => (Utils::getURL() . "animes/"),
                 "calendar" => (Utils::getURL() . "calendar/"),
                 "news" => (Utils::getURL() . "news/"),
+                "createnews" => (Utils::getURL() . "news/create"),
                 "episode" => (Utils::getURL() . "episode/"),
                 "search" => (Utils::getURL() . "search/"),
                 "account" => (Utils::getURL() . "user/account/"),
